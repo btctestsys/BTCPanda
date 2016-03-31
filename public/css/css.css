@@ -1,0 +1,103 @@
+.orange
+{
+	color:orange;
+}
+.green
+{
+	color:green;
+}
+.limegreen
+{
+	color:limegreen;
+}
+.forestgreen
+{
+	color:forestgreen;
+}
+.yellowgreen
+{
+	color:yellowgreen;
+}
+.crimson
+{
+	color:crimson;
+}
+.blue
+{
+	color:#0066CC;
+}
+.skyblue
+{
+	color:skyblue;
+}
+.tomato
+{
+	color:tomato;
+}
+.deeppink
+{
+	color:DeepPink;
+}
+.plum
+{
+	color:plum;
+}
+.grey
+{
+	color:grey;
+}
+.violet
+{
+	color:violet;
+}
+
+
+.opa-50
+{
+	opacity: 0.5 !important;
+}
+.opa-25
+{
+	opacity: 0.25 !important;
+}
+
+
+.ph_days
+{
+	font-size:x-large;
+}
+.ph_earnings
+{
+	font-size:x-large;
+}
+.ph_capital
+{
+	font-size:x-large;
+}
+
+.b
+{
+	font-weight: bold;
+}
+
+@media screen and (max-width: 480px) {
+	#qrcode canvas
+	{
+		width:100%;
+		height:auto !important;
+	}
+}
+
+@media screen and (min-width: 1200px) {
+	.min-height-panel-settings
+	{
+		min-height:424px;
+	}
+}
+
+.nametag
+{
+	border:1px dashed #ddd;
+	padding:25px;
+	text-align: center;
+}

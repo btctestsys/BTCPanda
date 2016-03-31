@@ -1,0 +1,143 @@
+@extends('layouts.admin')
+
+@section('content')
+<div class="row text-center">
+	<div class="col-sm-12 col-lg-12">
+		<div class="card-box">
+			<div class="chart easy-pie-chart-1" data-percent="{{$total_ph/($total_ph+$total_gh)*100}}">
+				<span class="percent">{{$total_ph/$total_ph+$total_gh*100}}</span>
+				<canvas height="220" width="220" style="height: 110px; width: 110px;"></canvas>
+			</div>
+			<h5 class="text-center"><span style="color:crimson">GH <i class="fa fa-bitcoin"></i> {{$total_gh}}</span> | <span style="color:#0066cc">PH <i class="fa fa-bitcoin"></i>  {{$total_ph}}</span> | <span style="color:orange">Selected PH <i class="fa fa-bitcoin"></i>  {{$total_phsel}}</span></h5>
+			@foreach($current_q as $output)
+			<h5 class="text-center">Current Queue: <span style="color:orange">{{round($output->amt_distributed,8)}}</span> / {{round($output->amt,8)}} @ <span style="color:crimson">Day {{$output->ddifc}}</span></h5>
+			@endforeach
+		</div>
+	</div>
+</div>
+
+<div class="row">
+	<div class="col-sm-12 col-lg-12">
+		<div class="panel panel-default panel-border panel-primary">
+			<div class="table-responsive">
+				<table class="table table-striped">
+					<thead class="b">
+						<td align=center>D1</td>
+						<td align=center>D2</td>
+						<td align=center>D3</td>
+						<td align=center>D4</td>
+						<td align=center>D5</td>
+						<td align=center>D6</td>
+						<td align=center>D7</td>
+						<td align=center>D8</td>
+						<td align=center>D9</td>
+						<td align=center>D10</td>
+						<td align=center>D11</td>
+						<td align=center>D12</td>
+						<td align=center>D13</td>
+						<td align=center>D14</td>
+						<td align=center>D15</td>
+						<td align=center>D16</td>
+						<td align=center>D17</td>
+						<td align=center>D18</td>
+						<td align=center>D19</td>
+						<td align=center>D20</td>
+					</thead>
+					@foreach($matches_sum as $output)
+					<tbody>
+						<td align=center>{{round($output->sd1,0)}}</td>
+						<td align=center>{{round($output->sd2,0)}}</td>
+						<td align=center>{{round($output->sd3,0)}}</td>
+						<td align=center>{{round($output->sd4,0)}}</td>
+						<td align=center>{{round($output->sd5,0)}}</td>
+						<td align=center>{{round($output->sd6,0)}}</td>
+						<td align=center>{{round($output->sd7,0)}}</td>
+						<td align=center>{{round($output->sd8,0)}}</td>
+						<td align=center>{{round($output->sd9,0)}}</td>
+						<td align=center>{{round($output->sd10,0)}}</td>
+						<td align=center>{{round($output->sd11,0)}}</td>
+						<td align=center>{{round($output->sd12,0)}}</td>
+						<td align=center>{{round($output->sd13,0)}}</td>
+						<td align=center>{{round($output->sd14,0)}}</td>
+						<td align=center>{{round($output->sd15,0)}}</td>
+						<td align=center>{{round($output->sd16,0)}}</td>
+						<td align=center>{{round($output->sd17,0)}}</td>
+						<td align=center>{{round($output->sd18,0)}}</td>
+						<td align=center>{{round($output->sd19,0)}}</td>
+						<td align=center>{{round($output->sd20,0)}}</td>
+					</tbody>
+					@endforeach
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="row">
+	<div class="col-lg-12">
+		<div class="panel panel-default panel-border panel-primary">
+			<div class="table-responsive">
+				<table class="table table-striped">
+					<thead class="b">
+						<td>Date</td>
+						<td>Member</td>
+						<td>To Match</td>
+						<td>Type</td>
+						<td>Days</td>
+						<td>Action</td>
+					</thead>
+					<tbody>
+						{{--*/ $total_match =  0 /*--}}
+						@foreach($matches as $output)
+						<tr>							
+							<td title="{{$output->created_at}}">{{Carbon\Carbon::parse($output->created_at)->diffForHumans()}}</td>
+							<td><a href="/master/login/id/{{$output->user_id}}">{{$output->username}}</a>({{round($output->uph,2)}})
+							-> <a href="/master/login/id/{{$output->sid}}">{{$output->susername}}</a>({{round($output->sph,2)}})
+							-> <a href="/master/login/id/{{$output->sid1}}">{{$output->susername1}}</a>({{round($output->sph1,2)}})</td>
+							<td>{{round($output->amt,8)}}</td>
+							<td>@if($output->type == 1) Referral @endif @if($output->type == 2) Unilevel @endif @if($output->type == 3) Earning @endif</td>
+							<td>{{Carbon\Carbon::parse($output->created_at)->diffindays()}}</td>							
+							<td>
+							<form method="post" action="/master/approval/match/{{$output->id}}">
+								{!! csrf_field() !!} 
+								<button class="btn btn-xs btn-success match-success">Approve</button>
+							</form>							
+							</td>
+						</tr>
+							{{--*/ $total_match =  $total_match + $output->amt /*--}}
+						@endforeach
+						<tr>							
+							<td></td>
+							<td>Total</td>
+							<td>{{round($total_match,8)}}</td>
+							<td></td>
+							<td></td>
+							<td></td>
+						</tr>
+					</thead>
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>
+
+</div>
+@stop
+
+@section('js')
+<!-- EASY PIE CHART JS -->
+<script src="/assets/plugins/jquery.easy-pie-chart/dist/easypiechart.min.js"></script>
+<script src="/assets/plugins/jquery.easy-pie-chart/dist/jquery.easypiechart.min.js"></script>
+<script src="/assets/pages/easy-pie-chart.init.js"></script>
+
+<script>
+//Success Message
+$('.match-success').click(function(){
+swal("GH Matched!", "Please wait till this popup closes.", "success")
+});
+</script>
+@stop
+
+@section('docready')
+
+@stop
