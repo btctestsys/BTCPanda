@@ -448,7 +448,7 @@ Top 3 highest Direct Sales Volume (DSV) for March 2016 will receive :-<br>
 				@endforeach
 			</tbody>
 		</table>
-		<small>* Standing as at {{$dt}}</small>
+		<small></small>
 		</div>
 	</div>
 	</div>
