@@ -1,7 +1,8 @@
-<?php
+<?php 
 
 namespace App;
 
+use DB;
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Auth\Passwords\CanResetPassword;
@@ -59,15 +60,19 @@ class User extends Model implements AuthenticatableContract,
 
     public function isAdmin()
     {
-        $admins = explode(',', env('PAPABEARS'));
+        //$admins = explode(',', env('PAPABEARS'));
         
-        return in_array($this->id, $admins);
+        //return in_array($this->id, $admins);
+        return $this->adm;
     }
 
     public function isIDAdmin($thisid)
     {
-        $admins = explode(',', env('PAPABEARS'));
+        //$admins = explode(',', env('PAPABEARS'));
         
-        return in_array($thisid, $admins);
+        //return in_array($thisid, $admins);
+        $user = DB::table('users')->where('id',$thisid)->first();
+        return $user->adm;
+
     }
 }

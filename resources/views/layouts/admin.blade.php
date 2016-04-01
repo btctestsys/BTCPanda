@@ -222,25 +222,57 @@
                     <!--- Divider -->
                     <div id="sidebar-menu" class="p-t-10">                        
                       <ul>
-                       <li class="text-muted menu-title hide">Main</li>
-                       <li><a href="/master/dashboard" class="waves-effect"><i class="fa fa-dashboard"></i> <span> Dashboard </span> </a></li>
-                      <li><a href="/master/users" class="waves-effect"><i class="fa fa-user"></i> <span> User List </span> </a></li>
-                      <li class="text-muted menu-title hide">Reportings</li>
-                      <li><a href="/master/ph_queue" class="waves-effect"><i class="md-list"></i> <span> PH Queue </span> </a></li>
-                      <li class="text-muted menu-title hide">Approvals</li>
-                      <li><a href="/master/approval/earnings" class="waves-effect"><i class="fa fa-check"></i> <span> Check Earnings </span> </a></li>
-                      <li><a href="/master/approval/referrals" class="waves-effect"><i class="fa fa-check"></i> <span> Check Referrals </span> </a></li>
-                      <li><a href="/master/approval/unilevels" class="waves-effect"><i class="fa fa-check"></i> <span> Check Unilevels </span> </a></li>
-                      <li class="hide"><a href="/master/approval/match/all" class="waves-effect"><i class="fa fa-exchange"></i> <span> Match (All) </span> </a></li>
-                      <li><a href="/master/approval/match/earnings" class="waves-effect"><i class="fa fa-exchange"></i> <span> Match (Earnings) </span> </a></li>
-                      <li><a href="/master/approval/match/referrals" class="waves-effect"><i class="fa fa-exchange"></i> <span> Match (Referrals) </span> </a></li>
-                      <li><a href="/master/approval/match/unilevels" class="waves-effect"><i class="fa fa-exchange"></i> <span> Match (Unilevels) </span> </a></li>
+						
+						 <!--- Marketing -->
+                        @if(session('AdminLvl')==1)
+						<li class="text-muted menu-title hide">Main</li>
+						<li><a href="/master/dashboard" class="waves-effect"><i class="fa fa-dashboard"></i> <span> Dashboard </span> </a></li>
+						<li><a href="/master/users" class="waves-effect"><i class="fa fa-user"></i> <span> User List </span> </a></li>
+                        @endif
 
-                      <li><a href="/master/bamboos" class="waves-effect"><i class="fa fa-thumb-tack"></i> <span> Pin Sales </span> </a></li>
-                      <li><a href="/master/bamboos_daily" class="waves-effect"><i class="fa fa-thumb-tack"></i> <span> Pin Sales Daily </span> </a></li>
-                      <li><a href="/master/ph" class="waves-effect"><i class="md-local-hospital"></i> <span> PH Sales </span> </a></li>
-                      <li><a href="/master/ph_daily" class="waves-effect"><i class="md-local-hospital"></i> <span> PH Sales Daily </span> </a></li>
-                      <li><a href="/master/approval/kyc" class="waves-effect"><i class="fa fa-youtube-play"></i> <span> ID & Video Testi. </span> </a></li>
+						 <!--- customer service -->
+                        @if(session('AdminLvl')==2)
+						<li class="text-muted menu-title hide">Main</li>
+						<li><a href="/master/dashboard" class="waves-effect"><i class="fa fa-dashboard"></i> <span> Dashboard </span> </a></li>
+						<li><a href="/master/users" class="waves-effect"><i class="fa fa-user"></i> <span> User List </span> </a></li>
+                        @endif
+
+						 <!--- admin -->
+                        @if(session('AdminLvl')==3)
+						<li class="text-muted menu-title hide">Main</li>
+						<li><a href="/master/dashboard" class="waves-effect"><i class="fa fa-dashboard"></i> <span> Dashboard </span> </a></li>
+						<li><a href="/master/users" class="waves-effect"><i class="fa fa-user"></i> <span> User List </span> </a></li>
+						<li><a href="/master/ph_queue" class="waves-effect"><i class="md-list"></i> <span> PH Queue </span> </a></li>
+						<li><a href="/master/bamboos" class="waves-effect"><i class="fa fa-thumb-tack"></i> <span> Pin Sales </span> </a></li>
+						<li><a href="/master/bamboos_daily" class="waves-effect"><i class="fa fa-thumb-tack"></i> <span> Pin Sales Daily </span> </a></li>
+						<li><a href="/master/ph" class="waves-effect"><i class="md-local-hospital"></i> <span> PH Sales </span> </a></li>
+						<li><a href="/master/ph_daily" class="waves-effect"><i class="md-local-hospital"></i> <span> PH Sales Daily </span> </a></li>
+						<li><a href="/master/approval/kyc" class="waves-effect"><i class="fa fa-youtube-play"></i> <span> ID & Video Testi. </span> </a></li>
+                        @endif
+
+						 <!--- superadmin -->
+                        @if(session('AdminLvl')==4)
+						<li class="text-muted menu-title hide">Main</li>
+						<li><a href="/master/dashboard" class="waves-effect"><i class="fa fa-dashboard"></i> <span> Dashboard </span> </a></li>
+						<li><a href="/master/users" class="waves-effect"><i class="fa fa-user"></i> <span> User List </span> </a></li>
+						<li class="text-muted menu-title hide">Reportings</li>
+						<li><a href="/master/ph_queue" class="waves-effect"><i class="md-list"></i> <span> PH Queue </span> </a></li>
+						<li class="text-muted menu-title hide">Approvals</li>
+						<li><a href="/master/approval/earnings" class="waves-effect"><i class="fa fa-check"></i> <span> Check Earnings </span> </a></li>
+						<li><a href="/master/approval/referrals" class="waves-effect"><i class="fa fa-check"></i> <span> Check Referrals </span> </a></li>
+						<li><a href="/master/approval/unilevels" class="waves-effect"><i class="fa fa-check"></i> <span> Check Unilevels </span> </a></li>
+						<li class="hide"><a href="/master/approval/match/all" class="waves-effect"><i class="fa fa-exchange"></i> <span> Match (All) </span> </a></li>
+						<li><a href="/master/approval/match/earnings" class="waves-effect"><i class="fa fa-exchange"></i> <span> Match (Earnings) </span> </a></li>
+						<li><a href="/master/approval/match/referrals" class="waves-effect"><i class="fa fa-exchange"></i> <span> Match (Referrals) </span> </a></li>
+						<li><a href="/master/approval/match/unilevels" class="waves-effect"><i class="fa fa-exchange"></i> <span> Match (Unilevels) </span> </a></li>
+
+						<li><a href="/master/bamboos" class="waves-effect"><i class="fa fa-thumb-tack"></i> <span> Pin Sales </span> </a></li>
+						<li><a href="/master/bamboos_daily" class="waves-effect"><i class="fa fa-thumb-tack"></i> <span> Pin Sales Daily </span> </a></li>
+						<li><a href="/master/ph" class="waves-effect"><i class="md-local-hospital"></i> <span> PH Sales </span> </a></li>
+						<li><a href="/master/ph_daily" class="waves-effect"><i class="md-local-hospital"></i> <span> PH Sales Daily </span> </a></li>
+						<li><a href="/master/approval/kyc" class="waves-effect"><i class="fa fa-youtube-play"></i> <span> ID & Video Testi. </span> </a></li>
+                        @endif
+
 
                       <div class="clearfix"></div>
                     </div>

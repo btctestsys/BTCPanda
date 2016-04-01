@@ -266,7 +266,7 @@
 				                        </div>
 					                    <div class="col-md-2">
 				                            <div class="form-group">
-					                            <input type="text" value="{{$request->tbmobile}}" id="tbmobile" name="tbmobile" class="form-control" placeholder="Enter Mobile">
+					                            <input type="text" value="{{$request->tbemail}}" id="tbemail" name="tbemail" class="form-control" placeholder="Enter Email">
 				                            </div>
 				                        </div>
 					                    <div class="col-md-2">

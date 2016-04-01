@@ -51,6 +51,7 @@ class AuthController extends Controller
             'country' => 'required',
             'password' => 'required|confirmed|min:6',
             'referral' => 'required',
+            'mobile' => 'required',
         ]);
     }
 

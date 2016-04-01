@@ -86,6 +86,7 @@ return [
 'country' => 'Country',
 'update' => 'Update',
 'mobile_verification' => "Mobile Number Verification",
+'mobile' => "Mobile Number",
 'full_format_number' => "Full Format Mobile No.",
 'mobile_verified' => "Mobile Verified",
 'upload' => "Upload",

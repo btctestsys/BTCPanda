@@ -1,6 +1,9 @@
 @extends('layouts.master')
 
 @section('content')
+@if(session('AdminLvl') == NULL )
+<?php  header( 'Location: /login' ) ;?>
+@endif
 <div class="row">
 	
 	<div class="col-lg-12 hide">
@@ -43,12 +46,24 @@
 						<label for="youtube">{{trans('main.password')}}</label>
 						<input type="password" class="form-control" id="pwd" name="pwd" value="" placeholder="Enter new password to reset">
  					</div>
-
+					 @if (in_array(session('AdminLvl'),array(3,4)))
 					<div class="form-group">
 						<label for="youtube">OTP</label>
 						<input type="text" class="form-control" id="votp" name="votp" value="{{$user->otp}}" placeholder="Current OTP">
  					</div>
-
+					@endif
+					 @if (in_array(session('AdminLvl'),array(4)))
+					<div class="form-group">
+						<label for="youtube">Admin Level</label>
+    					<select class="form-control" name="adminlvl" id="adminlvl">
+							<option @if($user->adm == '0') selected @endif value="0">0 Member</option>
+							<option @if($user->adm == '1') selected @endif value="1">1 Marketing</option>
+							<option @if($user->adm == '2') selected @endif value="2">2 Customer Service</option>
+							<option @if($user->adm == '3') selected @endif value="3">3 Admin</option>
+							<option @if($user->adm == '4') selected @endif value="4">4 Super Admin</option>
+    					</select>
+ 					</div>
+					@endif
  					<button type="submit" class="btn btn-block btn-warning waves-effect waves-light">Admin Update</button>
 				</form>
 			</div>
@@ -87,7 +102,7 @@
     				</select>
 					</div>
 
-					<button type="submit" class="btn btn-block btn-primary waves-effect waves-light">{{trans('main.update')}}</button>
+					<button  @if (in_array(session('AdminLvl'),array(1,2))) disabled @endif type="submit" class="btn btn-block btn-primary waves-effect waves-light">{{trans('main.update')}}</button>
 				</form>
 			</div>
 		</div>
@@ -108,7 +123,7 @@
     				</select>
 					</div>
 
-					<button type="submit" class="btn btn-block btn-primary waves-effect waves-light">{{trans('main.update')}}</button>
+					<button  @if (in_array(session('AdminLvl'),array(1,2))) disabled @endif type="submit" class="btn btn-block btn-primary waves-effect waves-light">{{trans('main.update')}}</button>
 				</form>
 			</div>
 		</div>
@@ -128,7 +143,7 @@
 					@if($user->mobile_verified)
 					<span class="green"><i class="fa fa-check"></i> {{trans('main.verified')}}</span>
 					@else
-					<button type="submit" class="btn btn-block btn-primary waves-effect waves-light m-b-20">{{trans('main.update')}}</button>
+					<button  @if (in_array(session('AdminLvl'),array(1,2))) disabled @endif type="submit" class="btn btn-block btn-primary waves-effect waves-light m-b-20">{{trans('main.update')}}</button>
 					@endif
 				</form>
 				
@@ -140,10 +155,10 @@
 							<input type="text" class="form-control" id="otp" name="otp" placeholder="{{trans('main.otp')}}" required>
 						</div>
 
-						<button type="submit" class="btn btn-block btn-success waves-effect waves-light">{{trans('main.verify')}}</button>
+						<button  @if (in_array(session('AdminLvl'),array(1,2))) disabled @endif type="submit" class="btn btn-block btn-success waves-effect waves-light">{{trans('main.verify')}}</button>
 					</form>
 					<form role="form" method="post" action="/sms/otp">{!! csrf_field() !!} 
-						<button 
+						<button  @if (in_array(session('AdminLvl'),array(1,2))) disabled @endif
 						@if($user->otp) disabled @endif 
 						onclick="sendotpnow(); return false;" id="otp_btn" type="submit" class="btn btn-block btn-warning waves-effect waves-light m-t-10">
 						@if($user->otp) {{trans('main.otp_sent')}} @else {{trans('main.request_otp')}} @endif
@@ -181,9 +196,9 @@
 					@else
 					* Wallet address will be locked after update. 
 					@endif
- 					<button @if ($user->wallet2 or $user->wallet1) disabled @endif type="submit" class="btn btn-primary btn-block">Update</button>
+ 					<button @if ($user->wallet2 or $user->wallet1) disabled @endif type="submit" class="btn btn-primary btn-block"  @if (in_array(session('AdminLvl'),array(1,2))) disabled @endif>Update</button>
 					<form role="form" method="post" action="/sms/otp">{!! csrf_field() !!} 
-						<button 
+						<button  @if (in_array(session('AdminLvl'),array(1,2))) disabled @endif
 						@if($user->otp) disabled @endif 
 						onclick="sendotpnow(); return false;" id="otp_btn" type="submit" class="btn btn-block btn-warning waves-effect waves-light m-t-10">
 						@if($user->otp) {{trans('main.otp_sent')}} @else {{trans('main.request_otp')}} @endif
@@ -207,7 +222,7 @@
 					</div>
 
 					@if($user->identification_verified != 1)
-					<button type="submit" class="btn btn-block btn-primary waves-effect waves-light m-b-20">{{trans('main.update')}}</button>
+					<button  @if (in_array(session('AdminLvl'),array(1,2))) disabled @endif  type="submit" class="btn btn-block btn-primary waves-effect waves-light m-b-20">{{trans('main.update')}}</button>
 					@endif
 				</form>
 				
@@ -218,7 +233,7 @@
 					<label for="identification_file">{{trans('main.upload_file')}}</label>
 						<input type="file" name="identification_file">
 					</div>
-					<button type="submit" class="btn btn-block btn-warning waves-effect waves-light">{{trans('main.upload')}}</button>
+					<button  @if (in_array(session('AdminLvl'),array(1,2))) disabled @endif type="submit" class="btn btn-block btn-warning waves-effect waves-light">{{trans('main.upload')}}</button>
 				</form>
 				@endif		
 				@endif			
@@ -247,7 +262,7 @@
 						<input type="text" class="form-control" id="youtube" name="youtube" placeholder="i.e https://www.youtube.com/watch?v=L1-k9SLOavY" value="{{$user->youtube}}">
 					</div>
 
-					<button type="submit" class="btn btn-block btn-primary waves-effect waves-light">{{trans('main.update')}}</button>
+					<button  @if (in_array(session('AdminLvl'),array(1,2))) disabled @endif type="submit" class="btn btn-block btn-primary waves-effect waves-light">{{trans('main.update')}}</button>
 				</form>
 				@endif
 
@@ -291,9 +306,9 @@
 						<input type="text" class="form-control" id="otp" name="otp" placeholder="{{trans('main.otp')}}">										
  					</div>
 
- 					<button type="submit" class="btn btn-primary btn-block">Update</button>
+ 					<button  @if (in_array(session('AdminLvl'),array(1,2))) disabled @endif type="submit" class="btn btn-primary btn-block">Update</button>
 					<form role="form" method="post" action="/sms/otp">{!! csrf_field() !!} 
-						<button 
+						<button   @if (in_array(session('AdminLvl'),array(1,2))) disabled @endif
 						@if($user->otp) disabled @endif 
 						onclick="sendotpnow(); return false;" id="otp_btn" type="submit" class="btn btn-block btn-warning waves-effect waves-light m-t-10">
 						@if($user->otp) {{trans('main.otp_sent')}} @else {{trans('main.request_otp')}} @endif

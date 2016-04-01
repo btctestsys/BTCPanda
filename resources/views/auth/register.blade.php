@@ -83,7 +83,7 @@
 						
 						<div class="form-group ">
                             <div class="col-xs-12">
-                                <input class="form-control" type="number" required="" id="mobile" name="mobile" placeholder="{{trans('main.mobile')}}">
+                                <input class="form-control" type="text" required="" id="mobile" name="mobile" placeholder="{{trans('main.mobile')}}">
                             </div>
                         </div>
 
@@ -394,6 +394,9 @@ jQuery(document).ready(function () {
 				required: true
 			},
 			country: {
+				required: true
+			},
+			mobile: {
 				required: true
 			},
 			password: {
