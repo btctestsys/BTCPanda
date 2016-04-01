@@ -1,9 +1,6 @@
 @extends('layouts.master')
 
 @section('content')
-@if(session('AdminLvl') == NULL )
-<?php  header( 'Location: /login' ) ;?>
-@endif
 <div class="row">
 	<div class="col-lg-12"> 
         <ul class="nav nav-tabs tabs tabs-top" style="width: 100%;">
@@ -68,7 +65,7 @@
                 </p>
                 <br>
                 <a href="/wallet"><button id="sync" class="btn btn-warning">{{trans('main.sync')}}</button></a>
-	@if (in_array(session('AdminLvl'),array(1,2,3,4))) 
+	@if(session('isAdmin')=='true') 
 		<br><br>
 		Admin View:<br>
 		current_balance = {{$current_balance}}<br>
@@ -115,7 +112,7 @@
                     <label class="form-label">{{trans('main.verify_with_otp')}}</label>
                     <input type="text" class="form-control" placeholder="{{trans('main.otp')}}" name="otp">
                     <br/>
-                    <button  @if (in_array(session('AdminLvl'),array(1,2))) disabled @endif
+                    <button 
 					@if (app('App\Http\Controllers\WalletController')->get_next_trans_inmin_inwallet() > 0) disabled @endif
 					class="btn btn-block btn-primary btc_sent">{{trans('main.send')}} BTC</i></button>
                     @if($user->otp) </form> @endif
@@ -123,7 +120,7 @@
                     @if($user->otp)
                     <button class="btn btn-block disabled m-t-10" id="otp_btn">{{trans('main.otp_sent')}}</i></button>                    
                     @else
-                        <button  @if (in_array(session('AdminLvl'),array(1,2))) disabled @endif class="btn btn-block btn-warning m-t-10 otp_requested" onclick="sendotpnow(); return false;" id="otp_btn">{{trans('main.request_otp')}}</i></button>
+                        <button class="btn btn-block btn-warning m-t-10 otp_requested" onclick="sendotpnow(); return false;" id="otp_btn">{{trans('main.request_otp')}}</i></button>
                     @endif                    
                 @endif
             </div> 

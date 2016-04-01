@@ -10,7 +10,6 @@ use App\Classes\Custom;
 use App\Referral;
 use Crypt;
 use Mail;
-use Session;
 
 class UserController extends Controller
 {	    
@@ -458,90 +457,54 @@ class UserController extends Controller
 		return "done";
 	}
 
-    public function processUnilevel()
+	public function processUnilevel()
     {   
 		
 		ini_set('max_execution_time', 3000);
 
-		//track active exe
-		$check_id = DB::select('select id from calc_log where datediff(now(),dt)=0 ');
-		$chk_id = 0;
-		foreach($check_id as $output){$chk_id = $output->id; }
-		if ($chk_id != 0){$process = 0;}
-		else
+
+
+		$SQLStr=" select p.id phid,u.gene,u.id uid,p.amt,getPHCold(p.user_id,p.amt) as netamt,p.user_id,u.referral_id ";
+		$SQLStr=$SQLStr . " from ph p inner join users u on p.user_id=u.id ";
+		//$SQLStr=$SQLStr . " where datediff(p.created_at,now())=-1 and calc=0 ";
+		$SQLStr=$SQLStr . " where datediff(p.created_at,'2016-02-19')=0  ";
+		$ph = DB::select($SQLStr);
+		foreach($ph as $output)
 		{
-			//check if calculate title is completed already or not
-			$check_id = DB::select('select id from calc_title_log where datediff(now(),dt)=0 and stat_title=2');
-			$chk_title_id = 0;
-			foreach($check_id as $output){$chk_title_id = $output->id; }
-			if ($chk_title_id == 0){$process = 0;}else{$process = 1;}
-		}
-		if ($process == 0)
-		{
-			//do nothing 1. if already run 2. if title calculation not completed yet..
-			return 'no calculation';
-		}
-		else
-		{
+			$netamt = $output->netamt;
+			$phid = $output->phid;
+			$uid = $output->uid;
+			$gene = $output->gene;
+
+			DB::select('call setManagerTitle('.$output->user_id.')');
+			DB::select('call setManagerTitle('.$output->referral_id.')');
 			
-			DB::insert('insert into calc_log (`dt`,`stat`) values(now(),1)');
+			app('App\Http\Controllers\ReferralController')->addReferralBonus($phid,$netamt);
 
-			$record_id = DB::select('select LAST_INSERT_ID() as id');
-			$calc_id = 0;
-			foreach($record_id as $output)
-			{
-				$calc_id = $output->id;            
-			}
-
-			//DB::select('call setBuildLeader()');
-
-			$SQLStr=" select p.id phid,u.gene,u.id uid,p.amt,getPHCold(p.user_id,p.amt) as netamt ";
-			$SQLStr=$SQLStr . " from ph p inner join users u on p.user_id=u.id ";
-			$SQLStr=$SQLStr . " where datediff(p.created_at,now())=-1 and calc=0 ";
-			//$SQLStr=$SQLStr . " where datediff(p.created_at,'2016-03-11')=0  ";
-			$ph = DB::select($SQLStr);
-			foreach($ph as $output)
-			{
-				$netamt = $output->netamt;
-				$phid = $output->phid;
-				$uid = $output->uid;
-				$gene = $output->gene;
-
-				$max_level = 12;
+			$max_level = 12;
         
-				$array = explode(',',$gene);
-				rsort($array);
-				array_shift($array);
+			$array = explode(',',$gene);
+			rsort($array);
+			array_shift($array);
 
-				//$msg = $msg . "<br>";
-				$l=1;
-				foreach($array as $outputlvl)
-				{
-					$rate = Self::getUserUnilevelRate($outputlvl,$l);
+			$l=1;
+			foreach($array as $outputlvl)
+			{
+				$rate = Self::getUserUnilevelRate($outputlvl,$l);
             
-					if($rate)
-					{
-						//$msg = $msg . "lvl=" . $l . ", phid=" . $phid . ", sponsor=" . $outputlvl . "<br>";
-						app('App\Http\Controllers\ReferralController')->addUnilevelBonus($phid,$outputlvl,$l,$netamt);
-						if($l==$max_level) break;
-						$l++;
-					}                        
-				}
-
-				//set already processed
-				DB::table('ph')->where('id',$phid)->update(["calc" => 1]);
-
+				if($rate)
+				{
+					app('App\Http\Controllers\ReferralController')->addUnilevelBonus($phid,$outputlvl,$l,$netamt);
+					if($l==$max_level) break;
+					$l++;
+				}                        
 			}
 
-			//DB::table('calc_log')->where('id',$calc_id)->update(["stat" => 2]);
-			DB::update('update calc_log set stat=2,`end`=now() where id=' . $calc_id);
 
 		}
 
-		//return "done<br>" . $msg ;
 		return "done";
 	}
-
 	
 	public function verifyEmail(Request $request)
     {
@@ -570,26 +533,5 @@ class UserController extends Controller
         }
 	
 
-    }
-
-	public function SetSession(user $user)
-    {
-        //set admin session
-        //if($user->isAdmin())
-		if (in_array(session('AdminLvl'),array(1,2,3,4)))
-		{}
-		else
-		{
-			if($user->adm > 0)
-			{
-				session(['has_admin_access' => $user->id]);
-				session(['isAdmin' => 'true']);
-				session(['AdminLvl' => $user->adm]);
-			}
-        }
-    }
-	public function DestroySession()
-    {
-		Session::flush();
     }
 }

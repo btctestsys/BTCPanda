@@ -18,7 +18,7 @@ class AuthenticateAdmin
     {
         $user = Auth::user();
 
-        if(!$user->adm and !session('AdminLvl'))
+        if(!$user->isAdmin() and !session('has_admin_access'))
         {
             abort(404);
         }

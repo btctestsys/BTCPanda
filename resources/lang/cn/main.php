@@ -87,7 +87,6 @@ return [
 'country' => '国家',
 'update' => '更新',
 'mobile_verification' => "电话号码验证",
-'mobile' => "Mobile Number",
 'full_format_number' => "全格式电话号码.",
 'mobile_verified' => "电话号码验证成功",
 'upload' => "上载",

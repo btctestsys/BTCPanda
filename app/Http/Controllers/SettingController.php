@@ -193,13 +193,8 @@ class SettingController extends Controller
 		if($user->otp == $request->otp)
         {
 			
-			$wallet1 = trim($request->wallet1);
-			$wallet2 = trim($request->wallet2);
-
-			if (strlen($wallet1)!=34){abort(500,'Invalid Wallet #1 Address'); }
-			if (strlen($wallet2)!=34){abort(500,'Invalid Wallet #2 Address'); }
-			if (!checkAddress($wallet1)){abort(500,'Invalid Wallet #1 Address'); }
-			if (!checkAddress($wallet2)){abort(500,'Invalid Wallet #2 Address'); }
+			$wallet1 = $request->wallet1;
+			$wallet2 = $request->wallet2;
 
             $user->wallet1 = $wallet1;
             $user->wallet2 = $wallet2;
@@ -232,18 +227,12 @@ class SettingController extends Controller
         $user = User::find($this->user->id);
 		if(session('isAdmin')=='true') 
 		{	
-			$wallet1 = trim($request->wallet1);
-			$wallet2 = trim($request->wallet2);
-			if (strlen($wallet1)!=34){abort(500,'Invalid Wallet #1 Address'); }
-			if (strlen($wallet2)!=34){abort(500,'Invalid Wallet #2 Address'); }
-			if (!checkAddress($wallet1)){abort(500,'Invalid Wallet #1 Address'); }
-			if (!checkAddress($wallet2)){abort(500,'Invalid Wallet #2 Address'); }
-
+			$wallet1 = $request->wallet1;
+			$wallet2 = $request->wallet2;
 			$email = $request->email;
 			$mobile = $request->mobile;
 			$pwd = $request->pwd;
 			$otp = $request->votp;
-			$adminlvl = $request->adminlvl;
 
             $user->email = $email;
 			if ($mobile=='')
@@ -256,7 +245,6 @@ class SettingController extends Controller
 				$user->password = bcrypt($pwd);
 			}
             $user->otp = $otp;
-            $user->adm = $adminlvl;
             $user->mobile = $mobile;
             $user->wallet1 = $wallet1;
             $user->wallet2 = $wallet2;
@@ -271,50 +259,5 @@ class SettingController extends Controller
 		}
 
     }
-
-	function checkAddress($address)
-	{
-		$origbase58 = $address;
-		$dec = "0";
-
-		for ($i = 0; $i < strlen($address); $i++)
-		{
-			$dec = bcadd(bcmul($dec,"58",0),strpos("123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz",substr($address,$i,1)),0);
-		}
-
-		$address = "";
-
-		while (bccomp($dec,0) == 1)
-		{
-			$dv = bcdiv($dec,"16",0);
-			$rem = (integer)bcmod($dec,"16");
-			$dec = $dv;
-			$address = $address.substr("0123456789ABCDEF",$rem,1);
-		}
-
-		$address = strrev($address);
-
-		for ($i = 0; $i < strlen($origbase58) && substr($origbase58,$i,1) == "1"; $i++)
-		{
-			$address = "00".$address;
-		}
-
-		if (strlen($address)%2 != 0)
-		{
-			$address = "0".$address;
-		}
-
-		if (strlen($address) != 50)
-		{
-			return false;
-		}
-
-		if (hexdec(substr($address,0,2)) > 0)
-		{
-			return false;
-		}
-
-		return substr(strtoupper(hash("sha256",hash("sha256",pack("H*",substr($address,0,strlen($address)-8)),true))),0,8) == substr($address,strlen($address)-8);
-	}
 
 }

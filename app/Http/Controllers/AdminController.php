@@ -120,14 +120,13 @@ class AdminController extends Controller
 		$tbname = $request->tbname;
 		$tbuname = $request->tbuname;
 		$tbwallet = $request->tbwallet;
-		//$tbmobile = $request->tbmobile;
-		$tbemail = $request->tbemail;
+		$tbmobile = $request->tbmobile;
+		//$tbemail = $request->tbemail;
 		$query=' u.username<>\'\' ';
 		if ($tbname!=''){if ($query!='') {$query= $query . ' and ';}$query= $query . ' u.`name` like \'%' . $tbname . '%\' ';}
 		if ($tbuname!=''){if ($query!='') {$query= $query . ' and ';}$query= $query .' u.`username` like \'%' . $tbuname . '%\' ';}
 		if ($tbwallet!=''){if ($query!='') {$query= $query . ' and ';} $query= $query .' w.`wallet_address` like \'%' . $tbwallet . '%\' ';}
-		//if ($tbmobile!=''){if ($query!='') {$query= $query . ' and ';} $query= $query .' u.`mobile` like \'%' . $tbmobile .'%\' ';}
-		if ($tbemail!=''){if ($query!='') {$query= $query . ' and ';} $query= $query .' u.`email` like \'%' . $tbemail .'%\' ';}
+		if ($tbmobile!=''){if ($query!='') {$query= $query . ' and ';} $query= $query .' u.`mobile` like \'%' . $tbmobile .'%\' ';}
 		if ($country!=''){if ($query!='') {$query= $query . ' and ';} $query= $query .' u.`country` = \'' . $country .'\' ';}
 		if ($query!='')
 		{
@@ -150,11 +149,6 @@ class AdminController extends Controller
 
     public function getBamboos()
     {
-		if (!in_array(session('AdminLvl'),array(3,4)))
-		{
-			abort(500,'Unauthorized Access');
-		}
-
         $bamboos = DB::table('bamboos')->orderby('created_at','desc')
             ->where('from',1)
             ->get();
@@ -166,10 +160,6 @@ class AdminController extends Controller
 
     public function getBamboosDaily()
     {
-		if (!in_array(session('AdminLvl'),array(3,4)))
-		{
-			abort(500,'Unauthorized Access');
-		}
         $bamboos = DB::table('bamboos')
             ->select(DB::raw("DATE_FORMAT(created_at, '%Y%m%d') as date,sum(amt) as pins"))
             ->where('from',1)
@@ -183,10 +173,6 @@ class AdminController extends Controller
     }
     public function getPh()
     {
-		if (!in_array(session('AdminLvl'),array(3,4)))
-		{
-			abort(500,'Unauthorized Access');
-		}
         //$ph = DB::table('ph')->orderby('created_at','desc')->get();
 		$ph = DB::select('SELECT p.created_at, p.user_id, u.username, s.id sid, s.username susername, p.amt, p.amt_distributed,datediff(now(),p.created_at)+1 ddif FROM ph p left join users u on p.user_id=u.id left join users s on u.referral_id=s.id where p.status is null order by p.created_at desc');
 
@@ -197,10 +183,6 @@ class AdminController extends Controller
 
     public function getPhDaily()
     {
-		if (!in_array(session('AdminLvl'),array(3,4)))
-		{
-			abort(500,'Unauthorized Access');
-		}
         $ph = DB::table('ph')
             ->select(DB::raw("DATE_FORMAT(created_at, '%Y%m%d') as date,sum(amt) as total_ph"))            
             ->groupby('date')
@@ -214,10 +196,6 @@ class AdminController extends Controller
 
     public function getApprovalEarnings()
     {
-		if (!in_array(session('AdminLvl'),array(3,4)))
-		{
-			abort(500,'Unauthorized Access');
-		}
         //$earnings = Earning::where('status',0)->orwhere('status',null)->get();
 		$earnings = DB::select('SELECT e.id, e.created_at, e.user_id, u.username,s.id sid,s.username susername, e.amt,s1.id sid1,s1.username susername1,getPHActive(u.id) uph,getPHActive(s.id) sph,getPHActive(s1.id) sph1 FROM earnings e left join users u on e.user_id=u.id left join users s on u.referral_id=s.id left join users s1 on s.referral_id=s1.id where e.`status` is null or e.`status`=0');
         return view('admin.approve_earnings')->with('earnings',$earnings)->with('user',$this->user);
@@ -225,10 +203,6 @@ class AdminController extends Controller
 
     public function getApprovalReferrals()
     {
-		if (!in_array(session('AdminLvl'),array(3,4)))
-		{
-			abort(500,'Unauthorized Access');
-		}
         //$referrals = Referral::where('status',0)->orwhere('status',null)->get();
 		$referrals = DB::select('SELECT e.id, e.created_at, e.user_id, u.username,s.id sid,s.username susername, e.amt,s1.id sid1,s1.username susername1,getPHActive(u.id) uph,getPHActive(s.id) sph,getPHActive(s1.id) sph1 FROM referrals e left join users u on e.user_id=u.id left join users s on u.referral_id=s.id left join ph p on e.ph_id=p.id left join users s1 on p.user_id=s1.id where e.`status` is null or e.`status`=0');
 
@@ -237,10 +211,6 @@ class AdminController extends Controller
 
     public function getApprovalUnilevels()
     {
-		if (!in_array(session('AdminLvl'),array(3,4)))
-		{
-			abort(500,'Unauthorized Access');
-		}
         //$unilevels = Unilevel::where('status',0)->orwhere('status',null)->get();
 		$unilevels = DB::select('SELECT e.id, e.created_at, e.user_id, u.username,s.id sid,s.username susername, e.amt,s1.id sid1,s1.username susername1,getPHActive(u.id) uph,getPHActive(s.id) sph,getPHActive(s1.id) sph1 FROM unilevels e left join users u on e.user_id=u.id left join users s on u.referral_id=s.id left join ph p on e.ph_id=p.id left join users s1 on p.user_id=s1.id where e.`status` is null or e.`status`=0');
         return view('admin.approve_unilevels')->with('unilevels',$unilevels)->with('user',$this->user);
@@ -248,10 +218,6 @@ class AdminController extends Controller
 
     public function postApproveReferral(Request $request)
     {
-		if (!in_array(session('AdminLvl'),array(3,4)))
-		{
-			abort(500,'Unauthorized Access');
-		}
         $referral = Referral::find($request->id);
         $referral->status = 1;
         $referral->save();
@@ -260,10 +226,6 @@ class AdminController extends Controller
 
     public function postApproveUnilevel(Request $request)
     {
-		if (!in_array(session('AdminLvl'),array(3,4)))
-		{
-			abort(500,'Unauthorized Access');
-		}
         $referral = Unilevel::find($request->id);
         $referral->status = 1;
         $referral->save();
@@ -272,10 +234,6 @@ class AdminController extends Controller
 
     public function postApproveEarning(Request $request)
     {
-		if (!in_array(session('AdminLvl'),array(3,4)))
-		{
-			abort(500,'Unauthorized Access');
-		}
         $referral = Earning::find($request->id);
         $referral->status = 1;
         $referral->save();
@@ -284,10 +242,6 @@ class AdminController extends Controller
 
     public function getApprovalMatch(Request $request)
     {
-		if (!in_array(session('AdminLvl'),array(3,4)))
-		{
-			abort(500,'Unauthorized Access');
-		}
         //if($request->type == 'all') $matches = Gh::where('status',0)->orwhere('status',null)->get();
         //if($request->type == 'referrals') $matches = Gh::where('status',0)->where('type',1)->get();
         //if($request->type == 'unilevels') $matches = Gh::where('status',0)->where('type',2)->get();
@@ -326,40 +280,24 @@ class AdminController extends Controller
 
     public function postApproveAllReferrals()
     {
-		if (!in_array(session('AdminLvl'),array(3,4)))
-		{
-			abort(500,'Unauthorized Access');
-		}
         Referral::where('status',0)->orwhere('status',null)->update(['status' => 1]);
         return back();
     }
 
     public function postApproveAllUnilevels()
     {
-		if (!in_array(session('AdminLvl'),array(3,4)))
-		{
-			abort(500,'Unauthorized Access');
-		}
         Unilevel::where('status',0)->orwhere('status',null)->update(['status' => 1]);
         return back();
     }
     
     public function postApproveAllEarnings()
     {
-		if (!in_array(session('AdminLvl'),array(3,4)))
-		{
-			abort(500,'Unauthorized Access');
-		}
         Earning::where('status',0)->orwhere('status',null)->update(['status' => 1]);
         return back();
     }
 
     public function getPhQueue()
     {
-		if (!in_array(session('AdminLvl'),array(3,4)))
-		{
-			abort(500,'Unauthorized Access');
-		}
         //$ph = Ph::where('status',null)->orderby('created_at')->get();
 		$ph_sum = DB::select('SELECT sum(if(datediff(now(),p.created_at)+1=1,p.amt-p.amt_distributed,0)) sd1, sum(if(datediff(now(),p.created_at)+1=2,p.amt-p.amt_distributed,0)) sd2, sum(if(datediff(now(),p.created_at)+1=3,p.amt-p.amt_distributed,0)) sd3, sum(if(datediff(now(),p.created_at)+1=4,p.amt-p.amt_distributed,0)) sd4, sum(if(datediff(now(),p.created_at)+1=5,p.amt-p.amt_distributed,0)) sd5, sum(if(datediff(now(),p.created_at)+1=6,p.amt-p.amt_distributed,0)) sd6, sum(if(datediff(now(),p.created_at)+1=7,p.amt-p.amt_distributed,0)) sd7, sum(if(datediff(now(),p.created_at)+1=8,p.amt-p.amt_distributed,0)) sd8, sum(if(datediff(now(),p.created_at)+1=9,p.amt-p.amt_distributed,0)) sd9, sum(if(datediff(now(),p.created_at)+1=10,p.amt-p.amt_distributed,0)) sd10, sum(if(datediff(now(),p.created_at)+1=11,p.amt-p.amt_distributed,0)) sd11, sum(if(datediff(now(),p.created_at)+1=12,p.amt-p.amt_distributed,0)) sd12, sum(if(datediff(now(),p.created_at)+1=13,p.amt-p.amt_distributed,0)) sd13, sum(if(datediff(now(),p.created_at)+1=14,p.amt-p.amt_distributed,0)) sd14, sum(if(datediff(now(),p.created_at)+1=15,p.amt-p.amt_distributed,0)) sd15, sum(if(datediff(now(),p.created_at)+1=16,p.amt-p.amt_distributed,0)) sd16, sum(if(datediff(now(),p.created_at)+1=17,p.amt-p.amt_distributed,0)) sd17, sum(if(datediff(now(),p.created_at)+1=18,p.amt-p.amt_distributed,0)) sd18, sum(if(datediff(now(),p.created_at)+1=19,p.amt-p.amt_distributed,0)) sd19, sum(if(datediff(now(),p.created_at)+1>=20,p.amt-p.amt_distributed,0)) sd20 FROM ph p where p.status is null order by p.created_at');
 
@@ -450,10 +388,6 @@ class AdminController extends Controller
 
     public function resetQueue(Request $request)
     {
-		if (!in_array(session('AdminLvl'),array(3,4)))
-		{
-			abort(500,'Unauthorized Access');
-		}
 		$id=$request->id;
 		DB::update('update wallet_queues_exe set qstat=2 where qstat=1 and id=' . $id);
 		return "Wallet Queue reset successfully.";
@@ -461,19 +395,11 @@ class AdminController extends Controller
 
     public function currentPhQueue()
     {
-		if (!in_array(session('AdminLvl'),array(3,4)))
-		{
-			abort(500,'Unauthorized Access');
-		}
         return Ph::where('status',null)->first();
 	}
 
     public function getKyc()
     {
-		if (!in_array(session('AdminLvl'),array(3,4)))
-		{
-			abort(500,'Unauthorized Access');
-		}
         $kyc = User::where('identification_verified',-1)->where('youtube_verified',-1)->get();
             return view('admin.approve_kyc')
             ->with('user',$this->user)
@@ -482,10 +408,6 @@ class AdminController extends Controller
 
     public function postKyc(Request $request)
     {
-		if (!in_array(session('AdminLvl'),array(3,4)))
-		{
-			abort(500,'Unauthorized Access');
-		}
         $user = User::find($request->user_id);
         $user->identification_verified = $request->status;
         $user->youtube_verified = $request->status;

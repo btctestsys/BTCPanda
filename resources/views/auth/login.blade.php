@@ -1,7 +1,7 @@
 @extends('layouts.static')
 
 @section('content')
-        <div class="account-pages"></div>
+        <div class="account-pages"></div>&nbsp;
         <div class="clearfix"></div>
         <div class="wrapper-page">
             <div class=" card-box">
@@ -15,11 +15,6 @@
                     
                     @foreach ($errors->all() as $error)
 					@if ($error == 'Successfully activate your account. You can login now.')
-					<div class="alert alert-success"><ul>
-                    <li>{{ $error }}</li>
-					</ul></div>
-					  
-					@elseif ($error == 'Your registration is successful. Please check your email to confirm your registration.')
 					<div class="alert alert-success"><ul>
                     <li>{{ $error }}</li>
 					</ul></div>

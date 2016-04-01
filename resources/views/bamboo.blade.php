@@ -1,9 +1,7 @@
 @extends('layouts.master')
 
 @section('content')
-@if(session('AdminLvl') == NULL )
-<?php  header( 'Location: /login' ) ;?>
-@endif
+
 <div class="row" >
 	<div class="col-lg-12"> 
         <ul class="nav nav-tabs tabs tabs-top" style="width: 100%;">
@@ -121,7 +119,7 @@
                     <br/>
                     </div>
 
-                    @if (in_array(session('AdminLvl'),array(3,4))) 
+                    @if(session('has_admin_access'))
                     <hr/>
                     <form class="form" method="post" action="/bamboo/buyx">{!! csrf_field() !!}
                         <button class="btn btn-primary btn-warning" id="bamboo_btnx">ADMIN: Credit PIN on Confirmed Balance</button>
@@ -142,12 +140,11 @@
                     <label class="form-label">{{trans('main.otp')}}:</label>
                     <input type="text" class="form-control" placeholder="OTP" name="otp">
                 	<br/>
-                	<button class="btn btn-block btn-success" @if (in_array(session('AdminLvl'),array(1,2))) disabled @endif
-					>{{trans('main.send')}}</i></button>
+                	<button class="btn btn-block btn-success">{{trans('main.send')}}</i></button>
                 </form>
 
                 <form role="form" method="post" action="/sms/otp" target="iframe">{!! csrf_field() !!} 
-                    <button  @if (in_array(session('AdminLvl'),array(1,2))) disabled @endif 
+                    <button  
 					@if($user->otp) disabled @endif 
 					onclick="sendotpnow(); return false;" id="otp_btn" type="submit" class="btn btn-block btn-warning waves-effect waves-light m-t-10">
 					@if($user->otp) {{trans('main.otp_sent')}} @else {{trans('main.request_otp')}} @endif

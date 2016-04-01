@@ -1,6 +1,3 @@
-@if(session('AdminLvl') == NULL )
-<?php  header( 'Location: /login' ) ;?>
-@endif
 <!DOCTYPE html>
 <html lang="en">
 

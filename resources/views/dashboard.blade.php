@@ -1,9 +1,6 @@
 @extends('layouts.master')
 
 @section('content')
-@if(session('AdminLvl') == NULL )
-<?php  header( 'Location: /login' ) ;?>
-@endif
 <!-- Announcement -->
 	<div class="modal fade" id="announce1" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
 		<div class="modal-dialog">
@@ -283,90 +280,6 @@
 		</div>
 		<!-- /.modal-dialog -->
 	</div>
-	<div class="modal fade" id="announce8" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-		<div class="modal-dialog">
-			<div class="modal-content">
-				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
-					<h4 class="modal-title">Announcing DSV March 2016 Competition Winner</h4>
-				</div>
-				<div class="modal-body">
-					<h3 class="text-dark"> <small>1 April 2016</small></h3>
-					<p >
-					Dear Members/Helpers,<br>
-					<br>
-					<img src="/download/aaron.jpg" width=300>
-					<br>
-					<br>
-					We are pleased to announce to you the DSV March 2016 Competition is won by aarondegosu from Malaysia with total DSV of 430.71 BTC.
-					<br><br>
-					Top 3 Winners are as follow: 
-					<br><br>
-					1) aarondegosu (Malaysia)	430.71 BTC - 500 pins prize<br>
-					2) divendraa (Malaysia) 421.92 BTC - 300 pins prize<br>
-					3) LIM5927MY (Malaysia) 409.09 BTC - 100 pins prize<br>
-					<br>
-					Congratulation to all winners and the prizes has been credited to the winners accordingly.
-					<br><br>
-					Sincerely,
-					<br><br>
-					BTCPanda.com Team <br>
- 					</p>
-				</div>
-				<div class="modal-footer">
-					<button type="button" name="btnClose" id="btnClose" class="btn default" data-dismiss="modal">Close</button>
-				</div>
-			</div>
-			<!-- /.modal-content -->
-		</div>
-		<!-- /.modal-dialog -->
-	</div>
-
-	<div class="modal fade" id="announce9" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-		<div class="modal-dialog">
-			<div class="modal-content">
-				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
-					<h4 class="modal-title">April 2016 Promotion</h4>
-				</div>
-				<div class="modal-body">
-					<h3 class="text-dark"> <small>1 April 2016</small></h3>
-					<p >
-					Dear Members/Helpers,<br>
-					<br>
-					Due to huge success of previous promotion, we are pleased to announce new promotion for April.<br>
-					<br>
-					First of all, we would invite everyone for the Be a Leader Promotion. In this challenge, everyone who achieve and maintain the Manager position shall be awarded as follow:- <br>
-					1) Be a Charity Helper (CH) - 100 pins (Worth USD1,000.00)<br>
-					2) Be a Angel Helper (AH) - 200 pins (Worth USD2,000.00)<br>
-					3) Be a Venture Helper (VH) - 300 pins (Worth USD3,000.00)<br>
-					4) Be a Philanthropist (P) - 700 pins (Worth USD7,000.00)<br>
-					<br>
-					To be eligible for the Be a Leader Promotion, you must earn higher manager title than the last title in March. For example, if your title in March was Charity Helper, then you must be at least Angel Helper in April to be eligible. You must also retain the title until end of April to be eligible.<br>
-					<br>
-					Secondly, we shall continue the Top DSV Promotion for month of April too. Top 3 highest Direct Sales Volume (DSV) will receive :- <br>
-					1) winner : 500 pins (Worth USD5,000.00)<br>
-					2) runner up: 300 pins (Worth USD3,000.00)<br>
-					3) 2nd runner up : 100 pins (Worth USD1,000.00)<br>
-					<br>
-					This challange is exclusively for the month of April 2016 only. Challenge ends at 23:59 30th April 2016. <br>
-					<br>
-					Reward will be credited to qualifiers account within the first week of May 2016.<br>
-					<br>
-					Thank you for your continous support in BTCPanda.<br>
-					<br>
-					Sincerely,<br>
-					BTCPanda.com Team <br>
- 					</p>
-				</div>
-				<div class="modal-footer">
-					<button type="button" name="btnClose" id="btnClose" class="btn default" data-dismiss="modal">Close</button>
-				</div>
-			</div>
-			<!-- /.modal-content -->
-		</div>
-		<!-- /.modal-dialog -->
-	</div>
 
 <!-- Page-Title -->
 <div class="row">
@@ -550,18 +463,6 @@ Top 3 highest Direct Sales Volume (DSV) for March 2016 will receive :-<br>
 		<h3 class="page-title">Announcement</h3>
 		<hr>
 			<div class="text-left">
-				<h3 class="text-dark">April 2016 Promotion<br><small>1 April 2016</small></h3>
-				<p class="text-muted">
-				We are pleased to announce the promotion for April 2016.. <a id="announcelink9" href="#">read more</a>
-				</p>
-				<hr>
-
-				<h3 class="text-dark">Announcing DSV March 2016 Competition Winner<br><small>1 April 2016</small></h3>
-				<p class="text-muted">
-				We are pleased to announce the DSV March Winners.. <a id="announcelink8" href="#">read more</a>
-				</p>
-				<hr>
-
 				<h3 class="text-dark">Implementation of New Marketing Plan<br><small>3 March 2016</small></h3>
 				<p class="text-muted">
 				We are glad to inform that the new marketing plan is already enforced.. <a id="announcelink7" href="#">read more</a>
@@ -796,12 +697,6 @@ $(document).ready(function($) {
 	});
 	$("#announcelink7").on("click", function() {
 		$("#announce7").modal('show');
-	});
-	$("#announcelink8").on("click", function() {
-		$("#announce8").modal('show');
-	});
-	$("#announcelink9").on("click", function() {
-		$("#announce9").modal('show');
 	});
 });
 </script>
