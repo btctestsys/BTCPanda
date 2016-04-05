@@ -69,9 +69,9 @@ class AuthController extends Controller
             return User::create([
                 'name' => $data['name'],
                 'email' => $data['email'],
-				'mobile' => $data['mobile'],
+			'mobile' => $data['mobile_code'].$data['mobile'],
                 'country' => $data['country'],
-				'verify_email_token' => $data['_token'],
+			'verify_email_token' => $data['_token'],
                 'password' => bcrypt($data['password']),
                 'username' => str_replace(' ','_',$data['username']),
                 'referral_id' => $user->id,

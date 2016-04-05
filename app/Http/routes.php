@@ -50,7 +50,12 @@ Route::get('register', 'Auth\AuthController@getRegister');
 Route::get('register/{referral?}', 'Auth\AuthController@getRegister');
 Route::get('auth/register', 'Auth\AuthController@getRegister');
 Route::post('auth/register', 'Auth\AuthController@postRegister');
-//Route::get('verifyEmail', 'UserController@verifyEmail');
+
+// Registration jquery validation
+Route::post('check/referral/{referal}', 'UserController@checkReferral');
+Route::post('check/email/{email}', 'UserController@checkEmail');
+Route::post('check/mobile/{mobile}', 'UserController@checkMobile');
+Route::post('check/country/{country}', 'UserController@getCountryCode');
 
 Route::get('verifyEmail/{token}', 'UserController@verifyEmail');
 

@@ -5,12 +5,13 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<meta name="description" content="Growing Bitcoins Like Bamboos">
 		<meta name="author" content="BTC Panda">
-
+		<meta name="csrf_token" content="{{ csrf_token() }}" />
 		<link rel="shortcut icon" href="/assets/images/favicon_1.ico">
 
 		<title>BTC Panda - Growing Bitcoins Like Bamboos</title>
 
-		<link href="/assets/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+		<!--<link href="/assets/css/bootstrap.min.css" rel="stylesheet" type="text/css" />-->
+		<link href="/assets/css/bootstrap.css" rel="stylesheet" type="text/css" />
         <link href="/assets/css/core.css" rel="stylesheet" type="text/css" />
         <link href="/assets/css/components.css" rel="stylesheet" type="text/css" />
         <link href="/assets/css/icons.css" rel="stylesheet" type="text/css" />

@@ -506,8 +506,7 @@ class UserController extends Controller
 		return "done";
 	}
 	
-	public function verifyEmail(Request $request)
-    {
+	public function verifyEmail(Request $request){
         if($request != '')
         {
             $users = db::update('update users set active = "1" where verify_email_token = "'.$request->token.'"');
@@ -531,7 +530,45 @@ class UserController extends Controller
         {
             return 'Invalid Token. Email confirmation failed.';
         }
-	
-
+    }
+    
+    public function checkReferral($referral){
+	    
+	    $sql = db::select('select count(username) as total from users where username = "'.$referral.'"');
+	    
+	    if($sql['0']->total == '0'){
+		    return 0;
+	    }else{
+		    return 1;
+	    }
+    }
+    
+    public function checkEmail($email){
+	    
+	    $sql = db::select('select count(email) as total from users where email = "'.$email.'"');
+	    
+	    if($sql['0']->total == '0'){
+		    return 0;
+	    }else{
+		    return 1;
+	    }
+    }
+    
+    public function checkMobile($mobile){
+	    
+	    $sql = db::select('select count(mobile) as total from users where mobile = "'.$mobile.'"');
+	    
+	    if($sql['0']->total == '0'){
+		    return 0;
+	    }else{
+		    return 1;
+	    }
+    }
+    
+    public function getCountryCode($c){
+	    
+	    $sql = db::select('select phone from phonecoderaw where code = "'.$c.'"');
+	    
+	    return $sql['0']->phone;
     }
 }
