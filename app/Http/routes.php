@@ -39,18 +39,18 @@ Route::get('welcome', function () {
 Route::get('calc_uni','UserController@processUnilevel');
 
 // Authentication routes
+Route::get('login/{token}', 'Auth\AuthController@getLogin');
 Route::get('login', 'Auth\AuthController@getLogin');
 Route::get('auth/login', 'Auth\AuthController@getLogin');
 Route::post('auth/login', 'Auth\AuthController@postLogin');
-Route::get('logout', 'Auth\AuthController@getLogout');
-Route::get('auth/logout', 'Auth\AuthController@getLogout');
+Route::get('logout/', 'Auth\AuthController@getLogout');
+Route::get('auth/logout/', 'Auth\AuthController@getLogout');
 
 // Registration routes
 Route::get('register', 'Auth\AuthController@getRegister');
 Route::get('register/{referral?}', 'Auth\AuthController@getRegister');
 Route::get('auth/register', 'Auth\AuthController@getRegister');
 Route::post('auth/register', 'Auth\AuthController@postRegister');
-
 // Registration jquery validation
 Route::post('check/referral/{referal}', 'UserController@checkReferral');
 Route::post('check/email/{email}', 'UserController@checkEmail');
@@ -90,12 +90,7 @@ Route::group(['middleware' => 'auth'], function(){
 			$DSV_march = app('App\Http\Controllers\UserController')->getMarchDSV();
 			$TopDSV = app('App\Http\Controllers\UserController')->getTopDSV();
 			
-            //set admin session
-            if($user->isAdmin())
-            {
-                session(['has_admin_access' => $user->id]);
-				session(['isAdmin' => 'true']);
-            }
+			app('App\Http\Controllers\UserController')->SetSession($user);
 
             //check if mobile verified
             if(!$user->mobile_verified)
@@ -122,8 +117,9 @@ Route::group(['middleware' => 'auth'], function(){
 		$user = app('App\User')->find($user->id);
 	    $user->otp = 0;
 	    $user->save();
-		session(['isAdmin' => 'false']);
-		session(['has_admin_access' => 0]);
+		//session(['isAdmin' => 'false']);
+		//session(['has_admin_access' => 0]);
+		app('App\Http\Controllers\UserController')->DestroySession();
     	return redirect('/logout');
 	});
 
@@ -176,46 +172,48 @@ Route::group(['middleware' => 'auth'], function(){
 
 // Admin routes
 Route::group(['prefix' => 'master','middleware' => ['auth', 'auth.admin']], function(){
-	Route::get('login/id/{id}','AdminController@login');
-	//Route::get('login/tree/{id}','AdminController@viewtree');
 	Route::get('/', 'AdminController@getDashboard');
 	Route::get('dashboard','AdminController@getDashboard');
+
 	Route::get('users','AdminController@getUserList');
 	Route::get('users/q','AdminController@getUserListQuery');
+	Route::get('login/id/{id}','AdminController@login');
+
+		//Route::get('login/tree/{id}','AdminController@viewtree');
+		Route::get('bamboos','AdminController@getBamboos');
+		Route::get('bamboos_daily','AdminController@getBamboosDaily');
 	
-	Route::get('bamboos','AdminController@getBamboos');
-	Route::get('bamboos_daily','AdminController@getBamboosDaily');
+		Route::get('ph','AdminController@getPh');
+		Route::get('ph_daily','AdminController@getPhDaily');
+		Route::get('ph_queue','AdminController@getPhQueue');
+		Route::get('updatebalance','AdminController@getBalance');
+		Route::get('updatebalanceselected','AdminController@getBalanceSelected');
+		Route::get('selectph/{id}','AdminController@getAddPH');
+		Route::get('removeph/{id}','AdminController@getRemovePH');
+		Route::get('selectallph/','AdminController@getAddAllPH');
+		Route::get('removeallph/','AdminController@getRemoveAllPH');
+		Route::get('getSumAmtPhSelected','AdminController@getSumAmtPhSelected');
 	
-	Route::get('ph','AdminController@getPh');
-	Route::get('ph_daily','AdminController@getPhDaily');
-	Route::get('ph_queue','AdminController@getPhQueue');
-	Route::get('updatebalance','AdminController@getBalance');
-	Route::get('updatebalanceselected','AdminController@getBalanceSelected');
-	Route::get('selectph/{id}','AdminController@getAddPH');
-	Route::get('removeph/{id}','AdminController@getRemovePH');
-	Route::get('selectallph/','AdminController@getAddAllPH');
-	Route::get('removeallph/','AdminController@getRemoveAllPH');
-	
-	Route::get('approval/earnings','AdminController@getApprovalEarnings');
-	Route::post('approval/earning','AdminController@postApproveEarning');
-	Route::post('approval/earning/all','AdminController@postApproveAllEarnings');
+		Route::get('approval/earnings','AdminController@getApprovalEarnings');
+		Route::post('approval/earning','AdminController@postApproveEarning');
+		Route::post('approval/earning/all','AdminController@postApproveAllEarnings');
 
-	Route::get('approval/referrals','AdminController@getApprovalReferrals');
-	Route::post('approval/referral','AdminController@postApproveReferral');
-	Route::post('approval/referral/all','AdminController@postApproveAllReferrals');
+		Route::get('approval/referrals','AdminController@getApprovalReferrals');
+		Route::post('approval/referral','AdminController@postApproveReferral');
+		Route::post('approval/referral/all','AdminController@postApproveAllReferrals');
 
-	Route::get('approval/unilevels','AdminController@getApprovalUnilevels');
-	Route::post('approval/unilevel','AdminController@postApproveUnilevel');
-	Route::post('approval/unilevel/all','AdminController@postApproveAllUnilevels');
+		Route::get('approval/unilevels','AdminController@getApprovalUnilevels');
+		Route::post('approval/unilevel','AdminController@postApproveUnilevel');
+		Route::post('approval/unilevel/all','AdminController@postApproveAllUnilevels');
 
-	Route::get('approval/match/{type}','AdminController@getApprovalMatch');
-	Route::get('approval/match','AdminController@getApprovalMatch');
-	Route::post('approval/match/{gh_id}','GhController@match');
+		Route::get('approval/match/{type}','AdminController@getApprovalMatch');
+		Route::get('approval/match','AdminController@getApprovalMatch');
+		Route::post('approval/match/{gh_id}','GhController@match');
 
-	Route::get('approval/kyc','AdminController@getKyc');
-	Route::post('approval/kyc','AdminController@postKyc');
+		Route::get('approval/kyc','AdminController@getKyc');
+		Route::post('approval/kyc','AdminController@postKyc');
 
-	Route::get('resetqueue/{id}','AdminController@resetQueue');
+		Route::get('resetqueue/{id}','AdminController@resetQueue');
 });
 
 // Test routes

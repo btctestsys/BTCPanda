@@ -275,7 +275,8 @@ class GhController extends Controller
         }
 		if($gh_unfilled>$phq_sum)
 		{
-            abort(500,"Not enough PH Queue for distribution.");
+            //abort(500,"Not enough PH Queue for distribution.");
+		  return "1";
 		}
 		else
 		{
@@ -283,7 +284,8 @@ class GhController extends Controller
            
 			if(!$ph)
 			{
-				abort(500,"No more PH Queue for distribution.");
+				//abort(500,"No more PH Queue for distribution.");
+				return "1";
 			}
 			else
 			{

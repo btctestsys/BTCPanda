@@ -6,7 +6,7 @@
 		<meta name="description" content="Growing Bitcoins Like Bamboos">
 		<meta name="author" content="BTC Panda">
     <meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0;">
-
+		<meta name="csrf_token" content="{{ csrf_token() }}" />
 		<link rel="shortcut icon" href="/assets/images/favicon_1.ico">
 
 		<title>BTC Panda - Growing Bitcoins Like Bamboos</title>
@@ -18,7 +18,7 @@
     <link href="/assets/css/pages.css" rel="stylesheet" type="text/css" />
     <link href="/assets/css/responsive.css" rel="stylesheet" type="text/css" />
     <link href="/assets/plugins/sweetalert/dist/sweetalert.css" rel="stylesheet" type="text/css">
-
+	<link href="/assets/css/jquery.growl.css" rel="stylesheet" type="text/css" />
     <link href="/css/css.css" rel="stylesheet" type="text/css" />
 
     <!-- HTML5 Shiv and Respond.js IE8 support of HTML5 elements and media queries -->
@@ -222,25 +222,73 @@
                     <!--- Divider -->
                     <div id="sidebar-menu" class="p-t-10">                        
                       <ul>
-                       <li class="text-muted menu-title hide">Main</li>
-                       <li><a href="/master/dashboard" class="waves-effect"><i class="fa fa-dashboard"></i> <span> Dashboard </span> </a></li>
-                      <li><a href="/master/users" class="waves-effect"><i class="fa fa-user"></i> <span> User List </span> </a></li>
-                      <li class="text-muted menu-title hide">Reportings</li>
-                      <li><a href="/master/ph_queue" class="waves-effect"><i class="md-list"></i> <span> PH Queue </span> </a></li>
-                      <li class="text-muted menu-title hide">Approvals</li>
-                      <li><a href="/master/approval/earnings" class="waves-effect"><i class="fa fa-check"></i> <span> Check Earnings </span> </a></li>
-                      <li><a href="/master/approval/referrals" class="waves-effect"><i class="fa fa-check"></i> <span> Check Referrals </span> </a></li>
-                      <li><a href="/master/approval/unilevels" class="waves-effect"><i class="fa fa-check"></i> <span> Check Unilevels </span> </a></li>
-                      <li class="hide"><a href="/master/approval/match/all" class="waves-effect"><i class="fa fa-exchange"></i> <span> Match (All) </span> </a></li>
-                      <li><a href="/master/approval/match/earnings" class="waves-effect"><i class="fa fa-exchange"></i> <span> Match (Earnings) </span> </a></li>
-                      <li><a href="/master/approval/match/referrals" class="waves-effect"><i class="fa fa-exchange"></i> <span> Match (Referrals) </span> </a></li>
-                      <li><a href="/master/approval/match/unilevels" class="waves-effect"><i class="fa fa-exchange"></i> <span> Match (Unilevels) </span> </a></li>
+						
+						 <!--- Marketing -->
+                        @if(session('AdminLvl')==1)
+						<li class="text-muted menu-title hide">Main</li>
+						<li><a href="/master/dashboard" class="waves-effect"><i class="fa fa-dashboard"></i> <span> Dashboard </span> </a></li>
+						<li><a href="/master/users" class="waves-effect"><i class="fa fa-user"></i> <span> User List </span> </a></li>
+                        @endif
 
-                      <li><a href="/master/bamboos" class="waves-effect"><i class="fa fa-thumb-tack"></i> <span> Pin Sales </span> </a></li>
-                      <li><a href="/master/bamboos_daily" class="waves-effect"><i class="fa fa-thumb-tack"></i> <span> Pin Sales Daily </span> </a></li>
-                      <li><a href="/master/ph" class="waves-effect"><i class="md-local-hospital"></i> <span> PH Sales </span> </a></li>
-                      <li><a href="/master/ph_daily" class="waves-effect"><i class="md-local-hospital"></i> <span> PH Sales Daily </span> </a></li>
-                      <li><a href="/master/approval/kyc" class="waves-effect"><i class="fa fa-youtube-play"></i> <span> ID & Video Testi. </span> </a></li>
+						 <!--- customer service -->
+                        @if(session('AdminLvl')==2)
+						<li class="text-muted menu-title hide">Main</li>
+						<li><a href="/master/dashboard" class="waves-effect"><i class="fa fa-dashboard"></i> <span> Dashboard </span> </a></li>
+						<li><a href="/master/users" class="waves-effect"><i class="fa fa-user"></i> <span> User List </span> </a></li>
+						<li><a href="/master/approval/kyc" class="waves-effect"><i class="fa fa-youtube-play"></i> <span> ID & Video Testi. </span> </a></li>
+                        @endif
+
+						 <!--- admin -->
+                        @if(session('AdminLvl')==3)
+						<li class="text-muted menu-title hide">Main</li>
+						<li><a href="/master/dashboard" class="waves-effect"><i class="fa fa-dashboard"></i> <span> Dashboard </span> </a></li>
+						<li><a href="/master/users" class="waves-effect"><i class="fa fa-user"></i> <span> User List </span> </a></li>
+						<li><a href="/master/ph_queue" class="waves-effect"><i class="md-list"></i> <span> PH Queue </span> </a></li>
+						<li><a href="/master/bamboos" class="waves-effect"><i class="fa fa-thumb-tack"></i> <span> Pin Sales </span> </a></li>
+						<li><a href="/master/bamboos_daily" class="waves-effect"><i class="fa fa-thumb-tack"></i> <span> Pin Sales Daily </span> </a></li>
+						<li><a href="/master/ph" class="waves-effect"><i class="md-local-hospital"></i> <span> PH Sales </span> </a></li>
+						<li><a href="/master/ph_daily" class="waves-effect"><i class="md-local-hospital"></i> <span> PH Sales Daily </span> </a></li>
+						<li><a href="/master/approval/kyc" class="waves-effect"><i class="fa fa-youtube-play"></i> <span> ID & Video Testi. </span> </a></li>
+                        @endif
+
+						 <!--- superadmin -->
+                        @if(session('AdminLvl')==4)
+						<li class="text-muted menu-title hide">Main</li>
+						<li><a href="/master/dashboard" class="waves-effect"><i class="fa fa-dashboard"></i> <span> Dashboard </span> </a></li>
+						<li><a href="#" class="waves-effect"><i class="fa fa-dashboard"></i> <span> Report </span></a>
+							<ul class="sub-menu">
+								<li >
+									<a href="/master/phbycountry">
+									<i class="icon-pie-chart"></i>
+									Daily PH</a>
+								</li>
+								<li >
+									<a href="/master/phbycountry">
+									<i class="icon-pie-chart"></i>
+									Daily Summary</a>
+								</li>
+
+							</ul>
+						</li>
+						<li><a href="/master/users" class="waves-effect"><i class="fa fa-user"></i> <span> User List </span> </a></li>
+						<li class="text-muted menu-title hide">Reportings</li>
+						<li><a href="/master/ph_queue" class="waves-effect"><i class="md-list"></i> <span> PH Queue </span> </a></li>
+						<li class="text-muted menu-title hide">Approvals</li>
+						<li><a href="/master/approval/earnings" class="waves-effect"><i class="fa fa-check"></i> <span> Check Earnings </span> </a></li>
+						<li><a href="/master/approval/referrals" class="waves-effect"><i class="fa fa-check"></i> <span> Check Referrals </span> </a></li>
+						<li><a href="/master/approval/unilevels" class="waves-effect"><i class="fa fa-check"></i> <span> Check Unilevels </span> </a></li>
+						<li class="hide"><a href="/master/approval/match/all" class="waves-effect"><i class="fa fa-exchange"></i> <span> Match (All) </span> </a></li>
+						<li><a href="/master/approval/match/earnings" class="waves-effect"><i class="fa fa-exchange"></i> <span> Match (Earnings) </span> </a></li>
+						<li><a href="/master/approval/match/referrals" class="waves-effect"><i class="fa fa-exchange"></i> <span> Match (Referrals) </span> </a></li>
+						<li><a href="/master/approval/match/unilevels" class="waves-effect"><i class="fa fa-exchange"></i> <span> Match (Unilevels) </span> </a></li>
+
+						<li><a href="/master/bamboos" class="waves-effect"><i class="fa fa-thumb-tack"></i> <span> Pin Sales </span> </a></li>
+						<li><a href="/master/bamboos_daily" class="waves-effect"><i class="fa fa-thumb-tack"></i> <span> Pin Sales Daily </span> </a></li>
+						<li><a href="/master/ph" class="waves-effect"><i class="md-local-hospital"></i> <span> PH Sales </span> </a></li>
+						<li><a href="/master/ph_daily" class="waves-effect"><i class="md-local-hospital"></i> <span> PH Sales Daily </span> </a></li>
+						<li><a href="/master/approval/kyc" class="waves-effect"><i class="fa fa-youtube-play"></i> <span> ID & Video Testi. </span> </a></li>
+                        @endif
+
 
                       <div class="clearfix"></div>
                     </div>
@@ -402,8 +450,10 @@
         <script src="/assets/js/jquery.scrollTo.min.js"></script>
 
         <script src="/assets/plugins/peity/jquery.peity.min.js"></script>
-
-        <!-- jQuery  -->
+	   
+	   <script src="/assets/js/jquery.growl.js" type="text/javascript"></script>
+        
+	   <!-- jQuery  -->
         <script src="/assets/plugins/waypoints/lib/jquery.waypoints.js"></script>
         <script src="/assets/plugins/counterup/jquery.counterup.min.js"></script>
 

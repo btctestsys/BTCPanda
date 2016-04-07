@@ -64,7 +64,7 @@ class BambooController extends Controller
     		->where('to',$this->user->id)
     		->orWhere('from',$this->user->id)
     		->orderBy('created_at','desc')
-    		->get();
+    		->take(50)->get();
     }
     public function BambooRequired($amt)
     {

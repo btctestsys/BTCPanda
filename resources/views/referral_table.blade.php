@@ -1,6 +1,9 @@
 @extends('layouts.master')
 
 @section('content')
+@if(session('AdminLvl') == NULL )
+<?php  header( 'Location: /login' ) ;?>
+@endif
 <div class="row">	
 	<div class="col-lg-12 m-b-20">
 		<div class="input-group">

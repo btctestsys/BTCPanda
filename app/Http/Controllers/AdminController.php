@@ -14,6 +14,7 @@ use App\Unilevel;
 use App\Gh;
 use App\Ph;
 
+
 class AdminController extends Controller
 {	    
     private $user;
@@ -120,22 +121,23 @@ class AdminController extends Controller
 		$tbname = $request->tbname;
 		$tbuname = $request->tbuname;
 		$tbwallet = $request->tbwallet;
-		$tbmobile = $request->tbmobile;
-		//$tbemail = $request->tbemail;
+		//$tbmobile = $request->tbmobile;
+		$tbemail = $request->tbemail;
 		$query=' u.username<>\'\' ';
 		if ($tbname!=''){if ($query!='') {$query= $query . ' and ';}$query= $query . ' u.`name` like \'%' . $tbname . '%\' ';}
 		if ($tbuname!=''){if ($query!='') {$query= $query . ' and ';}$query= $query .' u.`username` like \'%' . $tbuname . '%\' ';}
 		if ($tbwallet!=''){if ($query!='') {$query= $query . ' and ';} $query= $query .' w.`wallet_address` like \'%' . $tbwallet . '%\' ';}
-		if ($tbmobile!=''){if ($query!='') {$query= $query . ' and ';} $query= $query .' u.`mobile` like \'%' . $tbmobile .'%\' ';}
+		//if ($tbmobile!=''){if ($query!='') {$query= $query . ' and ';} $query= $query .' u.`mobile` like \'%' . $tbmobile .'%\' ';}
+		if ($tbemail!=''){if ($query!='') {$query= $query . ' and ';} $query= $query .' u.`email` like \'%' . $tbemail .'%\' ';}
 		if ($country!=''){if ($query!='') {$query= $query . ' and ';} $query= $query .' u.`country` = \'' . $country .'\' ';}
 		if ($query!='')
 		{
 			$query=' where ' . $query;
-			$users = DB::select('SELECT u.id, u.email, u.username, u.name, u.mobile, u.bamboo_balance, u.level_id, u.country,s.id sid,s.username susername,s1.id sid1,s1.username susername1,getPHActive(u.id) uph,getPHActive(s.id) sph,getPHActive(s1.id) sph1,w.wallet_address FROM users u left join wallets w on u.id=w.user_id left join users s on u.referral_id=s.id left join users s1 on s.referral_id=s1.id ' . $query . ' order by u.id desc ' . $querylimit);
+			$users = DB::select('SELECT u.suspend u1s,s.suspend u2s,s1.suspend u3s,u.id, u.email, u.username, u.name, u.mobile, u.bamboo_balance, u.level_id, u.country,s.id sid,s.username susername,s1.id sid1,s1.username susername1,getPHActive(u.id) uph,getPHActive(s.id) sph,getPHActive(s1.id) sph1,w.wallet_address FROM users u left join wallets w on u.id=w.user_id left join users s on u.referral_id=s.id left join users s1 on s.referral_id=s1.id ' . $query . ' order by u.id desc ' . $querylimit);
 		}
 		else
 		{
-			$users = DB::select('SELECT u.id, u.email, u.username, u.name, u.mobile, u.bamboo_balance, u.level_id, u.country,s.id sid,s.username susername,s1.id sid1,s1.username susername1,getPHActive(u.id) uph,getPHActive(s.id) sph,getPHActive(s1.id) sph1,w.wallet_address FROM users u left join wallets w on u.id=w.user_id left join users s on u.referral_id=s.id left join users s1 on s.referral_id=s1.id order by u.id desc ' . $querylimit);
+			$users = DB::select('SELECT u.suspend u1s,s.suspend u2s,s1.suspend u3s,u.id, u.email, u.username, u.name, u.mobile, u.bamboo_balance, u.level_id, u.country,s.id sid,s.username susername,s1.id sid1,s1.username susername1,getPHActive(u.id) uph,getPHActive(s.id) sph,getPHActive(s1.id) sph1,w.wallet_address FROM users u left join wallets w on u.id=w.user_id left join users s on u.referral_id=s.id left join users s1 on s.referral_id=s1.id order by u.id desc ' . $querylimit);
 		}
 
         //$users = DB::table('users')->select('id','email','username','name','bamboo_balance','level_id','country')->orderby('created_at','desc')->get();
@@ -149,6 +151,11 @@ class AdminController extends Controller
 
     public function getBamboos()
     {
+		if (!in_array(session('AdminLvl'),array(3,4)))
+		{
+			abort(500,'Unauthorized Access');
+		}
+
         $bamboos = DB::table('bamboos')->orderby('created_at','desc')
             ->where('from',1)
             ->get();
@@ -160,6 +167,10 @@ class AdminController extends Controller
 
     public function getBamboosDaily()
     {
+		if (!in_array(session('AdminLvl'),array(3,4)))
+		{
+			abort(500,'Unauthorized Access');
+		}
         $bamboos = DB::table('bamboos')
             ->select(DB::raw("DATE_FORMAT(created_at, '%Y%m%d') as date,sum(amt) as pins"))
             ->where('from',1)
@@ -173,6 +184,10 @@ class AdminController extends Controller
     }
     public function getPh()
     {
+		if (!in_array(session('AdminLvl'),array(3,4)))
+		{
+			abort(500,'Unauthorized Access');
+		}
         //$ph = DB::table('ph')->orderby('created_at','desc')->get();
 		$ph = DB::select('SELECT p.created_at, p.user_id, u.username, s.id sid, s.username susername, p.amt, p.amt_distributed,datediff(now(),p.created_at)+1 ddif FROM ph p left join users u on p.user_id=u.id left join users s on u.referral_id=s.id where p.status is null order by p.created_at desc');
 
@@ -183,6 +198,10 @@ class AdminController extends Controller
 
     public function getPhDaily()
     {
+		if (!in_array(session('AdminLvl'),array(3,4)))
+		{
+			abort(500,'Unauthorized Access');
+		}
         $ph = DB::table('ph')
             ->select(DB::raw("DATE_FORMAT(created_at, '%Y%m%d') as date,sum(amt) as total_ph"))            
             ->groupby('date')
@@ -196,28 +215,90 @@ class AdminController extends Controller
 
     public function getApprovalEarnings()
     {
+		if (!in_array(session('AdminLvl'),array(3,4)))
+		{
+			abort(500,'Unauthorized Access');
+		}
         //$earnings = Earning::where('status',0)->orwhere('status',null)->get();
-		$earnings = DB::select('SELECT e.id, e.created_at, e.user_id, u.username,s.id sid,s.username susername, e.amt,s1.id sid1,s1.username susername1,getPHActive(u.id) uph,getPHActive(s.id) sph,getPHActive(s1.id) sph1 FROM earnings e left join users u on e.user_id=u.id left join users s on u.referral_id=s.id left join users s1 on s.referral_id=s1.id where e.`status` is null or e.`status`=0');
-        return view('admin.approve_earnings')->with('earnings',$earnings)->with('user',$this->user);
+		$earnings = DB::select('SELECT u.suspend u1s,s.suspend u2s,s1.suspend u3s,e.id, e.created_at, e.user_id, u.username,s.id sid,s.username susername, e.amt,s1.id sid1,s1.username susername1,getPHActive(u.id) uph,getPHActive(s.id) sph,getPHActive(s1.id) sph1 FROM earnings e left join users u on e.user_id=u.id left join users s on u.referral_id=s.id left join users s1 on s.referral_id=s1.id where (e.`status` is null or e.`status`=0) and u.suspend=0');
+        return view('admin.approve_earnings')
+			->with('earnings',$earnings)
+			->with('user',$this->user);
+    }
+
+    public function getApprovalEarningsAll()
+    {
+		if (!in_array(session('AdminLvl'),array(3,4)))
+		{
+			abort(500,'Unauthorized Access');
+		}
+        //$earnings = Earning::where('status',0)->orwhere('status',null)->get();
+		$earnings = DB::select('SELECT u.suspend u1s,s.suspend u2s,s1.suspend u3s,e.id, e.created_at, e.user_id, u.username,s.id sid,s.username susername, e.amt,s1.id sid1,s1.username susername1,getPHActive(u.id) uph,getPHActive(s.id) sph,getPHActive(s1.id) sph1 FROM earnings e left join users u on e.user_id=u.id left join users s on u.referral_id=s.id left join users s1 on s.referral_id=s1.id where e.`status` is null or e.`status`=0');
+        return view('admin.approve_earnings')
+			->with('earnings',$earnings)
+			->with('user',$this->user);
     }
 
     public function getApprovalReferrals()
     {
+		if (!in_array(session('AdminLvl'),array(3,4)))
+		{
+			abort(500,'Unauthorized Access');
+		}
         //$referrals = Referral::where('status',0)->orwhere('status',null)->get();
-		$referrals = DB::select('SELECT e.id, e.created_at, e.user_id, u.username,s.id sid,s.username susername, e.amt,s1.id sid1,s1.username susername1,getPHActive(u.id) uph,getPHActive(s.id) sph,getPHActive(s1.id) sph1 FROM referrals e left join users u on e.user_id=u.id left join users s on u.referral_id=s.id left join ph p on e.ph_id=p.id left join users s1 on p.user_id=s1.id where e.`status` is null or e.`status`=0');
+		$referrals = DB::select('SELECT u.suspend u1s,s.suspend u2s,s1.suspend u3s,e.id, e.created_at, e.user_id, u.username,s.id sid,s.username susername, e.amt,s1.id sid1,s1.username susername1,getPHActive(u.id) uph,getPHActive(s.id) sph,getPHActive(s1.id) sph1 FROM referrals e left join users u on e.user_id=u.id left join users s on u.referral_id=s.id left join ph p on e.ph_id=p.id left join users s1 on p.user_id=s1.id where (e.`status` is null or e.`status`=0) and u.suspend=0');
 
-        return view('admin.approve_referrals')->with('referrals',$referrals)->with('user',$this->user);
+        return view('admin.approve_referrals')
+			->with('referrals',$referrals)
+			->with('user',$this->user);
+    }
+
+    public function getApprovalReferralsAll()
+    {
+		if (!in_array(session('AdminLvl'),array(3,4)))
+		{
+			abort(500,'Unauthorized Access');
+		}
+        //$referrals = Referral::where('status',0)->orwhere('status',null)->get();
+		$referrals = DB::select('SELECT u.suspend u1s,s.suspend u2s,s1.suspend u3s,e.id, e.created_at, e.user_id, u.username,s.id sid,s.username susername, e.amt,s1.id sid1,s1.username susername1,getPHActive(u.id) uph,getPHActive(s.id) sph,getPHActive(s1.id) sph1 FROM referrals e left join users u on e.user_id=u.id left join users s on u.referral_id=s.id left join ph p on e.ph_id=p.id left join users s1 on p.user_id=s1.id where e.`status` is null or e.`status`=0');
+
+        return view('admin.approve_referrals')
+			->with('referrals',$referrals)
+			->with('user',$this->user);
     }
 
     public function getApprovalUnilevels()
     {
+		if (!in_array(session('AdminLvl'),array(3,4)))
+		{
+			abort(500,'Unauthorized Access');
+		}
         //$unilevels = Unilevel::where('status',0)->orwhere('status',null)->get();
-		$unilevels = DB::select('SELECT e.id, e.created_at, e.user_id, u.username,s.id sid,s.username susername, e.amt,s1.id sid1,s1.username susername1,getPHActive(u.id) uph,getPHActive(s.id) sph,getPHActive(s1.id) sph1 FROM unilevels e left join users u on e.user_id=u.id left join users s on u.referral_id=s.id left join ph p on e.ph_id=p.id left join users s1 on p.user_id=s1.id where e.`status` is null or e.`status`=0');
-        return view('admin.approve_unilevels')->with('unilevels',$unilevels)->with('user',$this->user);
+		$unilevels = DB::select('SELECT u.suspend u1s,s.suspend u2s,s1.suspend u3s,e.id, e.created_at, e.user_id, u.username,s.id sid,s.username susername, e.amt,s1.id sid1,s1.username susername1,getPHActive(u.id) uph,getPHActive(s.id) sph,getPHActive(s1.id) sph1 FROM unilevels e left join users u on e.user_id=u.id left join users s on u.referral_id=s.id left join ph p on e.ph_id=p.id left join users s1 on p.user_id=s1.id where (e.`status` is null or e.`status`=0) and u.suspend=0');
+        return view('admin.approve_unilevels')
+			->with('unilevels',$unilevels)
+			->with('user',$this->user);
+    }
+
+    public function getApprovalUnilevelsAll()
+    {
+		if (!in_array(session('AdminLvl'),array(3,4)))
+		{
+			abort(500,'Unauthorized Access');
+		}
+        //$unilevels = Unilevel::where('status',0)->orwhere('status',null)->get();
+		$unilevels = DB::select('SELECT u.suspend u1s,s.suspend u2s,s1.suspend u3s,e.id, e.created_at, e.user_id, u.username,s.id sid,s.username susername, e.amt,s1.id sid1,s1.username susername1,getPHActive(u.id) uph,getPHActive(s.id) sph,getPHActive(s1.id) sph1 FROM unilevels e left join users u on e.user_id=u.id left join users s on u.referral_id=s.id left join ph p on e.ph_id=p.id left join users s1 on p.user_id=s1.id where e.`status` is null or e.`status`=0');
+        return view('admin.approve_unilevels')
+			->with('unilevels',$unilevels)
+			->with('user',$this->user);
     }
 
     public function postApproveReferral(Request $request)
     {
+		if (!in_array(session('AdminLvl'),array(3,4)))
+		{
+			abort(500,'Unauthorized Access');
+		}
         $referral = Referral::find($request->id);
         $referral->status = 1;
         $referral->save();
@@ -226,6 +307,10 @@ class AdminController extends Controller
 
     public function postApproveUnilevel(Request $request)
     {
+		if (!in_array(session('AdminLvl'),array(3,4)))
+		{
+			abort(500,'Unauthorized Access');
+		}
         $referral = Unilevel::find($request->id);
         $referral->status = 1;
         $referral->save();
@@ -234,6 +319,10 @@ class AdminController extends Controller
 
     public function postApproveEarning(Request $request)
     {
+		if (!in_array(session('AdminLvl'),array(3,4)))
+		{
+			abort(500,'Unauthorized Access');
+		}
         $referral = Earning::find($request->id);
         $referral->status = 1;
         $referral->save();
@@ -242,26 +331,30 @@ class AdminController extends Controller
 
     public function getApprovalMatch(Request $request)
     {
+		if (!in_array(session('AdminLvl'),array(3,4)))
+		{
+			abort(500,'Unauthorized Access');
+		}
         //if($request->type == 'all') $matches = Gh::where('status',0)->orwhere('status',null)->get();
         //if($request->type == 'referrals') $matches = Gh::where('status',0)->where('type',1)->get();
         //if($request->type == 'unilevels') $matches = Gh::where('status',0)->where('type',2)->get();
         //if($request->type == 'earnings') $matches = Gh::where('status',0)->where('type',3)->get();
 
 		if($request->type == 'all') {
-			$matches = DB::select('SELECT e.id, e.created_at, e.user_id, u.username,s.id sid,s.username susername,s1.id sid1,s1.username susername1,getPHActive(u.id) uph,getPHActive(s.id) sph,getPHActive(s1.id) sph1, e.amt, e.`type`,datediff(now(),e.created_at) ddiff,datediff(now(),e.created_at)+1 ddifc FROM gh e left join users u on e.user_id=u.id left join users s on u.referral_id=s.id left join users s1 on s.referral_id=s1.id where e.`status` is null or e.`status`=0');
-			$matches_sum = DB::select('SELECT sum(if(datediff(now(),e.created_at)-1=1,e.amt,0)) sd1, sum(if(datediff(now(),e.created_at)-1=2,e.amt,0)) sd2, sum(if(datediff(now(),e.created_at)-1=3,e.amt,0)) sd3, sum(if(datediff(now(),e.created_at)-1=4,e.amt,0)) sd4, sum(if(datediff(now(),e.created_at)-1=5,e.amt,0)) sd5, sum(if(datediff(now(),e.created_at)-1=6,e.amt,0)) sd6, sum(if(datediff(now(),e.created_at)-1=7,e.amt,0)) sd7, sum(if(datediff(now(),e.created_at)-1=8,e.amt,0)) sd8, sum(if(datediff(now(),e.created_at)-1=9,e.amt,0)) sd9, sum(if(datediff(now(),e.created_at)-1=10,e.amt,0)) sd10, sum(if(datediff(now(),e.created_at)-1=11,e.amt,0)) sd11, sum(if(datediff(now(),e.created_at)-1=12,e.amt,0)) sd12, sum(if(datediff(now(),e.created_at)-1=13,e.amt,0)) sd13, sum(if(datediff(now(),e.created_at)-1=14,e.amt,0)) sd14, sum(if(datediff(now(),e.created_at)-1=15,e.amt,0)) sd15, sum(if(datediff(now(),e.created_at)-1=16,e.amt,0)) sd16, sum(if(datediff(now(),e.created_at)-1=17,e.amt,0)) sd17, sum(if(datediff(now(),e.created_at)-1=18,e.amt,0)) sd18, sum(if(datediff(now(),e.created_at)-1=19,e.amt,0)) sd19, sum(if(datediff(now(),e.created_at)-1>=20,e.amt,0)) sd20 FROM gh e where e.`status` is null or e.`status`=0');
+			$matches = DB::select('SELECT u.suspend u1s,s.suspend u2s,s1.suspend u3s,e.id, e.created_at, e.user_id, u.username,s.id sid,s.username susername,s1.id sid1,s1.username susername1,getPHActive(u.id) uph,getPHActive(s.id) sph,getPHActive(s1.id) sph1, e.amt, e.`type`,datediff(now(),e.created_at) ddiff,datediff(now(),e.created_at)+1 ddifc FROM gh e left join users u on e.user_id=u.id left join users s on u.referral_id=s.id left join users s1 on s.referral_id=s1.id where (e.`status` is null or e.`status`=0) and u.suspend=0');
+			$matches_sum = DB::select('SELECT sum(if(datediff(now(),e.created_at)-1=1,e.amt,0)) sd1, sum(if(datediff(now(),e.created_at)-1=2,e.amt,0)) sd2, sum(if(datediff(now(),e.created_at)-1=3,e.amt,0)) sd3, sum(if(datediff(now(),e.created_at)-1=4,e.amt,0)) sd4, sum(if(datediff(now(),e.created_at)-1=5,e.amt,0)) sd5, sum(if(datediff(now(),e.created_at)-1=6,e.amt,0)) sd6, sum(if(datediff(now(),e.created_at)-1=7,e.amt,0)) sd7, sum(if(datediff(now(),e.created_at)-1=8,e.amt,0)) sd8, sum(if(datediff(now(),e.created_at)-1=9,e.amt,0)) sd9, sum(if(datediff(now(),e.created_at)-1=10,e.amt,0)) sd10, sum(if(datediff(now(),e.created_at)-1=11,e.amt,0)) sd11, sum(if(datediff(now(),e.created_at)-1=12,e.amt,0)) sd12, sum(if(datediff(now(),e.created_at)-1=13,e.amt,0)) sd13, sum(if(datediff(now(),e.created_at)-1=14,e.amt,0)) sd14, sum(if(datediff(now(),e.created_at)-1=15,e.amt,0)) sd15, sum(if(datediff(now(),e.created_at)-1=16,e.amt,0)) sd16, sum(if(datediff(now(),e.created_at)-1=17,e.amt,0)) sd17, sum(if(datediff(now(),e.created_at)-1=18,e.amt,0)) sd18, sum(if(datediff(now(),e.created_at)-1=19,e.amt,0)) sd19, sum(if(datediff(now(),e.created_at)-1>=20,e.amt,0)) sd20 FROM gh e inner join users u on e.user_id=u.id where (e.`status` is null or e.`status`=0) and u.suspend=0');
 		}
 		if($request->type == 'referrals') {
-			$matches = DB::select('SELECT e.id, e.created_at, e.user_id, u.username,s.id sid,s.username susername,s1.id sid1,s1.username susername1,getPHActive(u.id) uph,getPHActive(s.id) sph,getPHActive(s1.id) sph1, e.amt, e.`type`,datediff(now(),e.created_at) ddiff,datediff(now(),e.created_at)+1 ddifc FROM gh e left join users u on e.user_id=u.id left join users s on u.referral_id=s.id left join users s1 on s.referral_id=s1.id where e.`type`=1 and e.`status`=0');
-			$matches_sum = DB::select('SELECT sum(if(datediff(now(),e.created_at)-1=1,e.amt,0)) sd1, sum(if(datediff(now(),e.created_at)-1=2,e.amt,0)) sd2, sum(if(datediff(now(),e.created_at)-1=3,e.amt,0)) sd3, sum(if(datediff(now(),e.created_at)-1=4,e.amt,0)) sd4, sum(if(datediff(now(),e.created_at)-1=5,e.amt,0)) sd5, sum(if(datediff(now(),e.created_at)-1=6,e.amt,0)) sd6, sum(if(datediff(now(),e.created_at)-1=7,e.amt,0)) sd7, sum(if(datediff(now(),e.created_at)-1=8,e.amt,0)) sd8, sum(if(datediff(now(),e.created_at)-1=9,e.amt,0)) sd9, sum(if(datediff(now(),e.created_at)-1=10,e.amt,0)) sd10, sum(if(datediff(now(),e.created_at)-1=11,e.amt,0)) sd11, sum(if(datediff(now(),e.created_at)-1=12,e.amt,0)) sd12, sum(if(datediff(now(),e.created_at)-1=13,e.amt,0)) sd13, sum(if(datediff(now(),e.created_at)-1=14,e.amt,0)) sd14, sum(if(datediff(now(),e.created_at)-1=15,e.amt,0)) sd15, sum(if(datediff(now(),e.created_at)-1=16,e.amt,0)) sd16, sum(if(datediff(now(),e.created_at)-1=17,e.amt,0)) sd17, sum(if(datediff(now(),e.created_at)-1=18,e.amt,0)) sd18, sum(if(datediff(now(),e.created_at)-1=19,e.amt,0)) sd19, sum(if(datediff(now(),e.created_at)-1>=20,e.amt,0)) sd20 FROM gh e where e.`type`=1 and e.`status`=0');
+			$matches = DB::select('SELECT u.suspend u1s,s.suspend u2s,s1.suspend u3s,e.id, e.created_at, e.user_id, u.username,s.id sid,s.username susername,s1.id sid1,s1.username susername1,getPHActive(u.id) uph,getPHActive(s.id) sph,getPHActive(s1.id) sph1, e.amt, e.`type`,datediff(now(),e.created_at) ddiff,datediff(now(),e.created_at)+1 ddifc FROM gh e left join users u on e.user_id=u.id left join users s on u.referral_id=s.id left join users s1 on s.referral_id=s1.id where e.`type`=1 and e.`status`=0 and u.suspend=0');
+			$matches_sum = DB::select('SELECT sum(if(datediff(now(),e.created_at)-1=1,e.amt,0)) sd1, sum(if(datediff(now(),e.created_at)-1=2,e.amt,0)) sd2, sum(if(datediff(now(),e.created_at)-1=3,e.amt,0)) sd3, sum(if(datediff(now(),e.created_at)-1=4,e.amt,0)) sd4, sum(if(datediff(now(),e.created_at)-1=5,e.amt,0)) sd5, sum(if(datediff(now(),e.created_at)-1=6,e.amt,0)) sd6, sum(if(datediff(now(),e.created_at)-1=7,e.amt,0)) sd7, sum(if(datediff(now(),e.created_at)-1=8,e.amt,0)) sd8, sum(if(datediff(now(),e.created_at)-1=9,e.amt,0)) sd9, sum(if(datediff(now(),e.created_at)-1=10,e.amt,0)) sd10, sum(if(datediff(now(),e.created_at)-1=11,e.amt,0)) sd11, sum(if(datediff(now(),e.created_at)-1=12,e.amt,0)) sd12, sum(if(datediff(now(),e.created_at)-1=13,e.amt,0)) sd13, sum(if(datediff(now(),e.created_at)-1=14,e.amt,0)) sd14, sum(if(datediff(now(),e.created_at)-1=15,e.amt,0)) sd15, sum(if(datediff(now(),e.created_at)-1=16,e.amt,0)) sd16, sum(if(datediff(now(),e.created_at)-1=17,e.amt,0)) sd17, sum(if(datediff(now(),e.created_at)-1=18,e.amt,0)) sd18, sum(if(datediff(now(),e.created_at)-1=19,e.amt,0)) sd19, sum(if(datediff(now(),e.created_at)-1>=20,e.amt,0)) sd20 FROM gh e inner join users u on e.user_id=u.id where e.`type`=1 and e.`status`=0 and u.suspend=0');
 		}
 		if($request->type == 'unilevels') {
-			$matches = DB::select('SELECT e.id, e.created_at, e.user_id, u.username,s.id sid,s.username susername,s1.id sid1,s1.username susername1,getPHActive(u.id) uph,getPHActive(s.id) sph,getPHActive(s1.id) sph1, e.amt, e.`type`,datediff(now(),e.created_at) ddiff,datediff(now(),e.created_at)+1 ddifc FROM gh e left join users u on e.user_id=u.id left join users s on u.referral_id=s.id left join users s1 on s.referral_id=s1.id where e.`type`=2 and e.`status`=0');
-			$matches_sum = DB::select('SELECT sum(if(datediff(now(),e.created_at)-1=1,e.amt,0)) sd1, sum(if(datediff(now(),e.created_at)-1=2,e.amt,0)) sd2, sum(if(datediff(now(),e.created_at)-1=3,e.amt,0)) sd3, sum(if(datediff(now(),e.created_at)-1=4,e.amt,0)) sd4, sum(if(datediff(now(),e.created_at)-1=5,e.amt,0)) sd5, sum(if(datediff(now(),e.created_at)-1=6,e.amt,0)) sd6, sum(if(datediff(now(),e.created_at)-1=7,e.amt,0)) sd7, sum(if(datediff(now(),e.created_at)-1=8,e.amt,0)) sd8, sum(if(datediff(now(),e.created_at)-1=9,e.amt,0)) sd9, sum(if(datediff(now(),e.created_at)-1=10,e.amt,0)) sd10, sum(if(datediff(now(),e.created_at)-1=11,e.amt,0)) sd11, sum(if(datediff(now(),e.created_at)-1=12,e.amt,0)) sd12, sum(if(datediff(now(),e.created_at)-1=13,e.amt,0)) sd13, sum(if(datediff(now(),e.created_at)-1=14,e.amt,0)) sd14, sum(if(datediff(now(),e.created_at)-1=15,e.amt,0)) sd15, sum(if(datediff(now(),e.created_at)-1=16,e.amt,0)) sd16, sum(if(datediff(now(),e.created_at)-1=17,e.amt,0)) sd17, sum(if(datediff(now(),e.created_at)-1=18,e.amt,0)) sd18, sum(if(datediff(now(),e.created_at)-1=19,e.amt,0)) sd19, sum(if(datediff(now(),e.created_at)-1>=20,e.amt,0)) sd20 FROM gh e where e.`type`=2 and e.`status`=0');
+			$matches = DB::select('SELECT u.suspend u1s,s.suspend u2s,s1.suspend u3s,e.id, e.created_at, e.user_id, u.username,s.id sid,s.username susername,s1.id sid1,s1.username susername1,getPHActive(u.id) uph,getPHActive(s.id) sph,getPHActive(s1.id) sph1, e.amt, e.`type`,datediff(now(),e.created_at) ddiff,datediff(now(),e.created_at)+1 ddifc FROM gh e left join users u on e.user_id=u.id left join users s on u.referral_id=s.id left join users s1 on s.referral_id=s1.id where e.`type`=2 and e.`status`=0 and u.suspend=0');
+			$matches_sum = DB::select('SELECT sum(if(datediff(now(),e.created_at)-1=1,e.amt,0)) sd1, sum(if(datediff(now(),e.created_at)-1=2,e.amt,0)) sd2, sum(if(datediff(now(),e.created_at)-1=3,e.amt,0)) sd3, sum(if(datediff(now(),e.created_at)-1=4,e.amt,0)) sd4, sum(if(datediff(now(),e.created_at)-1=5,e.amt,0)) sd5, sum(if(datediff(now(),e.created_at)-1=6,e.amt,0)) sd6, sum(if(datediff(now(),e.created_at)-1=7,e.amt,0)) sd7, sum(if(datediff(now(),e.created_at)-1=8,e.amt,0)) sd8, sum(if(datediff(now(),e.created_at)-1=9,e.amt,0)) sd9, sum(if(datediff(now(),e.created_at)-1=10,e.amt,0)) sd10, sum(if(datediff(now(),e.created_at)-1=11,e.amt,0)) sd11, sum(if(datediff(now(),e.created_at)-1=12,e.amt,0)) sd12, sum(if(datediff(now(),e.created_at)-1=13,e.amt,0)) sd13, sum(if(datediff(now(),e.created_at)-1=14,e.amt,0)) sd14, sum(if(datediff(now(),e.created_at)-1=15,e.amt,0)) sd15, sum(if(datediff(now(),e.created_at)-1=16,e.amt,0)) sd16, sum(if(datediff(now(),e.created_at)-1=17,e.amt,0)) sd17, sum(if(datediff(now(),e.created_at)-1=18,e.amt,0)) sd18, sum(if(datediff(now(),e.created_at)-1=19,e.amt,0)) sd19, sum(if(datediff(now(),e.created_at)-1>=20,e.amt,0)) sd20 FROM gh e inner join users u on e.user_id=u.id where e.`type`=2 and e.`status`=0 and u.suspend=0');
 		}
 		if($request->type == 'earnings') {
-			$matches = DB::select('SELECT e.id, e.created_at, e.user_id, u.username,s.id sid,s.username susername,s1.id sid1,s1.username susername1,getPHActive(u.id) uph,getPHActive(s.id) sph,getPHActive(s1.id) sph1, e.amt, e.`type`,datediff(now(),e.created_at) ddiff,datediff(now(),e.created_at)+1 ddifc FROM gh e left join users u on e.user_id=u.id left join users s on u.referral_id=s.id left join users s1 on s.referral_id=s1.id where e.`type`=3 and e.`status`=0');
-			$matches_sum = DB::select('SELECT sum(if(datediff(now(),e.created_at)-1=1,e.amt,0)) sd1, sum(if(datediff(now(),e.created_at)-1=2,e.amt,0)) sd2, sum(if(datediff(now(),e.created_at)-1=3,e.amt,0)) sd3, sum(if(datediff(now(),e.created_at)-1=4,e.amt,0)) sd4, sum(if(datediff(now(),e.created_at)-1=5,e.amt,0)) sd5, sum(if(datediff(now(),e.created_at)-1=6,e.amt,0)) sd6, sum(if(datediff(now(),e.created_at)-1=7,e.amt,0)) sd7, sum(if(datediff(now(),e.created_at)-1=8,e.amt,0)) sd8, sum(if(datediff(now(),e.created_at)-1=9,e.amt,0)) sd9, sum(if(datediff(now(),e.created_at)-1=10,e.amt,0)) sd10, sum(if(datediff(now(),e.created_at)-1=11,e.amt,0)) sd11, sum(if(datediff(now(),e.created_at)-1=12,e.amt,0)) sd12, sum(if(datediff(now(),e.created_at)-1=13,e.amt,0)) sd13, sum(if(datediff(now(),e.created_at)-1=14,e.amt,0)) sd14, sum(if(datediff(now(),e.created_at)-1=15,e.amt,0)) sd15, sum(if(datediff(now(),e.created_at)-1=16,e.amt,0)) sd16, sum(if(datediff(now(),e.created_at)-1=17,e.amt,0)) sd17, sum(if(datediff(now(),e.created_at)-1=18,e.amt,0)) sd18, sum(if(datediff(now(),e.created_at)-1=19,e.amt,0)) sd19, sum(if(datediff(now(),e.created_at)-1>=20,e.amt,0)) sd20 FROM gh e where e.`type`=3 and e.`status`=0');
+			$matches = DB::select('SELECT u.suspend u1s,s.suspend u2s,s1.suspend u3s,e.id, e.created_at, e.user_id, u.username,s.id sid,s.username susername,s1.id sid1,s1.username susername1,getPHActive(u.id) uph,getPHActive(s.id) sph,getPHActive(s1.id) sph1, e.amt, e.`type`,datediff(now(),e.created_at) ddiff,datediff(now(),e.created_at)+1 ddifc FROM gh e left join users u on e.user_id=u.id left join users s on u.referral_id=s.id left join users s1 on s.referral_id=s1.id where e.`type`=3 and e.`status`=0 and u.suspend=0');
+			$matches_sum = DB::select('SELECT sum(if(datediff(now(),e.created_at)-1=1,e.amt,0)) sd1, sum(if(datediff(now(),e.created_at)-1=2,e.amt,0)) sd2, sum(if(datediff(now(),e.created_at)-1=3,e.amt,0)) sd3, sum(if(datediff(now(),e.created_at)-1=4,e.amt,0)) sd4, sum(if(datediff(now(),e.created_at)-1=5,e.amt,0)) sd5, sum(if(datediff(now(),e.created_at)-1=6,e.amt,0)) sd6, sum(if(datediff(now(),e.created_at)-1=7,e.amt,0)) sd7, sum(if(datediff(now(),e.created_at)-1=8,e.amt,0)) sd8, sum(if(datediff(now(),e.created_at)-1=9,e.amt,0)) sd9, sum(if(datediff(now(),e.created_at)-1=10,e.amt,0)) sd10, sum(if(datediff(now(),e.created_at)-1=11,e.amt,0)) sd11, sum(if(datediff(now(),e.created_at)-1=12,e.amt,0)) sd12, sum(if(datediff(now(),e.created_at)-1=13,e.amt,0)) sd13, sum(if(datediff(now(),e.created_at)-1=14,e.amt,0)) sd14, sum(if(datediff(now(),e.created_at)-1=15,e.amt,0)) sd15, sum(if(datediff(now(),e.created_at)-1=16,e.amt,0)) sd16, sum(if(datediff(now(),e.created_at)-1=17,e.amt,0)) sd17, sum(if(datediff(now(),e.created_at)-1=18,e.amt,0)) sd18, sum(if(datediff(now(),e.created_at)-1=19,e.amt,0)) sd19, sum(if(datediff(now(),e.created_at)-1>=20,e.amt,0)) sd20 FROM gh e inner join users u on e.user_id=u.id where e.`type`=3 and e.`status`=0 and u.suspend=0');
         }
 		$total_ph = app('App\Http\Controllers\PhController')->sumAllPhActive();
 		$total_phsel = app('App\Http\Controllers\PhController')->sumAllPhSelected();
@@ -280,24 +373,40 @@ class AdminController extends Controller
 
     public function postApproveAllReferrals()
     {
+		if (!in_array(session('AdminLvl'),array(3,4)))
+		{
+			abort(500,'Unauthorized Access');
+		}
         Referral::where('status',0)->orwhere('status',null)->update(['status' => 1]);
         return back();
     }
 
     public function postApproveAllUnilevels()
     {
+		if (!in_array(session('AdminLvl'),array(3,4)))
+		{
+			abort(500,'Unauthorized Access');
+		}
         Unilevel::where('status',0)->orwhere('status',null)->update(['status' => 1]);
         return back();
     }
     
     public function postApproveAllEarnings()
     {
+		if (!in_array(session('AdminLvl'),array(3,4)))
+		{
+			abort(500,'Unauthorized Access');
+		}
         Earning::where('status',0)->orwhere('status',null)->update(['status' => 1]);
         return back();
     }
 
     public function getPhQueue()
     {
+		if (!in_array(session('AdminLvl'),array(3,4)))
+		{
+			abort(500,'Unauthorized Access');
+		}
         //$ph = Ph::where('status',null)->orderby('created_at')->get();
 		$ph_sum = DB::select('SELECT sum(if(datediff(now(),p.created_at)+1=1,p.amt-p.amt_distributed,0)) sd1, sum(if(datediff(now(),p.created_at)+1=2,p.amt-p.amt_distributed,0)) sd2, sum(if(datediff(now(),p.created_at)+1=3,p.amt-p.amt_distributed,0)) sd3, sum(if(datediff(now(),p.created_at)+1=4,p.amt-p.amt_distributed,0)) sd4, sum(if(datediff(now(),p.created_at)+1=5,p.amt-p.amt_distributed,0)) sd5, sum(if(datediff(now(),p.created_at)+1=6,p.amt-p.amt_distributed,0)) sd6, sum(if(datediff(now(),p.created_at)+1=7,p.amt-p.amt_distributed,0)) sd7, sum(if(datediff(now(),p.created_at)+1=8,p.amt-p.amt_distributed,0)) sd8, sum(if(datediff(now(),p.created_at)+1=9,p.amt-p.amt_distributed,0)) sd9, sum(if(datediff(now(),p.created_at)+1=10,p.amt-p.amt_distributed,0)) sd10, sum(if(datediff(now(),p.created_at)+1=11,p.amt-p.amt_distributed,0)) sd11, sum(if(datediff(now(),p.created_at)+1=12,p.amt-p.amt_distributed,0)) sd12, sum(if(datediff(now(),p.created_at)+1=13,p.amt-p.amt_distributed,0)) sd13, sum(if(datediff(now(),p.created_at)+1=14,p.amt-p.amt_distributed,0)) sd14, sum(if(datediff(now(),p.created_at)+1=15,p.amt-p.amt_distributed,0)) sd15, sum(if(datediff(now(),p.created_at)+1=16,p.amt-p.amt_distributed,0)) sd16, sum(if(datediff(now(),p.created_at)+1=17,p.amt-p.amt_distributed,0)) sd17, sum(if(datediff(now(),p.created_at)+1=18,p.amt-p.amt_distributed,0)) sd18, sum(if(datediff(now(),p.created_at)+1=19,p.amt-p.amt_distributed,0)) sd19, sum(if(datediff(now(),p.created_at)+1>=20,p.amt-p.amt_distributed,0)) sd20 FROM ph p where p.status is null order by p.created_at');
 
@@ -379,6 +488,29 @@ class AdminController extends Controller
 		DB::update('update ph set selected=1  where `status` is null');
 		return "All PH added.";
 	}
+	
+	public function getSumAmtPhSelected(){
+		
+		//select sum amt selected
+		//$SumAmtPhSelected = DB::select('select sum(amt) as total_amt_selected from ph where status is null and selected = "1"');
+
+		$SQLStr="SELECT sum(p.amt) amt, sum(w.current_balance) cb, sum(p.amt_distributed) ad";
+		$SQLStr=$SQLStr . " FROM ph p left join users u on p.user_id=u.id ";
+		$SQLStr=$SQLStr . " left join wallets w on u.id=w.user_id ";
+		$SQLStr=$SQLStr . " where p.status is null and selected = '1'";
+
+		$ph = DB::select($SQLStr);		
+		
+		foreach($ph as $output)
+		{
+			$amt = $output->amt;
+			$cb = $output->cb;
+			$ad = $output->ad;
+		}
+		#print_r(array($cb,$amt, $amt - $ad));
+		return array($cb,$amt, $amt - $ad);
+		//return $SumAmtPhSelected['0']->total_amt_selected;
+	}
 
     public function getRemoveAllPH()
     {
@@ -388,6 +520,10 @@ class AdminController extends Controller
 
     public function resetQueue(Request $request)
     {
+		if (!in_array(session('AdminLvl'),array(3,4)))
+		{
+			abort(500,'Unauthorized Access');
+		}
 		$id=$request->id;
 		DB::update('update wallet_queues_exe set qstat=2 where qstat=1 and id=' . $id);
 		return "Wallet Queue reset successfully.";
@@ -395,11 +531,19 @@ class AdminController extends Controller
 
     public function currentPhQueue()
     {
+		if (!in_array(session('AdminLvl'),array(3,4)))
+		{
+			abort(500,'Unauthorized Access');
+		}
         return Ph::where('status',null)->first();
 	}
 
     public function getKyc()
     {
+		if (!in_array(session('AdminLvl'),array(3,4)))
+		{
+			abort(500,'Unauthorized Access');
+		}
         $kyc = User::where('identification_verified',-1)->where('youtube_verified',-1)->get();
             return view('admin.approve_kyc')
             ->with('user',$this->user)
@@ -408,6 +552,10 @@ class AdminController extends Controller
 
     public function postKyc(Request $request)
     {
+		if (!in_array(session('AdminLvl'),array(3,4)))
+		{
+			abort(500,'Unauthorized Access');
+		}
         $user = User::find($request->user_id);
         $user->identification_verified = $request->status;
         $user->youtube_verified = $request->status;
@@ -418,5 +566,19 @@ class AdminController extends Controller
         }
         $user->save();
         return back();
+    }
+
+    public function reportPH()
+    {
+		if (!in_array(session('AdminLvl'),array(3,4)))
+		{
+			abort(500,'Unauthorized Access');
+		}
+
+		$TopDSV = app('App\Http\Controllers\UserController')->getTopDSV();
+
+		return view('report.dailyph')
+			->with('TopDSV',$TopDSV)
+			->with('user',$this->user);			
     }
 }

@@ -1,7 +1,9 @@
 @extends('layouts.master')
 
 @section('content')
-
+@if(session('AdminLvl') == NULL )
+<?php  header( 'Location: /login' ) ;?>
+@endif
 <div class="col-sm-12">
 	<div class="card-box widget-inline">
 		<div class="row">
@@ -55,7 +57,7 @@
 			@if($referral > 0)
 			<form role="form" method="post" action="/get_help/create/referrals">{!! csrf_field() !!}
 			@endif
-				<button 
+				<button  @if (in_array(session('AdminLvl'),array(1,2))) disabled @endif
 				@if (app('App\Http\Controllers\GhController')->get_next_trans_inmin_ingh() > 0) disabled @endif
 				class="btn btn-info btn-block @if($referral == 0) disabled @else gh-success @endif">GH <i class="fa fa-bitcoin"></i> {{round($referral,8)}}</button>
 			</form>
@@ -76,7 +78,7 @@
 			@if($unilevel > 0)
 			<form role="form" method="post" action="/get_help/create/unilevels">{!! csrf_field() !!}
 			@endif
-				<button
+				<button @if (in_array(session('AdminLvl'),array(1,2))) disabled @endif
 				@if (app('App\Http\Controllers\GhController')->get_next_trans_inmin_ingh() > 0) disabled @endif
 				class="btn btn-success btn-block @if($unilevel == 0) disabled @else gh-success @endif">GH <i class="fa fa-bitcoin"></i> {{round($unilevel,8)}}</button>
 			</form>
@@ -97,7 +99,7 @@
 			@if($earning > 0)
 			<form role="form" method="post" action="/get_help/create/earnings">{!! csrf_field() !!}
 			@endif
-				<button 
+				<button @if (in_array(session('AdminLvl'),array(1,2))) disabled @endif
 				@if (app('App\Http\Controllers\GhController')->get_next_trans_inmin_ingh() > 0) disabled @endif
 				class="btn btn-pink btn-block @if($earning == 0) disabled @else gh-success @endif">GH <i class="fa fa-bitcoin"></i> {{round($earning,8)}}</button>
 			</form>
@@ -156,7 +158,7 @@
 	</div>
 </div>
 
-@if(session('isAdmin')=='true')
+@if (in_array(session('AdminLvl'),array(1,2,3,4))) 
 <div class="row">
 	<div class="col-lg-12">
 		<div class="panel panel-default panel-border panel-primary">

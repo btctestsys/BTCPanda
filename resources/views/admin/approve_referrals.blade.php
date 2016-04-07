@@ -24,9 +24,22 @@
 						<tr>							
 							<td>{{$output->created_at}}</td>
 							<td>
+							@if($output->u3s>=1)
+							<a href="/master/login/id/{{$output->sid1}}"><mark><strike>{{$output->susername1}}</strike></mark></a>({{round($output->sph1,2)}})
+							@else
 							<a href="/master/login/id/{{$output->sid1}}">{{$output->susername1}}</a>({{round($output->sph1,2)}})
+							@endif
+							@if($output->u1s>=1)
+							-> <a href="/master/login/id/{{$output->user_id}}"><mark><strike>{{$output->username}}</strike></mark></a>({{round($output->uph,2)}})
+							@else
 							-> <a href="/master/login/id/{{$output->user_id}}">{{$output->username}}</a>({{round($output->uph,2)}})
+							@endif
+							@if($output->u2s>=1)
+							-> <a href="/master/login/id/{{$output->sid}}"><mark><strike>{{$output->susername}}</strike></mark></a>({{round($output->sph,2)}})
+							@else
 							-> <a href="/master/login/id/{{$output->sid}}">{{$output->susername}}</a>({{round($output->sph,2)}})
+							@endif
+
 							</td>
 							<td>{{round($output->amt,8)}}</td>
 							<td>{{Carbon\Carbon::parse($output->created_at)->diffindays()+1}}</td>

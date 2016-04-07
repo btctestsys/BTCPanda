@@ -15,7 +15,7 @@
 		</div>
 	</div>
 </div>
-
+<?php //print_r($matches);?>
 <div class="row">
 	<div class="col-sm-12 col-lg-12">
 		<div class="panel panel-default panel-border panel-primary">
@@ -91,17 +91,38 @@
 						@foreach($matches as $output)
 						<tr>							
 							<td title="{{$output->created_at}}">{{Carbon\Carbon::parse($output->created_at)->diffForHumans()}}</td>
-							<td><a href="/master/login/id/{{$output->user_id}}">{{$output->username}}</a>({{round($output->uph,2)}})
+							<td>
+							@if($output->u1s>=1)
+							<a href="/master/login/id/{{$output->user_id}}"><mark><strike>{{$output->username}}</strike></mark></a>({{round($output->uph,2)}})
+							@else
+							<a href="/master/login/id/{{$output->user_id}}">{{$output->username}}</a>({{round($output->uph,2)}})
+							@endif
+							@if($output->u2s>=1)
+							-> <a href="/master/login/id/{{$output->sid}}"><mark><strike>{{$output->susername}}</strike></mark></a>({{round($output->sph,2)}})
+							@else
 							-> <a href="/master/login/id/{{$output->sid}}">{{$output->susername}}</a>({{round($output->sph,2)}})
+							@endif
+							@if($output->u3s>=1)
+							-> <a href="/master/login/id/{{$output->sid1}}"><mark><strike>{{$output->susername1}}</strike></mark></a>({{round($output->sph1,2)}})</td>
+							@else
 							-> <a href="/master/login/id/{{$output->sid1}}">{{$output->susername1}}</a>({{round($output->sph1,2)}})</td>
+							@endif
+
 							<td>{{round($output->amt,8)}}</td>
 							<td>@if($output->type == 1) Referral @endif @if($output->type == 2) Unilevel @endif @if($output->type == 3) Earning @endif</td>
-							<td>{{Carbon\Carbon::parse($output->created_at)->diffindays()}}</td>							
-							<td>
-							<form method="post" action="/master/approval/match/{{$output->id}}">
+							<td>{{Carbon\Carbon::parse($output->created_at)->diffindays()}}</td>						
+							<td nowrap=nowrap>
+							<!-- <form method="post" action="/master/approval/match/{{$output->id}}"> -->
 								{!! csrf_field() !!} 
-								<button class="btn btn-xs btn-success match-success">Approve</button>
-							</form>							
+								<span id="btnApproved{{$output->id}}"></span>
+								<button class="btn btn-xs btn-success btnApprove" id="btnApprove{{$output->id}}" 
+									outputID="{{$output->id}}" 
+									outputDate="{{Carbon\Carbon::parse($output->created_at)->diffForHumans()}}"
+									outputUsername="{{$output->username}}"
+									outputToMatch="{{round($output->amt,8)}}">
+									Approve
+								</button>
+							<!-- </form> -->			
 							</td>
 						</tr>
 							{{--*/ $total_match =  $total_match + $output->amt /*--}}
@@ -132,12 +153,55 @@
 
 <script>
 //Success Message
-$('.match-success').click(function(){
-swal("GH Matched!", "Please wait till this popup closes.", "success")
-});
+//$('.match-success').click(function(){
+//swal("GH Matched!", "Please wait till this popup closes.", "success")
+//});
 </script>
 @stop
 
 @section('docready')
-
+<script type="text/javascript">
+jQuery(document).ready(function () {
+	
+	$('.btnApprove').on('click', function () {
+		
+		var outputID 			= $(this).attr('outputID');
+		var outputDate 		= $(this).attr('outputDate');
+		var outputUsername = $(this).attr('outputUsername');
+		var outputToMatch 	= $(this).attr('outputToMatch');
+		
+		$.ajax({
+			type: "POST",
+			url: "/master/approval/match/"+ outputID,
+			beforeSend: function (xhr) {
+				var token = $('meta[name="csrf_token"]').attr('content');
+				if (token) {
+					return xhr.setRequestHeader('X-CSRF-TOKEN', token);
+				}
+			},
+			success: function(msg){
+				if(msg == 1){
+					$.growl.error({ 
+						message	: 	" ", 
+						duration	: 	"3500",  
+						title			: 	"<i class='fa fa-exclamation-circle'></i> Not enough PH Queue for distribution."
+					});
+				}else{
+					$("#btnApproved"+outputID).html('<span class="btn-xs btn-primary">Approved</span>');
+					$('#btnApprove'+outputID).hide();
+					$.growl.notice({ 
+						message	: 	"<br><p>Date : <strong>"+outputDate+"</strong></p>"+
+											"<p>Member : <strong>"+outputUsername+"</strong></p>"+
+											"<p>To Match : <strong>"+outputToMatch+"</strong></p>", 
+						duration	: 	"3500",  
+						title			: 	"<i class='fa fa-check'></i> GH Matched!"
+					});
+				}	
+			}
+				
+		});		
+		//alert(outputID);
+	});
+});
+</script>
 @stop

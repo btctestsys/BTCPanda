@@ -97,7 +97,7 @@
 							<td>{{round($output->amt - $output->amt_distributed,8)}}</td>
 							<td>{{$output->ddifc}}</td>
 							<td>
-							@if ($output->selected) <i class='icon-like'></i> @endif
+							<span id="iconlike{{$output->pid}}">@if ($output->selected) <i class='icon-like'></i> @endif</span>
 							</td>
 							<td>
 							<a href='javascript:;' class="data-add-div btn btn-sm btn-success" data-id='{{$output->pid}}' > + </a>
@@ -127,9 +127,9 @@
 						<tr>							
 							<td></td>
 							<td>Total Selected</td>
-							<td>{{round($total_w_sel,8)}}</td>
-							<td>{{round($total_queue_sel,8)}}</td>
-							<td>{{round($total_queue_sel -$total_bal_sel,8)}}</td>
+							<td id="total_w_sel">{{round($total_w_sel,8)}}</td>
+							<td id="total_queue_sel">{{round($total_queue_sel,8)}}</td>
+							<td id="total_bal_sel">{{round($total_queue_sel -$total_bal_sel,8)}}</td>
 							<td></td>
 							<td></td>
 							<td></td>
@@ -169,14 +169,35 @@ jQuery(document).ready(function () {
 	$('.data-add-div').on('click', function () {
 		var vid = $(this).attr('data-id');
 		$.get("/master/selectph/" + vid, function (data, status) {
-			//alert(data);
+			$('#growls').remove();
+			if(status == 'success'){				
+				$.get("/master/getSumAmtPhSelected" , function (totalAmt, status) {
+					
+					$("#iconlike"+vid).html('<i class="icon-like"></i>');	
+					
+					$.growl.notice({ message: "<p>Selected PH added.</p><p>Total Wallet : <strong>"+totalAmt[0]+"</strong></p><p>Total PH : <strong>"+totalAmt[1]+"</strong></p><p>Total Balance : <strong>"+totalAmt[2]+"</strong></p>" });
+					$('#total_w_sel').html(totalAmt[0]);
+					$('#total_queue_sel').html(totalAmt[1]);
+					$('#total_bal_sel').html(totalAmt[2]);
+				});			
+			}
 		});
 	});
 
 	$('.data-del-div').on('click', function () {
 		var vid = $(this).attr('data-id');
 		$.get("/master/removeph/" + vid, function (data, status) {
-			//alert(data);
+			$('#growls').remove();
+			if(status == 'success'){	
+				$.get("/master/getSumAmtPhSelected" , function (totalAmt, status) {
+					
+					$("#iconlike"+vid).html('');
+					$.growl.error({ message: "<p>Selected PH removed.</p><p>Total Wallet : <strong>"+totalAmt[0]+"</strong></p><p>Total PH : <strong>"+totalAmt[1]+"</strong></p><p>Total Balance : <strong>"+totalAmt[2]+"</strong></p>" });
+					$('#total_w_sel').html(totalAmt[0]);
+					$('#total_queue_sel').html(totalAmt[1]);
+					$('#total_bal_sel').html(totalAmt[2]);
+				});	
+			}
 		});
 	});
 

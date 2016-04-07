@@ -111,7 +111,7 @@ class PhController extends Controller
 		else
 		{
 			//update wallet first
-			//app('App\Http\Controllers\WalletController')->updateWallet();
+			app('App\Http\Controllers\WalletController')->updateWallet();
 
 			if($request->amt >= 0.1)
 			{

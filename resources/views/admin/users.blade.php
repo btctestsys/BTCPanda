@@ -266,7 +266,7 @@
 				                        </div>
 					                    <div class="col-md-2">
 				                            <div class="form-group">
-					                            <input type="text" value="{{$request->tbmobile}}" id="tbmobile" name="tbmobile" class="form-control" placeholder="Enter Mobile">
+					                            <input type="text" value="{{$request->tbemail}}" id="tbemail" name="tbemail" class="form-control" placeholder="Enter Email">
 				                            </div>
 				                        </div>
 					                    <div class="col-md-2">
@@ -303,9 +303,24 @@
 										<td><a href="/master/login/id/{{$output->id}}">{{$output->id}}</a></td>
 										<td>{{$output->country}}&nbsp;</td>
 										<td>{{$output->name}}</td>
-										<td><a href="/master/login/id/{{$output->id}}">{{$output->username}}</a>({{round($output->uph,2)}})
+										<td>
+										@if($output->u1s>=1)
+										<a href="/master/login/id/{{$output->id}}"><mark><strike>{{$output->username}}</strike></mark></a>({{round($output->uph,2)}})
+										@else
+										<a href="/master/login/id/{{$output->id}}">{{$output->username}}</a>({{round($output->uph,2)}})
+										@endif
+
+										@if($output->u2s>=1 )
+										-> <a href="/master/login/id/{{$output->sid}}"><mark><strike>{{$output->susername}}</strike></mark></a>({{round($output->sph,2)}})
+										@else
 										-> <a href="/master/login/id/{{$output->sid}}">{{$output->susername}}</a>({{round($output->sph,2)}})
+										@endif
+
+										@if($output->u3s>=1)
+										-> <a href="/master/login/id/{{$output->sid1}}"><mark><strike>{{$output->susername1}}</strike></mark></a>({{round($output->sph1,2)}})</td>
+										@else
 										-> <a href="/master/login/id/{{$output->sid1}}">{{$output->susername1}}</a>({{round($output->sph1,2)}})</td>
+										@endif
 										<td>{{$output->email}} 
 										</td>
 										<td>@if($output->bamboo_balance) {{$output->bamboo_balance}} @endif&nbsp;</td>
