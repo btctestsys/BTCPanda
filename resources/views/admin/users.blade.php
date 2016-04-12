@@ -1,7 +1,7 @@
 @extends('layouts.admin')
 
 @section('content')
-
+			<?php echo session('user_id'); ?>-<?php echo session('has_admin_access'); ?>
 			<div class="row">
 				<div class="col-md-12">
 					<!-- BEGIN BANKS PORTLET-->

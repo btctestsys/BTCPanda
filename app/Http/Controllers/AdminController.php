@@ -104,9 +104,9 @@ class AdminController extends Controller
 
     public function getUserListAll(Request $request)
     {
-        //$users = DB::table('users')->select('id','email','username','name','bamboo_balance','level_id','country')->orderby('created_at','desc')->get();
+		//$users = DB::table('users')->select('id','email','username','name','bamboo_balance','level_id','country')->orderby('created_at','desc')->get();
 		$users = DB::select('SELECT u.id, u.email, u.username, u.name, u.bamboo_balance, u.level_id, u.country,s.id sid,s.username susername,s1.id sid1,s1.username susername1,getPHActive(u.id) uph,getPHActive(s.id) sph,getPHActive(s1.id) sph1 FROM users u left join users s on u.referral_id=s.id left join users s1 on s.referral_id=s1.id order by u.id desc limit 10');
-
+		
         return view('admin.usersall')
             ->with('request',$request)
             ->with('users',$users)
@@ -130,10 +130,13 @@ class AdminController extends Controller
 		//if ($tbmobile!=''){if ($query!='') {$query= $query . ' and ';} $query= $query .' u.`mobile` like \'%' . $tbmobile .'%\' ';}
 		if ($tbemail!=''){if ($query!='') {$query= $query . ' and ';} $query= $query .' u.`email` like \'%' . $tbemail .'%\' ';}
 		if ($country!=''){if ($query!='') {$query= $query . ' and ';} $query= $query .' u.`country` = \'' . $country .'\' ';}
+		
 		if ($query!='')
 		{
 			$query=' where ' . $query;
-			$users = DB::select('SELECT u.suspend u1s,s.suspend u2s,s1.suspend u3s,u.id, u.email, u.username, u.name, u.mobile, u.bamboo_balance, u.level_id, u.country,s.id sid,s.username susername,s1.id sid1,s1.username susername1,getPHActive(u.id) uph,getPHActive(s.id) sph,getPHActive(s1.id) sph1,w.wallet_address FROM users u left join wallets w on u.id=w.user_id left join users s on u.referral_id=s.id left join users s1 on s.referral_id=s1.id ' . $query . ' order by u.id desc ' . $querylimit);
+			$query = 'SELECT u.suspend u1s,s.suspend u2s,s1.suspend u3s,u.id, u.email, u.username, u.name, u.mobile, u.bamboo_balance, u.level_id, u.country,s.id sid,s.username susername,s1.id sid1,s1.username susername1,getPHActive(u.id) uph,getPHActive(s.id) sph,getPHActive(s1.id) sph1,w.wallet_address FROM users u left join wallets w on u.id=w.user_id left join users s on u.referral_id=s.id and left(s.gene,length(\''.session('AdminGene').'\')) = \''.session('AdminGene').'\' left join users s1 on s.referral_id=s1.id and left(s1.gene,length(\''.session('AdminGene').'\')) = \''.session('AdminGene').'\'' . $query . ' and left(u.gene,length(\''.session('AdminGene').'\')) = \''.session('AdminGene').'\' order by u.id desc ' . $querylimit;
+			$users = DB::select($query);
+
 		}
 		else
 		{
@@ -580,5 +583,54 @@ class AdminController extends Controller
 		return view('report.dailyph')
 			->with('TopDSV',$TopDSV)
 			->with('user',$this->user);			
+    }
+    
+	public function reportPhByCountry(Request $request){
+	    
+		if($request->inputDate != ''){
+		    $inputDate = $request->input('inputDate');
+		}else{
+		    $inputDate = date("Y-m-d");
+		}
+		
+		$query = 'SELECT u.country,c.country cname,SUM(amt) totalph FROM users u INNER JOIN ph p ON u.id=p.user_id 
+					   LEFT JOIN country c ON u.country=c.code 
+					   WHERE	DATE(p.created_at) = "'.$inputDate.'" GROUP BY u.country ORDER BY totalph DESC';	
+		$phDate = DB::select($query);
+		
+		$query2 = "SELECT u.country,c.country cname,SUM(amt) totalph, DATE(p.created_at) as created_at
+						FROM users u INNER JOIN ph p ON u.id=p.user_id LEFT JOIN country c ON u.country=c.code 
+						WHERE 	DATE(p.created_at) BETWEEN DATE_ADD('".$inputDate."', INTERVAL -6 DAY) AND '".$inputDate."'
+						GROUP BY DATE(p.created_at), u.country
+						ORDER BY u.country, DATE(p.created_at) DESC";						
+		$phDate7d = DB::select($query2);
+		
+		$query3 = "SELECT u.country,c.country cname,SUM(amt) totalph, DATE_FORMAT(p.created_at, '%Y%m') as created_at
+						FROM users u INNER JOIN ph p ON u.id=p.user_id LEFT JOIN country c ON u.country=c.code
+						WHERE DATE(p.created_at) BETWEEN DATE_ADD(DATE(CONCAT(YEAR('".$inputDate."'), '-', MONTH('".$inputDate."'), '-01')), INTERVAL -2 MONTH)
+						AND DATE_ADD(DATE_ADD(DATE(CONCAT(YEAR('".$inputDate."'), '-', MONTH('".$inputDate."'), '-01')), INTERVAL 1 MONTH), INTERVAL -1 DAY)
+						GROUP BY DATE_FORMAT(p.created_at, '%Y%m'), u.country
+						ORDER BY u.country, DATE_FORMAT(p.created_at, '%Y%m') DESC";		
+				
+		$phDate3m= DB::select($query3);
+		
+		$query4 = "SELECT  DATE_FORMAT(p.created_at, '%Y%m') as created_at, DATE_FORMAT(p.created_at, '%Y-%m') as created_at1
+						FROM ph p 
+						WHERE DATE(p.created_at) BETWEEN DATE_ADD(DATE(CONCAT(YEAR('".$inputDate."'), '-', MONTH('".$inputDate."'), '-01')), INTERVAL -2 MONTH)
+						AND DATE_ADD(DATE_ADD(DATE(CONCAT(YEAR('".$inputDate."'), '-', MONTH('".$inputDate."'), '-01')), INTERVAL 1 MONTH), INTERVAL -1 DAY)
+						GROUP BY DATE_FORMAT(p.created_at, '%Y%m')
+						ORDER BY DATE_FORMAT(p.created_at, '%Y%m') DESC";		
+				
+		$phdates = DB::select($query4);
+		
+		
+		
+		return view('report.phbycountry')
+			->with('inputDate',$inputDate)
+			->with('phDate',$phDate)
+			->with('phDate7d',$phDate7d)
+			->with('phDate3m',$phDate3m)
+			->with('phdates',$phdates)
+			->with('user',$this->user);
     }
 }

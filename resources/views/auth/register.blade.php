@@ -379,6 +379,7 @@
 
 @section('docready')
 jQuery(document).ready(function () {
+	alert('asdasd');
 	$('#form-reg').validate({
 		errorElement: 'span', //default input error message container
 		errorClass: 'help-block', // default input error message class
@@ -438,12 +439,8 @@ jQuery(document).ready(function () {
 
 	});
 });
-
-@stop
-
-<script src="{{ asset('js/jquery.min.js') }}"></script>
-<script>
-	$(document).ready(function() {
+<script type="text/javascript">
+jQuery(document).ready(function () {
 		
 		$('#referral').change( function(){
 			var referral = $('#referral').val();
@@ -585,3 +582,4 @@ jQuery(document).ready(function () {
 		});
 	});
 </script>
+@stop

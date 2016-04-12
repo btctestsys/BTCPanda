@@ -78,7 +78,7 @@
 						<label for="youtube">Admin Level</label>
     					<select class="form-control" name="adminlvl" id="adminlvl">
 							<option @if($user->adm == '0') selected @endif value="0">0 Member</option>
-							<option @if($user->adm == '1') selected @endif value="1">1 Marketing</option>
+							<option @if($user->adm == '1') selected @endif value="1">1 Leader</option>
 							<option @if($user->adm == '2') selected @endif value="2">2 Customer Service</option>
 							<option @if($user->adm == '3') selected @endif value="3">3 Admin</option>
 							<option @if($user->adm == '4') selected @endif value="4">4 Super Admin</option>

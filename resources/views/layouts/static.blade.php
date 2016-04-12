@@ -51,7 +51,7 @@
 
         <script src="/assets/js/jquery.core.js"></script>
         <script src="/assets/js/jquery.app.js"></script>
-
+		
         <script>
         (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
         (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -62,7 +62,7 @@
         ga('send', 'pageview');
 
         </script>
-        
+        @yield('docready')
         </body>
 </html>
         

@@ -368,6 +368,35 @@
 		<!-- /.modal-dialog -->
 	</div>
 
+	<div class="modal fade" id="announce10" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+					<h4 class="modal-title">System Enhancement</h4>
+				</div>
+				<div class="modal-body">
+					<h3 class="text-dark"> <small>10 April 2016</small></h3>
+					<p >
+					Dear Members/Helpers,<br>
+					<br>
+					In order to enhance our security features, we are pleased to introduce email verification system for 
+					newly registered members. Kindly ensure to fill up the registration form with correct e mail address 
+					to ensure smooth registration process.<br>
+					<br>
+					Sincerely,<br>
+					BTCPanda.com Team <br>
+ 					</p>
+				</div>
+				<div class="modal-footer">
+					<button type="button" name="btnClose" id="btnClose" class="btn default" data-dismiss="modal">Close</button>
+				</div>
+			</div>
+			<!-- /.modal-content -->
+		</div>
+		<!-- /.modal-dialog -->
+	</div>
+
 <!-- Page-Title -->
 <div class="row">
 	<div class="col-sm-12">
@@ -565,6 +594,12 @@ Top 3 highest Direct Sales Volume (DSV) for April 2016 will receive :-<br>
 		<h3 class="page-title">Announcement</h3>
 		<hr>
 			<div class="text-left">
+				<h3 class="text-dark">System Enhancement<br><small>10 April 2016</small></h3>
+				<p class="text-muted">
+				We are pleased to announce a new feature enhancement.. <a id="announcelink10" href="#">read more</a>
+				</p>
+				<hr>
+
 				<h3 class="text-dark">April 2016 Promotion<br><small>1 April 2016</small></h3>
 				<p class="text-muted">
 				We are pleased to announce the promotion for April 2016.. <a id="announcelink9" href="#">read more</a>
@@ -817,6 +852,9 @@ $(document).ready(function($) {
 	});
 	$("#announcelink9").on("click", function() {
 		$("#announce9").modal('show');
+	});
+	$("#announcelink10").on("click", function() {
+		$("#announce10").modal('show');
 	});
 });
 </script>

@@ -616,16 +616,23 @@ class UserController extends Controller
         //set admin session
         //if($user->isAdmin())
 		if (in_array(session('AdminLvl'),array(1,2,3,4)))
-		{}
+		{
+			session(['user_id' => $user->id]);
+		}
 		else
 		{
 			if($user->adm > 0)
 			{
+				session(['user_id' => $user->id]);
 				session(['has_admin_access' => $user->id]);
 				session(['isAdmin' => 'true']);
 				session(['AdminLvl' => $user->adm]);
+				session(['AdminGene' => $user->gene]);
+			}else{
+				session(['user_id' => $user->id]);
+				
 			}
-        }
+		}
     }
 	public function DestroySession()
     {

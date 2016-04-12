@@ -214,6 +214,11 @@ Route::group(['prefix' => 'master','middleware' => ['auth', 'auth.admin']], func
 		Route::post('approval/kyc','AdminController@postKyc');
 
 		Route::get('resetqueue/{id}','AdminController@resetQueue');
+		
+		
+		//Report
+		Route::get('phbycountry','AdminController@reportPhByCountry');
+		Route::post('phbycountry','AdminController@reportPhByCountry');
 });
 
 // Test routes
