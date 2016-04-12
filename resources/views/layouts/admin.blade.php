@@ -20,8 +20,8 @@
     <link href="/assets/plugins/sweetalert/dist/sweetalert.css" rel="stylesheet" type="text/css">
 	<link href="/assets/css/jquery.growl.css" rel="stylesheet" type="text/css" />
     <link href="/css/css.css" rel="stylesheet" type="text/css" />
-	<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.3.0/css/datepicker.min.css" />
-	<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.3.0/css/datepicker3.min.css" />
+	<link rel="stylesheet" href="/assets/css/datepicker.min.css" />
+	<link rel="stylesheet" href="/assets/css/datepicker3.min.css" />
     <!-- HTML5 Shiv and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
@@ -481,7 +481,7 @@
         <script src="/assets/plugins/sweetalert/dist/sweetalert.min.js"></script>
         <script src="/assets/pages/jquery.sweet-alert.init.js"></script>
 	   
-	   <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.3.0/js/bootstrap-datepicker.min.js"></script>
+	   <script src="/assets/js/bootstrap-datepicker.min.js"></script>
 
         @yield('js')
 
