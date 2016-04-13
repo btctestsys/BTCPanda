@@ -15,21 +15,30 @@ use App\Unilevel;
 use App\Ph;
 
 class PhController extends Controller
-{	    
+{
     private $user;
 
     public function __construct()
-    {    	
+    {
     	$this->user = Auth::user();
     }
 
     public function getIndex()
     {
+      #Check Setting
+      $uid = $this->user->id;
+      $query = "SELECT `country`, `mobile`, `wallet1` FROM users WHERE id = '$uid'";
+		$check = DB::select($query);
+
+      if($check['0']->mobile == '' or $check['0']->country == '' or $check['0']->wallet1 == ''){
+      }
+
+
     	//$ph = DB::table('ph')->where('user_id',$this->user->id)->where(function($query) {$query->where('status',null)->orwhere('status','<>',2);})->orderby('created_at','desc')->get();
 		//ddifc - ceiling day difference, ddiff - floor day difference, hdif - remaining hours difference, htotal - total hours difference
 		//$ph = DB::select('SELECT p.id,p.`status`,p.created_at, p.user_id, p.amt, p.amt_distributed,l.ph_limit,l.ph_limit - getphactive(p.user_id) phleft,time_format(timediff(date_add(now(),interval 0 day),p.created_at),\'%H\') htotal,floor(time_format(timediff(date_add(now(),interval 0 day),p.created_at),\'%H\')/24) ddiff,ceiling(time_format(timediff(date_add(now(),interval 0 day),p.created_at),\'%H\')/24) ddifc,time_format(timediff(date_add(now(),interval 0 day),p.created_at),\'%H\')-floor(time_format(timediff(date_add(now(),interval 0 day),p.created_at),\'%H\')/24)*24 hdif FROM ph p inner join users u on p.user_id=u.id left join level_referrals l on u.level_referral_id=l.id where p.user_id=? and (p.`status` is null or p.`status`<>2) order by p.created_at desc',[$this->user->id]);
 		$ph = DB::select('SELECT p.id,p.`status`,p.created_at, p.user_id, p.amt, p.amt_distributed,l.ph_limit,l.ph_limit - getphactive(p.user_id) phleft,time_format(timediff(date_add(now(),interval 0 day),p.created_at),\'%H\') htotal,datediff(now(),p.created_at) ddiff,if(datediff(now(),p.created_at)+1>90,90,datediff(now(),p.created_at)+1) ddifc,hour(now())+1 hdif FROM ph p inner join users u on p.user_id=u.id left join level_referrals l on u.level_referral_id=l.id where p.user_id=? and (p.`status` is null or p.`status`<>2) order by p.created_at desc',[$this->user->id]);
-        
+
         $ph_ended = DB::table('ph')
             ->where('user_id',$this->user->id)
             ->where('status',2)
@@ -42,7 +51,7 @@ class PhController extends Controller
             $gh_users = Match::where('ph_id',$output->id)->get();
 
             $gh_users_list = array();
-            
+
             foreach($gh_users as $output2)
             {
                 $gh_users_list[] .= '<i class="fa fa-bitcoin"></i> '.$output2->amt.' <a target="_blank" href="http://blockchain.info/address/'.$output2->gh->user->wallet->wallet_address.'">'.$output2->gh->user->username.' ('.$output2->gh->user->country.')</a>';
@@ -59,7 +68,7 @@ class PhController extends Controller
             $output->days = $earning_days;
 
             //reset back for next loop
-            @$earnings_claimed = 0;            
+            @$earnings_claimed = 0;
         }
 
         foreach($ph_ended as $output)
@@ -68,7 +77,7 @@ class PhController extends Controller
             $gh_users = Match::where('ph_id',$output->id)->get();
 
             $gh_users_list = array();
-            
+
             foreach($gh_users as $output2)
             {
                 $gh_users_list[] .= '<i class="fa fa-bitcoin"></i> '.$output2->amt.' <a target="_blank" href="http://blockchain.info/address/'.$output2->gh->user->wallet->wallet_address.'">'.$output2->gh->user->username.' ('.$output2->gh->user->country.')</a>';
@@ -85,7 +94,7 @@ class PhController extends Controller
             $output->days = $earning_days;
 
             //reset back for next loop
-            @$earnings_claimed = 0;            
+            @$earnings_claimed = 0;
         }
 
         //other things to calculate
@@ -93,7 +102,7 @@ class PhController extends Controller
 
 		$walletqueue_history = DB::select('select created_at,`from`,`to`,amt,match_id,if(match_id=0,\'SEND\',\'GH\') typ,`status`,json from wallet_queues where `from`=\'' . $this->user->wallet->wallet_address . '\' order by id desc limit 100');
 
-        return view('ph')    		            
+        return view('ph')
             ->with('walletqueue_history',$walletqueue_history)
             ->with('ph_left',$ph_left)
             ->with('user',$this->user)
@@ -102,7 +111,7 @@ class PhController extends Controller
     }
 
     public function postCreate(Request $request)
-    {    	
+    {
 		$next_trans = Self::get_next_trans_inmin_inph();
 		if ($next_trans > 0)
         {
@@ -121,7 +130,7 @@ class PhController extends Controller
 					{
 						$bamboo_required = app('App\Http\Controllers\BambooController')->BambooRequired($request->amt);
 						$bamboo_check = app('App\Http\Controllers\BambooController')->BambooCheck($this->user->id,$bamboo_required);
-                    
+
 						if($bamboo_check)
 						{
 							//insert ph
@@ -136,7 +145,7 @@ class PhController extends Controller
 							$ph_id = 0;
 							foreach($record_id as $output)
 							{
-								$ph_id = $output->id;            
+								$ph_id = $output->id;
 							}
 
 							$notes = "PH ".$ph_id;
@@ -161,7 +170,7 @@ class PhController extends Controller
 							//deferred to daily
 							//app('App\Http\Controllers\ReferralController')->processUnilevelBonus($ph_id,$this->user->gene,$net_ph_amt);
 
-							//reset manager title 
+							//reset manager title
 							//DB::select('call setManagerTitle('.$this->user->id.')');
 							//DB::select('call setManagerTitle('.$this->user->referral_id.')');
 
@@ -178,12 +187,12 @@ class PhController extends Controller
 					}
 				}
 				else
-				{                
+				{
 					return abort(500,"Insufficient Wallet Balance");
 				}
 			}
 			else
-			{            
+			{
 				return abort(500,"PH must be 0.1 or more.");
 			}
         }
@@ -203,18 +212,18 @@ class PhController extends Controller
     {
 		$ph = DB::select('select sum(amt) amt from ph where selected=1 and `status` is null ');
         //return Ph::where('selected',1)andwhere('status',null)->orwhere('status','<>',2)->sum('amt');
-        
+
         foreach($ph as $output)
         {
             $phsel = $output->amt;
         }
-        
+
         return $phsel;
     }
 
     public function sumPhActive()
     {
-        return DB::table('ph')            
+        return DB::table('ph')
             ->where('user_id',$this->user->id)
             ->where(function($query) {
                 $query->where('status',null)->orwhere('status',0)->orwhere('status',1);
@@ -224,7 +233,7 @@ class PhController extends Controller
 
     public function sumPhActiveDistributed()
     {
-        return DB::table('ph')            
+        return DB::table('ph')
             ->where('user_id',$this->user->id)
             ->where(function($query) {
                 $query->where('status',null)->orwhere('status',0)->orwhere('status',1);
@@ -242,12 +251,12 @@ class PhController extends Controller
                 $query->where('status',null)->orwhere('status','<>',2);
             })
             ->get();
-        
+
         foreach($ph as $output)
         {
             $current_earnings += Carbon::parse($output->created_at)->diffInDays() * $output ->amt * 0.01;
         }
-        
+
         return $current_earnings;
     }
 
@@ -255,12 +264,12 @@ class PhController extends Controller
     {
         $dsv = 0;
 		$ph = DB::select('select sum(getPHActive(id)) as activedownlinePH from users where referral_id=' . $this->user->id);
-        
+
         foreach($ph as $output)
         {
             $dsv = $output->activedownlinePH;
         }
-        
+
         return $dsv;
     }
 
@@ -279,8 +288,8 @@ class PhController extends Controller
 				$data     = Crypt::decrypt($request->hidden);
 				$data     = explode('~',$data);
 				$ph_id    = $data[0];
-				$amt      = $data[1];            
-				@$all      = @$data[2];            
+				$amt      = $data[1];
+				@$all      = @$data[2];
 			}
 			catch(\Exception $e)
 			{
@@ -291,14 +300,14 @@ class PhController extends Controller
 			$bamboo_required = app('App\Http\Controllers\BambooController')->BambooRequired($amt);
 			$bamboo_check = app('App\Http\Controllers\BambooController')->BambooCheck($this->user->id,$bamboo_required);
 			$notes = "PH (Claim) ".$ph_id;
-        
+
 			//check minimum amt gh earnings
 			if($amt > 0 && $bamboo_check)
 			{
 				//to prevent double entry
 				$check = Earning::where('user_id',$this->user->id)->where('status',1)->count();
-            
-				if($check)        
+
+				if($check)
 				{
 					abort(500,'Previous claim not yet GH.');
 				}
@@ -343,8 +352,13 @@ class PhController extends Controller
         $next_wait_time = 0;
 		foreach($next_wait as $output)
         {
-			$next_wait_time = $output->waittime;           
+			$next_wait_time = $output->waittime;
         }
-		return $next_wait_time; 
+		return $next_wait_time;
     }
+
+    public function doCheckBeforePH(Request $request){
+
+      return 0;
+   }
 }

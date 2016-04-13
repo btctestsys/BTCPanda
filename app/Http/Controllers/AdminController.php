@@ -16,11 +16,11 @@ use App\Ph;
 
 
 class AdminController extends Controller
-{	    
+{
     private $user;
 
     public function __construct()
-    {    	
+    {
     	$this->user = Auth::user();
     }
 
@@ -47,42 +47,42 @@ class AdminController extends Controller
 		$statMth = DB::select('select left(monthname(now()),3) m1,left(monthname(date_add(now(), interval -1 month)),3) m2,left(monthname(date_add(now(), interval -2 month)),3) m3');
         foreach($statMth as $output)
         {
-            @$m1 = $output->m1;            
-            @$m2 = $output->m2;            
-            @$m3 = $output->m3;            
+            @$m1 = $output->m1;
+            @$m2 = $output->m2;
+            @$m3 = $output->m3;
         }
 
 		$statPH = DB::select('select u.country,c.country cname,sum(amt) totalph, sum(if((`status` is null or `status`<>2) and DATE_FORMAT(now(),\'%Y%m\')=DATE_FORMAT(p.created_at,\'%Y%m\'),amt,0)) aphm1, sum(if((`status` is null or `status`<>2) and DATE_FORMAT(date_add(now(), interval -1 month),\'%Y%m\')=DATE_FORMAT(p.created_at,\'%Y%m\'),amt,0)) aphm2, sum(if((`status` is null or `status`<>2) and DATE_FORMAT(date_add(now(), interval -2 month),\'%Y%m\')=DATE_FORMAT(p.created_at,\'%Y%m\'),amt,0)) aphm3, sum(if(`status` is null or `status`<>2,amt,0)) activeph from users u inner join ph p on u.id=p.user_id left join country c on u.country=c.code group by u.country;');
         foreach($statPH as $output)
         {
-            @$totalph = $output->totalph;            
-            @$moneybox = $output->moneybox;            
-            @$totalactive = $output->totalactive;            
-            @$activeph = $output->activeph;            
+            @$totalph = $output->totalph;
+            @$moneybox = $output->moneybox;
+            @$totalactive = $output->totalactive;
+            @$activeph = $output->activeph;
         }
 
 		$stat = DB::select('select sum(amt) totalph,sum(if(`status` is null or `status`<>2,amt,0)) activeph,sum(if(`status` is null or `status`<>2,1,0)) totalactive,sum(amt-amt_distributed) moneybox from users u inner join ph p on u.id=p.user_id;');
         foreach($stat as $output)
         {
-            @$totalph = $output->totalph;            
-            @$moneybox = $output->moneybox;            
-            @$totalactive = $output->totalactive;            
-            @$activeph = $output->activeph;            
+            @$totalph = $output->totalph;
+            @$moneybox = $output->moneybox;
+            @$totalactive = $output->totalactive;
+            @$activeph = $output->activeph;
         }
 
 		$stat = DB::select('select sum(amt) totalgh from gh;');
         foreach($stat as $output)
         {
-            @$totalgh = $output->totalgh;            
+            @$totalgh = $output->totalgh;
         }
-        
+
 		$stat = DB::select('select sum(current_balance) current_balance from wallets;');
         foreach($stat as $output)
         {
-            @$current_balance = $output->current_balance;            
-            @$available_balance = $output->current_balance - @$activeph;            
+            @$current_balance = $output->current_balance;
+            @$available_balance = $output->current_balance - @$activeph;
         }
-        
+
 		$LastOpenQ = app('App\Http\Controllers\UserController')->getLastOpenQ();
 
 		return view('admin.dashboard')
@@ -106,7 +106,7 @@ class AdminController extends Controller
     {
 		//$users = DB::table('users')->select('id','email','username','name','bamboo_balance','level_id','country')->orderby('created_at','desc')->get();
 		$users = DB::select('SELECT u.id, u.email, u.username, u.name, u.bamboo_balance, u.level_id, u.country,s.id sid,s.username susername,s1.id sid1,s1.username susername1,getPHActive(u.id) uph,getPHActive(s.id) sph,getPHActive(s1.id) sph1 FROM users u left join users s on u.referral_id=s.id left join users s1 on s.referral_id=s1.id order by u.id desc limit 10');
-		
+
         return view('admin.usersall')
             ->with('request',$request)
             ->with('users',$users)
@@ -130,7 +130,7 @@ class AdminController extends Controller
 		//if ($tbmobile!=''){if ($query!='') {$query= $query . ' and ';} $query= $query .' u.`mobile` like \'%' . $tbmobile .'%\' ';}
 		if ($tbemail!=''){if ($query!='') {$query= $query . ' and ';} $query= $query .' u.`email` like \'%' . $tbemail .'%\' ';}
 		if ($country!=''){if ($query!='') {$query= $query . ' and ';} $query= $query .' u.`country` = \'' . $country .'\' ';}
-		
+
 		if ($query!='')
 		{
 			$query=' where ' . $query;
@@ -162,7 +162,7 @@ class AdminController extends Controller
         $bamboos = DB::table('bamboos')->orderby('created_at','desc')
             ->where('from',1)
             ->get();
-
+    print_r($this->user);
         return view('admin.bamboo')
             ->with('bamboos',$bamboos)
             ->with('user',$this->user);
@@ -206,7 +206,7 @@ class AdminController extends Controller
 			abort(500,'Unauthorized Access');
 		}
         $ph = DB::table('ph')
-            ->select(DB::raw("DATE_FORMAT(created_at, '%Y%m%d') as date,sum(amt) as total_ph"))            
+            ->select(DB::raw("DATE_FORMAT(created_at, '%Y%m%d') as date,sum(amt) as total_ph"))
             ->groupby('date')
             ->orderby('date','desc')
             ->get();
@@ -393,7 +393,7 @@ class AdminController extends Controller
         Unilevel::where('status',0)->orwhere('status',null)->update(['status' => 1]);
         return back();
     }
-    
+
     public function postApproveAllEarnings()
     {
 		if (!in_array(session('AdminLvl'),array(3,4)))
@@ -433,7 +433,7 @@ class AdminController extends Controller
     public function getBalance()
     {
 		ini_set('max_execution_time', 3000);
-        
+
 		//return Ph::where('status',null)->first();
 		$SQLStr="SELECT p.user_id, w.wallet_address ";
 		$SQLStr=$SQLStr . " FROM ph p left join users u on p.user_id=u.id ";
@@ -444,7 +444,7 @@ class AdminController extends Controller
 		$allmsg="";
         foreach($targetwallet as $output)
         {
-			$msg = app('App\Http\Controllers\WalletController')->updateMainWallet($output->user_id,$output->wallet_address); 
+			$msg = app('App\Http\Controllers\WalletController')->updateMainWallet($output->user_id,$output->wallet_address);
 			$allmsg = $allmsg . $msg;
         }
 
@@ -454,7 +454,7 @@ class AdminController extends Controller
     public function getBalanceSelected()
     {
 		ini_set('max_execution_time', 3000);
-        
+
 		//return Ph::where('status',null)->first();
 		$SQLStr="SELECT p.user_id, w.wallet_address ";
 		$SQLStr=$SQLStr . " FROM ph p left join users u on p.user_id=u.id ";
@@ -465,7 +465,7 @@ class AdminController extends Controller
 		$allmsg="";
         foreach($targetwallet as $output)
         {
-			$msg = app('App\Http\Controllers\WalletController')->updateMainWallet($output->user_id,$output->wallet_address); 
+			$msg = app('App\Http\Controllers\WalletController')->updateMainWallet($output->user_id,$output->wallet_address);
 			$allmsg = $allmsg . $msg;
         }
 
@@ -491,9 +491,9 @@ class AdminController extends Controller
 		DB::update('update ph set selected=1  where `status` is null');
 		return "All PH added.";
 	}
-	
+
 	public function getSumAmtPhSelected(){
-		
+
 		//select sum amt selected
 		//$SumAmtPhSelected = DB::select('select sum(amt) as total_amt_selected from ph where status is null and selected = "1"');
 
@@ -502,8 +502,8 @@ class AdminController extends Controller
 		$SQLStr=$SQLStr . " left join wallets w on u.id=w.user_id ";
 		$SQLStr=$SQLStr . " where p.status is null and selected = '1'";
 
-		$ph = DB::select($SQLStr);		
-		
+		$ph = DB::select($SQLStr);
+
 		foreach($ph as $output)
 		{
 			$amt = $output->amt;
@@ -582,49 +582,49 @@ class AdminController extends Controller
 
 		return view('report.dailyph')
 			->with('TopDSV',$TopDSV)
-			->with('user',$this->user);			
+			->with('user',$this->user);
     }
-    
+
 	public function reportPhByCountry(Request $request){
-	    
+
 		if($request->inputDate != ''){
 		    $inputDate = $request->input('inputDate');
 		}else{
 		    $inputDate = date("Y-m-d");
 		}
-		
-		$query = 'SELECT u.country,c.country cname,SUM(amt) totalph FROM users u INNER JOIN ph p ON u.id=p.user_id 
-					   LEFT JOIN country c ON u.country=c.code 
-					   WHERE	DATE(p.created_at) = "'.$inputDate.'" GROUP BY u.country ORDER BY totalph DESC';	
+
+		$query = 'SELECT u.country,c.country cname,SUM(amt) totalph FROM users u INNER JOIN ph p ON u.id=p.user_id
+					   LEFT JOIN country c ON u.country=c.code
+					   WHERE	DATE(p.created_at) = "'.$inputDate.'" GROUP BY u.country ORDER BY totalph DESC';
 		$phDate = DB::select($query);
-		
+
 		$query2 = "SELECT u.country,c.country cname,SUM(amt) totalph, DATE(p.created_at) as created_at
-						FROM users u INNER JOIN ph p ON u.id=p.user_id LEFT JOIN country c ON u.country=c.code 
+						FROM users u INNER JOIN ph p ON u.id=p.user_id LEFT JOIN country c ON u.country=c.code
 						WHERE 	DATE(p.created_at) BETWEEN DATE_ADD('".$inputDate."', INTERVAL -6 DAY) AND '".$inputDate."'
 						GROUP BY DATE(p.created_at), u.country
-						ORDER BY u.country, DATE(p.created_at) DESC";						
+						ORDER BY u.country, DATE(p.created_at) DESC";
 		$phDate7d = DB::select($query2);
-		
+
 		$query3 = "SELECT u.country,c.country cname,SUM(amt) totalph, DATE_FORMAT(p.created_at, '%Y%m') as created_at
 						FROM users u INNER JOIN ph p ON u.id=p.user_id LEFT JOIN country c ON u.country=c.code
 						WHERE DATE(p.created_at) BETWEEN DATE_ADD(DATE(CONCAT(YEAR('".$inputDate."'), '-', MONTH('".$inputDate."'), '-01')), INTERVAL -2 MONTH)
 						AND DATE_ADD(DATE_ADD(DATE(CONCAT(YEAR('".$inputDate."'), '-', MONTH('".$inputDate."'), '-01')), INTERVAL 1 MONTH), INTERVAL -1 DAY)
 						GROUP BY DATE_FORMAT(p.created_at, '%Y%m'), u.country
-						ORDER BY u.country, DATE_FORMAT(p.created_at, '%Y%m') DESC";		
-				
+						ORDER BY u.country, DATE_FORMAT(p.created_at, '%Y%m') DESC";
+
 		$phDate3m= DB::select($query3);
-		
+
 		$query4 = "SELECT  DATE_FORMAT(p.created_at, '%Y%m') as created_at, DATE_FORMAT(p.created_at, '%Y-%m') as created_at1
-						FROM ph p 
+						FROM ph p
 						WHERE DATE(p.created_at) BETWEEN DATE_ADD(DATE(CONCAT(YEAR('".$inputDate."'), '-', MONTH('".$inputDate."'), '-01')), INTERVAL -2 MONTH)
 						AND DATE_ADD(DATE_ADD(DATE(CONCAT(YEAR('".$inputDate."'), '-', MONTH('".$inputDate."'), '-01')), INTERVAL 1 MONTH), INTERVAL -1 DAY)
 						GROUP BY DATE_FORMAT(p.created_at, '%Y%m')
-						ORDER BY DATE_FORMAT(p.created_at, '%Y%m') DESC";		
-				
+						ORDER BY DATE_FORMAT(p.created_at, '%Y%m') DESC";
+
 		$phdates = DB::select($query4);
-		
-		
-		
+
+
+
 		return view('report.phbycountry')
 			->with('inputDate',$inputDate)
 			->with('phDate',$phDate)

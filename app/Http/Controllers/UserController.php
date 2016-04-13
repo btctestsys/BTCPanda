@@ -13,13 +13,13 @@ use Mail;
 use Session;
 
 class UserController extends Controller
-{	    
+{
     private $user;
     private $users2;
     private $query;
 
     public function __construct()
-    {    	
+    {
     	$this->user = Auth::user();
     }
 
@@ -35,10 +35,10 @@ class UserController extends Controller
             ->get();
 
         $referrals_active = count($referrals_active);
-        
+
         //if(app('App\Http\Controllers\PhController')->sumPhActive() >= 0.1)
         //{
-        //    //set referal level    	
+        //    //set referal level
         //    if($referrals_active <= 5) $level_referral_id = 1;
         //	if($referrals_active >  5) $level_referral_id = 2;
         //	if($referrals_active > 10) $level_referral_id = 3;
@@ -66,7 +66,7 @@ class UserController extends Controller
         //{
         //    $level_id = 6;
         //    $level_referral_id = 6;
-        //}   
+        //}
 
 		//skipped. do this during ph/gh instead
     	//DB::table('users')
@@ -100,7 +100,7 @@ class UserController extends Controller
 
     public function selfUpdateGene()
     {
-		
+
         $upline = DB::table('users')->where('id',$this->user->referral_id)->first();
 		if (empty($upline->gene))
 		{
@@ -114,13 +114,13 @@ class UserController extends Controller
 
     public function getUserUnilevelRate($user_id,$level)
     {
-        $user = User::find($user_id);        
+        $user = User::find($user_id);
         return $user->level->{"level".$level};
     }
 
     public function resetAllTitle()
     {
-        $user = DB::select('select id from users order by id desc'); 
+        $user = DB::select('select id from users order by id desc');
         foreach($user as $output)
         {
 			//DB::select('call setManagerTitle('.$output->id.')');
@@ -132,7 +132,7 @@ class UserController extends Controller
     public function getIdUrl($user_id)
     {
         $user = User::find($user_id);
-        $filename = md5($user->identification).".png";        
+        $filename = md5($user->identification).".png";
         return "https://s3-ap-southeast-1.amazonaws.com/btcpanda/identification/".$filename;
     }
 
@@ -166,12 +166,12 @@ class UserController extends Controller
     {
         $dsv = 0;
 		$ph = DB::select('select sum(getPHActive(id)) as activedownlinePH from users where referral_id=' . $this->user->id);
-        
+
         foreach($ph as $output)
         {
             $dsv = $output->activedownlinePH;
         }
-        
+
         return $dsv;
     }
 
@@ -179,12 +179,12 @@ class UserController extends Controller
     {
         $dsv = 0;
 		$ph = DB::select('select ifnull(sum(p.amt),0) activedownlinePH from ph p inner join users u on p.user_id=u.id inner join users r on u.referral_id=r.id where (`status` is null or `status`<>2) and month(p.created_at)=4 and year(p.created_at)=2016 and u.referral_id=' . $this->user->id);
-        
+
         foreach($ph as $output)
         {
             $dsv = $output->activedownlinePH;
         }
-        
+
         return $dsv;
     }
 
@@ -204,7 +204,7 @@ class UserController extends Controller
 		$SQLStr = $SQLStr . " group by r.id order by activedownlinePH desc limit 20 ";
 
 		$TopDSV = DB::select($SQLStr);
-        
+
         return $TopDSV;
     }
 
@@ -234,8 +234,8 @@ class UserController extends Controller
     }
 
     public function processUnilevel_old()
-    {   
-		
+    {
+
 		ini_set('max_execution_time', 3000);
 
 		//track active exe
@@ -259,14 +259,14 @@ class UserController extends Controller
 		}
 		else
 		{
-			
+
 			DB::insert('insert into calc_log (`dt`,`stat`) values(now(),1)');
 
 			$record_id = DB::select('select LAST_INSERT_ID() as id');
 			$calc_id = 0;
 			foreach($record_id as $output)
 			{
-				$calc_id = $output->id;            
+				$calc_id = $output->id;
 			}
 
 			//DB::select('call setBuildLeader()');
@@ -302,63 +302,63 @@ class UserController extends Controller
 
 				$ul1 = $output->u1id;
 				$rate1 = $output->lvl1;
-				$referral_amt1 =  round($rate1/100 * $netamt,8); 
+				$referral_amt1 =  round($rate1/100 * $netamt,8);
 				//eliminate 0 and 1
 				if($ul1 > 1 && $rate1>0){DB::insert('insert into unilevels (created_at,amt,user_id,referral_user_id,ph_id,status) values(now(),?,?,?,?,0)',[$referral_amt1,$ul1,$uid,$phid]);}
 
 				$ul2 = $output->u2id;
 				$rate2 = $output->lvl2;
-				$referral_amt2 =  round($rate2/100 * $netamt,8); 
+				$referral_amt2 =  round($rate2/100 * $netamt,8);
 				if($ul2 > 1 && $rate2>0){DB::insert('insert into unilevels (created_at,amt,user_id,referral_user_id,ph_id,status) values(now(),?,?,?,?,0)',[$referral_amt2,$ul2,$uid,$phid]);}
 
 				$ul3 = $output->u3id;
 				$rate3 = $output->lvl3;
-				$referral_amt3 =  round($rate3/100 * $netamt,8); 
+				$referral_amt3 =  round($rate3/100 * $netamt,8);
 				if($ul3 > 1 && $rate3>0){DB::insert('insert into unilevels (created_at,amt,user_id,referral_user_id,ph_id,status) values(now(),?,?,?,?,0)',[$referral_amt3,$ul3,$uid,$phid]);}
-				
+
 				$ul4 = $output->u4id;
 				$rate4 = $output->lvl4;
-				$referral_amt4 =  round($rate4/100 * $netamt,8); 
+				$referral_amt4 =  round($rate4/100 * $netamt,8);
 				if($ul4 > 1 && $rate4>0){DB::insert('insert into unilevels (created_at,amt,user_id,referral_user_id,ph_id,status) values(now(),?,?,?,?,0)',[$referral_amt4,$ul4,$uid,$phid]);}
-				
+
 				$ul5 = $output->u5id;
 				$rate5 = $output->lvl5;
-				$referral_amt5 =  round($rate5/100 * $netamt,8); 
+				$referral_amt5 =  round($rate5/100 * $netamt,8);
 				if($ul5 > 1 && $rate5>0){DB::insert('insert into unilevels (created_at,amt,user_id,referral_user_id,ph_id,status) values(now(),?,?,?,?,0)',[$referral_amt5,$ul5,$uid,$phid]);}
-				
+
 				$ul6 = $output->u6id;
 				$rate6 = $output->lvl6;
-				$referral_amt6 =  round($rate6/100 * $netamt,8); 
+				$referral_amt6 =  round($rate6/100 * $netamt,8);
 				if($ul6 > 1 && $rate6>0){DB::insert('insert into unilevels (created_at,amt,user_id,referral_user_id,ph_id,status) values(now(),?,?,?,?,0)',[$referral_amt6,$ul6,$uid,$phid]);}
-				
+
 				$ul7 = $output->u7id;
 				$rate7 = $output->lvl7;
-				$referral_amt7 =  round($rate7/100 * $netamt,8); 
+				$referral_amt7 =  round($rate7/100 * $netamt,8);
 				if($ul7 > 1 && $rate7>0){DB::insert('insert into unilevels (created_at,amt,user_id,referral_user_id,ph_id,status) values(now(),?,?,?,?,0)',[$referral_amt7,$ul7,$uid,$phid]);}
-				
+
 				$ul8 = $output->u8id;
 				$rate8 = $output->lvl8;
-				$referral_amt8 =  round($rate8/100 * $netamt,8); 
+				$referral_amt8 =  round($rate8/100 * $netamt,8);
 				if($ul8 > 1 && $rate8>0){DB::insert('insert into unilevels (created_at,amt,user_id,referral_user_id,ph_id,status) values(now(),?,?,?,?,0)',[$referral_amt8,$ul8,$uid,$phid]);}
-				
+
 				$ul9 = $output->u9id;
 				$rate9 = $output->lvl9;
-				$referral_amt9 =  round($rate9/100 * $netamt,8); 
+				$referral_amt9 =  round($rate9/100 * $netamt,8);
 				if($ul9 > 1 && $rate9>0){DB::insert('insert into unilevels (created_at,amt,user_id,referral_user_id,ph_id,status) values(now(),?,?,?,?,0)',[$referral_amt9,$ul9,$uid,$phid]);}
-				
+
 				$ul10 = $output->u10id;
 				$rate10 = $output->lvl10;
-				$referral_amt10 =  round($rate10/100 * $netamt,8); 
+				$referral_amt10 =  round($rate10/100 * $netamt,8);
 				if($ul10 > 1 && $rate10>0){DB::insert('insert into unilevels (created_at,amt,user_id,referral_user_id,ph_id,status) values(now(),?,?,?,?,0)',[$referral_amt10,$ul10,$uid,$phid]);}
-				
+
 				$ul11 = $output->u11id;
 				$rate11 = $output->lvl11;
-				$referral_amt11 =  round($rate11/100 * $netamt,8); 
+				$referral_amt11 =  round($rate11/100 * $netamt,8);
 				if($ul11 > 1 && $rate11>0){DB::insert('insert into unilevels (created_at,amt,user_id,referral_user_id,ph_id,status) values(now(),?,?,?,?,0)',[$referral_amt11,$ul11,$uid,$phid]);}
-				
+
 				$ul12 = $output->u12id;
 				$rate12 = $output->lvl12;
-				$referral_amt12 =  round($rate12/100 * $netamt,8); 
+				$referral_amt12 =  round($rate12/100 * $netamt,8);
 				if($ul12 > 1 && $rate12>0){DB::insert('insert into unilevels (created_at,amt,user_id,referral_user_id,ph_id,status) values(now(),?,?,?,?,0)',[$referral_amt12,$ul12,$uid,$phid]);}
 
 				//set already processed
@@ -376,8 +376,8 @@ class UserController extends Controller
 
 
     public function processUnilevel_march()
-    {   
-		
+    {
+
 		ini_set('max_execution_time', 3000);
 
 		//track active exe
@@ -400,14 +400,14 @@ class UserController extends Controller
 		}
 		else
 		{
-			
+
 			DB::insert('insert into calc_log (`dt`,`stat`) values(now(),1)');
 
 			$record_id = DB::select('select LAST_INSERT_ID() as id');
 			$calc_id = 0;
 			foreach($record_id as $output)
 			{
-				$calc_id = $output->id;            
+				$calc_id = $output->id;
 			}
 
 			//DB::select('call setBuildLeader()');
@@ -425,7 +425,7 @@ class UserController extends Controller
 				$gene = $output->gene;
 
 				$max_level = 12;
-        
+
 				$array = explode(',',$gene);
 				rsort($array);
 				array_shift($array);
@@ -435,14 +435,14 @@ class UserController extends Controller
 				foreach($array as $outputlvl)
 				{
 					$rate = Self::getUserUnilevelRate($outputlvl,$l);
-            
+
 					if($rate)
 					{
 						//$msg = $msg . "lvl=" . $l . ", phid=" . $phid . ", sponsor=" . $outputlvl . "<br>";
 						app('App\Http\Controllers\ReferralController')->addUnilevelBonus($phid,$outputlvl,$l,$netamt);
 						if($l==$max_level) break;
 						$l++;
-					}                        
+					}
 				}
 
 				//set already processed
@@ -460,8 +460,8 @@ class UserController extends Controller
 	}
 
     public function processUnilevel()
-    {   
-		
+    {
+
 		ini_set('max_execution_time', 3000);
 
 		//track active exe
@@ -484,22 +484,22 @@ class UserController extends Controller
 		}
 		else
 		{
-			
+
 			DB::insert('insert into calc_log (`dt`,`stat`) values(now(),1)');
 
 			$record_id = DB::select('select LAST_INSERT_ID() as id');
 			$calc_id = 0;
 			foreach($record_id as $output)
 			{
-				$calc_id = $output->id;            
+				$calc_id = $output->id;
 			}
 
 			//DB::select('call setBuildLeader()');
 
 			$SQLStr=" select p.id phid,u.gene,u.id uid,p.amt,getPHCold(p.user_id,p.amt) as netamt ";
 			$SQLStr=$SQLStr . " from ph p inner join users u on p.user_id=u.id ";
-			//$SQLStr=$SQLStr . " where datediff(p.created_at,now())=-1 and calc=0 ";
-			$SQLStr=$SQLStr . " where datediff(p.created_at,'2016-03-27')=0  ";
+			$SQLStr=$SQLStr . " where datediff(p.created_at,now())=-1 and calc=0 ";
+			//$SQLStr=$SQLStr . " where datediff(p.created_at,'2016-03-27')=0  ";
 			$ph = DB::select($SQLStr);
 			foreach($ph as $output)
 			{
@@ -509,7 +509,7 @@ class UserController extends Controller
 				$gene = $output->gene;
 
 				$max_level = 12;
-        
+
 				$array = explode(',',$gene);
 				rsort($array);
 				array_shift($array);
@@ -519,14 +519,14 @@ class UserController extends Controller
 				foreach($array as $outputlvl)
 				{
 					$rate = Self::getUserUnilevelRate($outputlvl,$l);
-            
+
 					if($rate)
 					{
 						//$msg = $msg . "lvl=" . $l . ", phid=" . $phid . ", sponsor=" . $outputlvl . "<br>";
 						app('App\Http\Controllers\ReferralController')->addUnilevelBonus($phid,$outputlvl,$l,$netamt);
 						if($l==$max_level) break;
 						$l++;
-					}                        
+					}
 				}
 
 				//set already processed
@@ -543,23 +543,23 @@ class UserController extends Controller
 		return "done";
 	}
 
-	
+
 	public function verifyEmail(Request $request)
     {
         if($request != '')
         {
             $users = db::update('update users set active = "1" where verify_email_token = "'.$request->token.'"');
-			
+
 			$email = db::select('select email from users where verify_email_token = "'.$request->token.'"');
 
 			//send email confirmation
 			$subject = 'BTCPanda Confirmation';
 			$email = $email['0']->email;
-			
+
 			Mail::send('emails.emailRegisterConfirmation', [], function($message) use ($subject, $email) {
 		   $message->to($email)
 			->subject($subject);
-			});	
+			});
 			return redirect('login')
 						->withErrors([
 							'active' => 'Successfully activate your account. You can login now.'
@@ -571,43 +571,54 @@ class UserController extends Controller
         }
     }
 
-        public function checkReferral($referral){
-	    
+    public function checkReferral($referral){
+
 	    $sql = db::select('select count(username) as total from users where username = "'.$referral.'"');
-	    
+
 	    if($sql['0']->total == '0'){
 		    return 0;
 	    }else{
 		    return 1;
 	    }
     }
-    
+
+    public function checkUsername($u){
+
+      $sql = db::select('select count(username) as total from users where username = "'.$u.'"');
+
+      if($sql['0']->total == '0'){
+      return 0;
+      }else{
+        return 1;
+      }
+    }
+
    public function checkEmail($email){
-	    
+
 	    $sql = db::select('select count(email) as total from users where email = "'.$email.'"');
-	    
+
 	    if($sql['0']->total == '0'){
 		    return 0;
 	    }else{
 		    return 1;
 	    }
     }
-    
+
     public function checkMobile($mobile){
-	    
+
 	    $sql = db::select('select count(mobile) as total from users where mobile = "'.$mobile.'"');
-	    
+
 	    if($sql['0']->total == '0'){
 		    return 0;
 	    }else{
 		    return 1;
 	    }
     }
-    
+
     public function getCountryCode($c){
-	    
+
 	    $sql = db::select('select phone from phonecoderaw where code = "'.$c.'"');
-	    
+
 	    return $sql['0']->phone;
     }
 
@@ -630,7 +641,7 @@ class UserController extends Controller
 				session(['AdminGene' => $user->gene]);
 			}else{
 				session(['user_id' => $user->id]);
-				
+
 			}
 		}
     }

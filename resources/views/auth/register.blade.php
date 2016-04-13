@@ -477,7 +477,7 @@ jQuery(document).ready(function () {
 			var username = $('#username').val();
 			$.ajax({
 				type: "POST",
-				url: "/check/referral/"+ username,  
+				url: "/check/username/"+ username,  
 				beforeSend: function (xhr) {
 					var token = $('meta[name="csrf_token"]').attr('content');
 					if (token) {

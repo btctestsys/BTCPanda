@@ -42,7 +42,7 @@
         <body class="fixed-left">
 
         <!-- Begin page -->
-        
+
         @if(Agent::isMobile())
         <div id="wrapper" class="enlarged forced">
         @else
@@ -53,7 +53,7 @@
 
                 <!-- LOGO -->
                 <div class="topbar-left">
-                    <div class="text-center">                        
+                    <div class="text-center">
                         <a href="/home" class="logo"><img src="/img/panda.gif" height="40px" class="icon-c-logo"><span> BTC <img src="/img/panda.gif" height="40px" style="position:relative;bottom:4px">Panda</span></a>
                     </div>
                 </div>
@@ -241,7 +241,7 @@
                 		</div>
                 	</div>
                     <!--- Divider -->
-                    <div id="sidebar-menu" class="p-t-10">                        
+                    <div id="sidebar-menu" class="p-t-10">
                       <ul>
 						@if(session('isAdmin')=='true')
 						<li><a href="/master/users" class="waves-effect"><i class="fa fa-lock"></i> <span> Admin </span> </a></li>
@@ -273,7 +273,7 @@
                 </div>
             </div>
             <!-- Left Sidebar End -->
-        
+
             <!-- ============================================================== -->
             <!-- Start right Content here -->
             <!-- ============================================================== -->
@@ -288,10 +288,10 @@
             </div> <!-- container -->
             </div> <!-- content -->
 
-            <footer class="footer text-right"> 
+            <footer class="footer text-right">
             <div class="text-center"><a href="/lang/en">English</a> | <a href="/lang/cn">华语</a> | <a href="/lang/id">Indonesia</a> | <a href="/lang/vn">Việt Nam</a></div>
             </footer>
-            </div>    
+            </div>
 
             <!-- ============================================================== -->
             <!-- End Right content here -->
@@ -465,12 +465,12 @@
 		jQuery(document).ready(function () {
 			UITree.init();
 		});
-        </script>       
+        </script>
 
 
 
         @yield('docready')
-        
+
         <!-- begin olark code -->
         <script data-cfasync="false" type='text/javascript'>/*<![CDATA[*/window.olark||(function(c){var f=window,d=document,l=f.location.protocol=="https:"?"https:":"http:",z=c.name,r="load";var nt=function(){
         f[z]=function(){
@@ -504,4 +504,3 @@
         </script>
         </body>
 </html>
-        

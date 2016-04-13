@@ -14,22 +14,36 @@ use Crypt;
 use Storage;
 use File;
 use Response;
+use Mail;
 
 class SettingController extends Controller
-{	    
+{
     private $user;
 
     public function __construct()
-    {    	
+    {
     	$this->user = Auth::user();
     }
 
     public function getIndex()
     {
+      #Check Setting------------------------
+      $uid = $this->user->id;
+      $query = "SELECT `country`, `mobile`, `wallet1` FROM users WHERE id = '$uid'";
+		$check = DB::select($query);
+
+      if($check['0']->mobile == '' or $check['0']->country == '' or $check['0']->wallet1 == ''){
+         $act = 1;
+      }else{
+         $act = 0;
+      }
+      #-------------------------------------
+
 		$country = DB::select('SELECT c.code,c.country,p.phone FROM country c left join phonecoderaw p on c.code=p.code');
 
         return view('settings')
-            ->with('country',$country)
+         ->with('country',$country)
+         ->with('act',$act)
 			->with('user',$this->user);
     }
 
@@ -50,14 +64,14 @@ class SettingController extends Controller
 			$country = DB::select('select if(country<>\'\',checkcountrybyphone(\'+' . $mobile . '\',country),\'true\') validcountry from users where id=' . $this->user->id);
 			foreach($country as $output)
 			{
-				$validcountry = $output->validcountry;            
+				$validcountry = $output->validcountry;
 			}
 			if($validcountry == 'true')
 			{
 				$user = User::find($this->user->id);
 				$user->mobile = "+".$mobile;
 				$user->save();
-			}        
+			}
 			else
 			{
 				abort(500,'Invalid phone number. Phone number must match the country selected.');
@@ -91,7 +105,7 @@ class SettingController extends Controller
 		$country = DB::select('select if(mobile<>\'\',checkcountrybyphone(mobile,\'' . $request->country . '\'),\'true\') validcountry from users where id=' . $this->user->id);
         foreach($country as $output)
         {
-            $validcountry = $output->validcountry;            
+            $validcountry = $output->validcountry;
         }
         if($validcountry == 'true')
         {
@@ -101,25 +115,25 @@ class SettingController extends Controller
 			$user->country = $request->country;
 			$user->save();
 
-			return back();   
-        }        
+			return back();
+        }
         else
         {
             abort(500,'Invalid country. Selected country must match the country where phone number is registered.');
         }
-		
+
     }
 
     public function postMobileVerify(Request $request)
     {
         $user = User::find($this->user->id);
-        
+
         if($user->otp == $request->otp)
         {
             $user->mobile_verified = 1;
             $user->save();
             return back();
-        }        
+        }
         else
         {
             abort(500,'Wrong OTP');
@@ -127,20 +141,20 @@ class SettingController extends Controller
     }
 
     public function postIdentificationUpload(Request $request)
-    {       
-        //init                  
+    {
+        //init
         $path = "https://s3-ap-southeast-1.amazonaws.com/btcpanda/identification/";
         $hash = hash("md5",$this->user->identification);
         $ext = "png";
         $filename = $hash.".".$ext;
-        $tmpname = $request->file('identification_file')->getfileName();  
+        $tmpname = $request->file('identification_file')->getfileName();
 
         if ($request->file('identification_file')->isValid())
         {
             //move
             $request->file('identification_file')->move("/tmp");
-            
-            //store      
+
+            //store
             Storage::disk('s3')->put("/identification/$filename",File::get("/tmp/$tmpname"),'public');
 
             //update user table
@@ -159,20 +173,20 @@ class SettingController extends Controller
         $user = User::find($this->user->id);
         if($user->otp == $request->otp)
         {
-			
+
 			$newpass = $request->newpass;
 			$cnewpass = $request->cnewpass;
 			if ($newpass!=$cnewpass)
 			{
-				abort(500,'New password does not match.' );   
+				abort(500,'New password does not match.' );
 			}
 
 			$cpass = bcrypt($request->cpass);
 			$result = DB::select('select id from users where `password`=\'' . $cpass . '\' and id=' . $this->user->id);
-			if (is_null($result)) { 
-				abort(500,'Invalid current password.');   
+			if (is_null($result)) {
+				abort(500,'Invalid current password.');
 			}
-			
+
 			$cpass = $request->cpass;
 
             $user->password = bcrypt($request->newpass);
@@ -183,7 +197,7 @@ class SettingController extends Controller
         }
         else
         {
-            abort(500,'Wrong OTP');   
+            abort(500,'Wrong OTP');
         }
     }
 
@@ -192,15 +206,13 @@ class SettingController extends Controller
         $user = User::find($this->user->id);
 		if($user->otp == $request->otp)
         {
-			
+
 			$wallet1 = trim($request->wallet1);
 			$wallet2 = trim($request->wallet2);
 			if (strlen($wallet1)>0){
-			if (strlen($wallet1)!=34){abort(500,'Invalid Wallet #1 Address'); }
-			else{if (!Self::checkAddress($wallet1)){abort(500,'Invalid Wallet #1 Address'); }}}
+			if (!Self::checkAddress($wallet1)){abort(500,'Invalid Wallet #1 Address'); }}
 			if (strlen($wallet2)>0){
-			if (strlen($wallet2)!=34){abort(500,'Invalid Wallet #2 Address'); }
-			else {if (!Self::checkAddress($wallet2)){abort(500,'Invalid Wallet #2 Address'); }}}
+			if (!Self::checkAddress($wallet2)){abort(500,'Invalid Wallet #2 Address'); }}
 
             $user->wallet1 = $wallet1;
             $user->wallet2 = $wallet2;
@@ -209,16 +221,16 @@ class SettingController extends Controller
             return Custom::popup('Wallet Updated','/settings');
             return back();
         }
-		else 
+		else
 		{
-			abort(500,'Wrong OTP'); 
+			abort(500,'Wrong OTP');
 		}
     }
 
     public function postChangeMessaging(request $request)
     {
         $user = User::find($this->user->id);
-			
+
 			$messaging = $request->messaging;
 
             $user->messaging = $messaging;
@@ -231,8 +243,8 @@ class SettingController extends Controller
     public function postChangeAdmin(request $request)
     {
         $user = User::find($this->user->id);
-		if(session('isAdmin')=='true') 
-		{	
+		if(session('isAdmin')=='true')
+		{
 
 			$email = $request->email;
 			$mobile = $request->mobile;
@@ -260,11 +272,9 @@ class SettingController extends Controller
 				$wallet1 = trim($request->wallet1);
 				$wallet2 = trim($request->wallet2);
 				if (strlen($wallet1)>0){
-				if (strlen($wallet1)!=34){abort(500,'Invalid Wallet #1 Address'); }
-				else{if (!Self::checkAddress($wallet1)){abort(500,'Invalid Wallet #1 Address'); }}}
+				if (!Self::checkAddress($wallet1)){abort(500,'Invalid Wallet #1 Address'); }}
 				if (strlen($wallet2)>0){
-				if (strlen($wallet2)!=34){abort(500,'Invalid Wallet #2 Address'); }
-				else {if (!Self::checkAddress($wallet2)){abort(500,'Invalid Wallet #2 Address'); }}}
+				if (!Self::checkAddress($wallet2)){abort(500,'Invalid Wallet #2 Address'); }}
 
 	            $user->otp = $otp;
 				$user->wallet1 = $wallet1;
@@ -282,12 +292,23 @@ class SettingController extends Controller
 		}
 		else
 		{
-			abort(500,'Unauthorized access'); 
+			abort(500,'Unauthorized access');
 		}
 
     }
-
-	public function checkAddress($address)
+   public function checkAddress($address){
+      try
+      {
+          $blockchain_current_balance = file_get_contents("https://blockchain.info/q/addressbalance/$address");
+          return 1;
+      }
+      catch(\Exception $e)
+      {
+          //abort(500,'Too many sync requests to Blockchain (blockchain.info)');
+          return 0;
+      }
+   }
+	public function checkAddress2($address)
 	{
 		$origbase58 = $address;
 		$dec = "0";
@@ -331,5 +352,28 @@ class SettingController extends Controller
 
 		return substr(strtoupper(hash("sha256",hash("sha256",pack("H*",substr($address,0,strlen($address)-8)),true))),0,8) == substr($address,strlen($address)-8);
 	}
+
+   public function resendConfirmationEmail(){
+
+      $uid        = $this->user->id;
+      $query      = "SELECT `email`,`username`,`verify_email_token`,`name` FROM users WHERE id = '$uid'";
+		$userInfo   = DB::select($query);
+
+      $subject    = 'BTCPanda Confirmation';
+      $username   = $userInfo['0']->username;
+      $token      = $userInfo['0']->verify_email_token;
+      $email      = $userInfo['0']->email;
+      $name       = $userInfo['0']->name;
+
+      Mail::send('emails.emailRegister', ['username' => $username,'token' => $token], function($message) use ($subject, $email, $name) {
+		   $message->to($email, $name)
+			->subject($subject);
+		});
+		$sent = true;
+
+      if($sent == true){
+         return 1;
+		}
+   }
 
 }

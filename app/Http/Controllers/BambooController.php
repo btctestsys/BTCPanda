@@ -6,12 +6,12 @@ use DB;
 use Illuminate\Http\Request;
 use App\User;
 use App\Classes\Custom;
-class BambooController extends Controller 
-{	    
-    
+class BambooController extends Controller
+{
+
 	private $user;
     public function __construct()
-    {    	
+    {
     	$this->user = Auth::user();
     }
     public function getIndex()
@@ -25,7 +25,7 @@ class BambooController extends Controller
     {
 		//otp check
         if($this->user->otp != $request->otp) abort(500,'Wrong OTP');
-        
+
         //get stuff
 		$username = $request->username;
     	$amt = $request->amt;
@@ -34,7 +34,7 @@ class BambooController extends Controller
     	$user = User::where('username',$username)->first();
     	if($user) $to_balance = $user->bamboo_balance + $amt;
     	//validate request
-		if($from_balance < 0 or $amt <= 0 or !$user) 
+		if($from_balance < 0 or $amt <= 0 or !$user)
 		{
 			return redirect('/bamboo');
 		}
@@ -55,7 +55,7 @@ class BambooController extends Controller
 			->decrement('bamboo_balance',$amt);
 		DB::table('users')
 			->where('id',$user->id)
-			->increment('bamboo_balance',$amt);			
+			->increment('bamboo_balance',$amt);
 		return redirect('/bamboo');
     }
     public function getHistory()
@@ -77,7 +77,7 @@ class BambooController extends Controller
         if($amt > 15) return 5;
     }
     public function BambooCheck($user_id,$bamboo_required)
-    {   
+    {
         $bamboo_balance = DB::table('users')->where('id',$user_id)->value('bamboo_balance');
         if($bamboo_balance >= $bamboo_required) return true;
         else return false;
@@ -113,19 +113,19 @@ class BambooController extends Controller
         foreach($last_user as $output)
         {
 			if($output->to == $this->user->id)
-			{            
+			{
 				return abort(500,"Please wait 30 minutes and try again...");
-			} 
+			}
 		}
 	    //$last_user = DB::table('bamboos')->orderby('id','desc')->first();
         //if($last_user->to == $this->user->id)
-        //{            
+        //{
         //    return abort(500,"Please wait 30 minutes and try again.");
-        //} 
+        //}
         //to from balance
         $from_bamboo_balance = DB::table('users')->where('id',1)->value('bamboo_balance');
-        $to_bamboo_balance = DB::table('users')->where('id',$this->user->id)->value('bamboo_balance');        
-        
+        $to_bamboo_balance = DB::table('users')->where('id',$this->user->id)->value('bamboo_balance');
+
         DB::table('users')
             ->where('id',$this->user->id)
             ->increment('bamboo_balance',$bamboo);
@@ -167,11 +167,11 @@ class BambooController extends Controller
             $address = $this->user->walletBamboo->wallet_address;
             //$json = json_decode(file_get_contents("https://chain.so/api/v2/get_address_balance/BTC/$address/0"));
             $json = json_decode(file_get_contents("https://block.io/api/v2/get_address_balance/?api_key=".$_ENV['BLOCKIO_KEY']."&addresses=$address"));
-            
+
             if($json)
             {
                 $unconfirmed_balance = $json->data->pending_received_balance;
-                if($unconfirmed_balance == 0) 
+                if($unconfirmed_balance == 0)
                 {
                     return redirect('/bamboo/#bamboo-buy');
                 }
@@ -206,11 +206,11 @@ class BambooController extends Controller
             $address = $this->user->walletBamboo->wallet_address;
             //$json = json_decode(file_get_contents("https://chain.so/api/v2/get_address_balance/BTC/$address/0"));
             $json = json_decode(file_get_contents("https://block.io/api/v2/get_address_balance/?api_key=".$_ENV['BLOCKIO_KEY']."&addresses=$address"));
-            
+
             if($json)
             {
                 $unconfirmed_balance = $json->data->available_balance;
-                if($unconfirmed_balance == 0) 
+                if($unconfirmed_balance == 0)
                 {
                     return redirect('/bamboo/#bamboo-buy');
                 }
@@ -244,11 +244,11 @@ class BambooController extends Controller
         {
             $address = $this->user->walletBamboo->wallet_address;
             //$json = json_decode(file_get_contents("https://chain.so/api/v2/get_address_balance/BTC/$address/0"));
-            
+
             if(true)
             {
                 $unconfirmed_balance = $request->yamt;
-                if($unconfirmed_balance == 0) 
+                if($unconfirmed_balance == 0)
                 {
                     return redirect('/bamboo/#bamboo-buy');
                 }

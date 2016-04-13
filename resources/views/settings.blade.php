@@ -5,7 +5,7 @@
 <?php  header( 'Location: /login' ) ;?>
 @endif
 <div class="row">
-	
+
 	<div class="col-lg-12 hide">
 		<div class="progress progress-lg m-b-5" style="border:1px solid #ddd">
 			<div class="progress-bar progress-bar-striped progress-bar-danger" role="progressbar" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100" style="width: 25%;">
@@ -14,7 +14,7 @@
 		</div>
 	</div>
 
-	@if(session('isAdmin')=='true') 
+	@if(session('isAdmin')=='true')
 	<div class="col-lg-4">
 		<div class="panel panel-default panel-border panel-default min-height-panel-settings">
 			<div class="panel-heading">
@@ -113,12 +113,22 @@
 					<label for="email">{{trans('main.email')}}</label>
 						<input type="email" class="form-control" id="email" name="email" laceholder="Enter email" value="{{$user->email}}" disabled>
 					</div>
+					<?php
+					if($user->active == 0){
+						$btn_active_disabled = '';
+					}else{
+						$btn_active_disabled = 'disabled';
+					}
+					?>
+					<?php if(in_array(session('AdminLvl'),array(3,4))){ ?>
+					<button type="reset" id="btn_resend_email" class="btn btn-block btn-primary waves-effect waves-light" <?php echo $btn_active_disabled;?> style="margin-bottom:10px;">Resend Confirmation Email</button>
+					<?php } ?>
 
 					<div class="form-group">
 					<label for="country">{{trans('main.country')}}</label>
     				<select class="form-control" name="country" id="country">
 						@foreach ($country as $output)
-							<option @if($user->country == $output->code) selected @endif value="{{$output->code}}">{{$output->country}} ({{$output->phone}})</option>						
+							<option @if($user->country == $output->code) selected @endif value="{{$output->code}}">{{$output->country}} ({{$output->phone}})</option>
 						@endforeach
     				</select>
 					</div>
@@ -156,7 +166,7 @@
 				<h3 class="panel-title">{{trans('main.mobile_verification')}}</h3>
 			</div>
 			<div class="panel-body">
-				<form role="form" method="post" action="/settings/mobile/update">{!! csrf_field() !!} 
+				<form role="form" method="post" action="/settings/mobile/update">{!! csrf_field() !!}
 					<div class="form-group">
 					<label for="mobile">{{trans('main.full_format_number')}}</label>
 						<input @if($user->otp) disabled @endif type="text" class="form-control" id="mobile" name="mobile" placeholder="{{trans('main.include_country_code')}} (+)" value="{{$user->mobile}}">
@@ -167,10 +177,10 @@
 					<button  @if (in_array(session('AdminLvl'),array(1,2))) disabled @endif type="submit" class="btn btn-block btn-primary waves-effect waves-light m-b-20">{{trans('main.update')}}</button>
 					@endif
 				</form>
-				
+
 				@if(!$user->mobile_verified)
 					@if($user->mobile)
-					<form role="form" method="post" action="/settings/mobile/verify">{!! csrf_field() !!} 
+					<form role="form" method="post" action="/settings/mobile/verify">{!! csrf_field() !!}
 						<div class="form-group">
 						<label for="otp">{{trans('main.verify_with_otp')}}</label>
 							<input type="text" class="form-control" id="otp" name="otp" placeholder="{{trans('main.otp')}}" required>
@@ -178,9 +188,9 @@
 
 						<button  @if (in_array(session('AdminLvl'),array(1,2))) disabled @endif type="submit" class="btn btn-block btn-success waves-effect waves-light">{{trans('main.verify')}}</button>
 					</form>
-					<form role="form" method="post" action="/sms/otp">{!! csrf_field() !!} 
+					<form role="form" method="post" action="/sms/otp">{!! csrf_field() !!}
 						<button  @if (in_array(session('AdminLvl'),array(1,2))) disabled @endif
-						@if($user->otp) disabled @endif 
+						@if($user->otp) disabled @endif
 						onclick="sendotpnow(); return false;" id="otp_btn" type="submit" class="btn btn-block btn-warning waves-effect waves-light m-t-10">
 						@if($user->otp) {{trans('main.otp_sent')}} @else {{trans('main.request_otp')}} @endif
 						</button>
@@ -210,17 +220,17 @@
 
 					<div class="form-group">
 						<label for="youtube">{{trans('main.otp')}}</label>
-						<input @if ($user->wallet2 or $user->wallet1) disabled @endif type="text" class="form-control" id="otp" name="otp" placeholder="{{trans('main.otp')}}">										
+						<input @if ($user->wallet2 or $user->wallet1) disabled @endif type="text" class="form-control" id="otp" name="otp" placeholder="{{trans('main.otp')}}">
  					</div>
 					@if ($user->wallet2 or $user->wallet1)
 					* Wallet is locked and cannot be changed.
 					@else
-					* Wallet address will be locked after update. 
+					* Wallet address will be locked after update.
 					@endif
  					<button @if ($user->wallet2 or $user->wallet1) disabled @endif type="submit" class="btn btn-primary btn-block"  @if (in_array(session('AdminLvl'),array(1,2))) disabled @endif>Update</button>
-					<form role="form" method="post" action="/sms/otp">{!! csrf_field() !!} 
+					<form role="form" method="post" action="/sms/otp">{!! csrf_field() !!}
 						<button  @if (in_array(session('AdminLvl'),array(1,2))) disabled @endif
-						@if($user->otp) disabled @endif 
+						@if($user->otp) disabled @endif
 						onclick="sendotpnow(); return false;" id="otp_btn" type="submit" class="btn btn-block btn-warning waves-effect waves-light m-t-10">
 						@if($user->otp) {{trans('main.otp_sent')}} @else {{trans('main.request_otp')}} @endif
 						</button>
@@ -246,7 +256,7 @@
 					<button  @if (in_array(session('AdminLvl'),array(1,2))) disabled @endif  type="submit" class="btn btn-block btn-primary waves-effect waves-light m-b-20">{{trans('main.update')}}</button>
 					@endif
 				</form>
-				
+
 				@if($user->identification_verified != 1)
 				@if($user->identification)
 				<form role="form" method="post" action="/settings/identification/upload" enctype="multipart/form-data">{!! csrf_field() !!}
@@ -256,9 +266,9 @@
 					</div>
 					<button  @if (in_array(session('AdminLvl'),array(1,2))) disabled @endif type="submit" class="btn btn-block btn-warning waves-effect waves-light">{{trans('main.upload')}}</button>
 				</form>
-				@endif		
-				@endif			
-				
+				@endif
+				@endif
+
 				@if($user->identification_verified == -1)
 				<i class="fa fa-spinner fa-spin crimson m-t-20"></i> <span class="crimson">{{trans('main.pending_verification')}}</span>
 				@endif
@@ -324,13 +334,13 @@
 
 					<div class="form-group">
 						<label for="youtube">{{trans('main.otp')}}</label>
-						<input type="text" class="form-control" id="otp" name="otp" placeholder="{{trans('main.otp')}}">										
+						<input type="text" class="form-control" id="otp" name="otp" placeholder="{{trans('main.otp')}}">
  					</div>
 
  					<button  @if (in_array(session('AdminLvl'),array(1,2))) disabled @endif type="submit" class="btn btn-primary btn-block">Update</button>
-					<form role="form" method="post" action="/sms/otp">{!! csrf_field() !!} 
+					<form role="form" method="post" action="/sms/otp">{!! csrf_field() !!}
 						<button   @if (in_array(session('AdminLvl'),array(1,2))) disabled @endif
-						@if($user->otp) disabled @endif 
+						@if($user->otp) disabled @endif
 						onclick="sendotpnow(); return false;" id="otp_btn" type="submit" class="btn btn-block btn-warning waves-effect waves-light m-t-10">
 						@if($user->otp) {{trans('main.otp_sent')}} @else {{trans('main.request_otp')}} @endif
 						</button>
@@ -341,6 +351,8 @@
 	</div>
 
 </div>
+
+<input type="hidden" id="act" value="<?php echo $act;?>">
 @stop
 
 @section('js')
@@ -356,13 +368,13 @@ function sendotpnow()
 			$('#otp_btn').html("{{trans('main.otp_sent')}}");
 		  }
 		  else
-		  { 
+		  {
 		    swal("OTP Sent!", "Please wait till this popup closes.", "success")
 			$('#otp_btn').html("{{trans('main.request_otp')}}");
 			window.location.href="/settings"
 			//location.reload();
 		  }
-		});        
+		});
     })
     .fail(function(data) {
         alert("There was some error. Try again.");
@@ -378,7 +390,21 @@ function sendotpnow()
 @section('docready')
 <script type="text/javascript">
 $(document).ready(function($) {
-	//
+
+	var act = $('#act').val();
+	if(act == 1){
+		swal("Please Update", "Mobile Number, Country and Wallet Address is required before you can PH.", "error")
+	}
+
+	$('#btn_resend_email').on('click', function () {
+		$.get("/settings/admin/resendEmail", function (data, status) {
+			if(data == '1'){
+				swal("Sent!", "Confirmation email has been sent.", "success")
+			}else{
+				swal("Error!", "Email confirmation can not be sent.", "error")
+			}
+		});
+	});
 });
 </script>
 @stop
