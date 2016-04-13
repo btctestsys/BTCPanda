@@ -4,36 +4,42 @@
 @if(session('AdminLvl') == NULL )
 <?php  header( 'Location: /login' ) ;?>
 @endif
+<?php
+	#echo '<pre>';
+	#print_r($user);
+	#echo $user->id.'-'.session('has_admin_access');
+	#echo '</pre>';
+?>
 <div class="row" >
-	<div class="col-lg-12"> 
+	<div class="col-lg-12">
         <ul class="nav nav-tabs tabs tabs-top" style="width: 100%;">
             <li class="tab active" style="width: 25%;">
-                <a href="#bamboo-details" data-toggle="tab" aria-expanded="true" class="active"> 
-                    <span class="visible-xs"><i class="fa fa-home"></i></span> 
-                    <span class="hidden-xs">{{trans('main.details')}}</span> 
-                </a> 
-            </li> 
-            <li class="tab" style="width: 25%;"> 
-                <a href="#bamboo-history" data-toggle="tab" aria-expanded="false" class=""> 
-                    <span class="visible-xs"><i class="fa fa-history"></i></span> 
-                    <span class="hidden-xs">{{trans('main.history')}}</span> 
-                </a> 
-            </li> 
-            <li class="tab" style="width: 25%;"> 
-                <a href="#bamboo-buy" data-toggle="tab" aria-expanded="false" class=""> 
-                    <span class="visible-xs"><i class="fa fa-bitcoin"></i></span> 
-                    <span class="hidden-xs">{{trans('main.buy')}}</span> 
-                </a> 
-            </li> 
-            <li class="tab" style="width: 25%;"> 
-                <a href="#bamboo-send" data-toggle="tab" aria-expanded="false" class=""> 
-                    <span class="visible-xs"><i class="fa fa-paper-plane"></i></span> 
-                    <span class="hidden-xs">{{trans('main.send')}}</span> 
-                </a> 
-            </li> 
-        <div class="indicator" style="right: 367px; left: 0px;"></div></ul> 
-        <div class="tab-content"> 
-            <div class="tab-pane" id="bamboo-details" style="display: block;"> 
+                <a href="#bamboo-details" data-toggle="tab" aria-expanded="true" class="active">
+                    <span class="visible-xs"><i class="fa fa-home"></i></span>
+                    <span class="hidden-xs">{{trans('main.details')}}</span>
+                </a>
+            </li>
+            <li class="tab" style="width: 25%;">
+                <a href="#bamboo-history" data-toggle="tab" aria-expanded="false" class="">
+                    <span class="visible-xs"><i class="fa fa-history"></i></span>
+                    <span class="hidden-xs">{{trans('main.history')}}</span>
+                </a>
+            </li>
+            <li class="tab" style="width: 25%;">
+                <a href="#bamboo-buy" data-toggle="tab" aria-expanded="false" class="">
+                    <span class="visible-xs"><i class="fa fa-bitcoin"></i></span>
+                    <span class="hidden-xs">{{trans('main.buy')}}</span>
+                </a>
+            </li>
+            <li class="tab" style="width: 25%;">
+                <a href="#bamboo-send" data-toggle="tab" aria-expanded="false" class="">
+                    <span class="visible-xs"><i class="fa fa-paper-plane"></i></span>
+                    <span class="hidden-xs">{{trans('main.send')}}</span>
+                </a>
+            </li>
+        <div class="indicator" style="right: 367px; left: 0px;"></div></ul>
+        <div class="tab-content">
+            <div class="tab-pane" id="bamboo-details" style="display: block;">
             	<div class="row">
                 	<div class="col-sm-12">
 						<div class="widget-inline-box text-center">
@@ -42,10 +48,10 @@
 						</div>
 					</div>
                 </div>
-            </div> 
+            </div>
             <div class="tab-pane" id="bamboo-history" style="display: none;">
 				<div class="table-responsive">
-					
+
                     <table class="table m-0">
                         <thead>
                             <tr>
@@ -59,7 +65,7 @@
                             @forelse($history as $output)
                             <tr class="@if($output->from == $user->id) crimson @else blue @endif">
                                 <td>{{$output->created_at}} <!-- ({{ Carbon\Carbon::parse($output->created_at)->diffForHumans()}}) --></td>
-                                
+
                                 @if($output->from == $user->id)
                                 <td>-{{$output->amt}}</td>
                                 @else
@@ -82,26 +88,26 @@
 					*Showing last 50 records
                 </div>
 			</div>
-            
-            <div class="tab-pane" id="bamboo-buy" style="display: block;">                 
+
+            <div class="tab-pane" id="bamboo-buy" style="display: block;">
                 @if($user->walletBamboo->pending_balance != 0.00000000)
                     <div class="alert alert-danger text-center">{{trans('main.just_made_purchase')}}</div>
-                @else  
+                @else
                     <div id="step1">
                     <h4 style="margin:0" class="b">Step 1</h4>
                     <p>How many PIN you wish to buy?</p>
                     <input type="text" class="form-control" placeholder="PIN Amount" name="bamboo" id="bamboo">
-                    
+
                     <br/>
                     </div>
-                    
+
                     <div id="step2">
                     <h4 style="margin:0" class="b">Step 2</h4>
                     <p>Send the Bitcoins to the QR code below</p>
                     <a href="bitcoin:{{$user->walletBamboo->wallet_address}}"><div id="qrcode"></div></a>
                     <div class="text-muted small">{{$user->walletBamboo->wallet_address}}</div>
                     <div class="text-muted small"><i class="fa fa-bitcoin"></i> {{round(app('App\Classes\Custom')->getPinBTCAmount(),8)}} x <span id="pin">1</span> Pin = <i class="fa fa-bitcoin orange"></i> <span class="orange" id="pin_total">{{round(app('App\Classes\Custom')->getPinBTCAmount(),8)}}</span></div>
-                    
+
                     <br/>
                     </div>
 
@@ -123,16 +129,28 @@
                     <br/>
                     </div>
 
-                    @if (in_array(session('AdminLvl'),array(3,4))) 
+                    @if (in_array(session('AdminLvl'),array(3,4)))
                     <hr/>
                     <form class="form" method="post" action="/bamboo/buyx">{!! csrf_field() !!}
                         <button class="btn btn-primary btn-warning" id="bamboo_btnx">ADMIN: Credit PIN on Confirmed Balance</button>
                     </form>
                     @endif
                 @endif
-            </div> 
+            </div>
 
             <div class="tab-pane" id="bamboo-send" style="display: none;">
+					<?php
+						$disabled = '';
+						if(in_array(session('AdminLvl'),array(1,2))){
+							if($user->id == session('has_admin_access')){
+								$disabled = '';
+							}else{
+								$disabled = 'disabled';
+							}
+						}elseif($user->otp){
+							$disabled = 'disabled';
+						}
+					?>
                 <form class="form" method="post" action="/bamboo/send">
                     {!! csrf_field() !!}
                 	<label class="form-label">{{trans('main.send_to')}}:</label>
@@ -144,20 +162,17 @@
                     <label class="form-label">{{trans('main.otp')}}:</label>
                     <input type="text" class="form-control" placeholder="OTP" name="otp">
                 	<br/>
-                	<button class="btn btn-block btn-success" @if (in_array(session('AdminLvl'),array(1,2))) disabled @endif
-					>{{trans('main.send')}}</i></button>
+                	<button class="btn btn-block btn-success" <?php echo $disabled;?>>{{trans('main.send')}}</button>
                 </form>
 
-                <form role="form" method="post" action="/sms/otp" target="iframe">{!! csrf_field() !!} 
-                    <button  @if (in_array(session('AdminLvl'),array(1,2))) disabled @endif 
-					@if($user->otp) disabled @endif 
-					onclick="sendotpnow(); return false;" id="otp_btn" type="submit" class="btn btn-block btn-warning waves-effect waves-light m-t-10">
-					@if($user->otp) {{trans('main.otp_sent')}} @else {{trans('main.request_otp')}} @endif
+               <form role="form" method="post" action="/sms/otp" target="iframe">{!! csrf_field() !!}
+               <button <?php echo $disabled;?> onclick="sendotpnow(); return false;" id="otp_btn" type="submit" class="btn btn-block btn-warning waves-effect waves-light m-t-10">
+						@if($user->otp) {{trans('main.otp_sent')}} @else {{trans('main.request_otp')}} @endif
 					</button>
-                </form>
-                <iframe name="iframe" class="hide"></iframe>
+               </form>
+               <iframe name="iframe" class="hide"></iframe>
             </div>
-        </div> 
+        </div>
     </div>
 </div>
 @stop
@@ -197,13 +212,13 @@ function sendotpnow()
 			$('#otp_btn').html("{{trans('main.otp_sent')}}");
 		  }
 		  else
-		  { 
+		  {
 		    swal("OTP Sent!", "Please wait till this popup closes.", "success")
 			$('#otp_btn').html("{{trans('main.request_otp')}}");
 			window.location.href="/bamboo#bamboo-send"
 			location.reload();
 		  }
-		});        
+		});
     })
     .fail(function(data) {
         alert("There was some error. Try again.");
@@ -218,15 +233,15 @@ function sendotpnow()
 
 @section('docready')
 <script type="text/javascript">
-$(document).ready(function($) {    
+$(document).ready(function($) {
     //start
     $('#step2').hide();
     $('#step3').hide();
     $('#step4').hide();
     $('#qrcode').qrcode("{{$user->walletBamboo->wallet_address}}");
-        
+
     //on keypress
-    $('#bamboo').keyup(function() {                 
+    $('#bamboo').keyup(function() {
         var bamboo_price = {{round(app('App\Classes\Custom')->getPinBTCAmount(),8)}};
         var total = $(this).val()*bamboo_price;
         total = total.toFixed(8);
@@ -240,13 +255,13 @@ $(document).ready(function($) {
     });
 
     //otp
-    $('#otp').click(function() {              
+    $('#otp').click(function() {
         $('#otp').hide();
     });
 
     //checkpayment
-    $('#bamboo_btn').click(function() {              
-        $('#bamboo_btn').html("<i class='fa fa-spinner fa-spin'></i> Checking");        
+    $('#bamboo_btn').click(function() {
+        $('#bamboo_btn').html("<i class='fa fa-spinner fa-spin'></i> Checking");
         checkPayment();
     });
 

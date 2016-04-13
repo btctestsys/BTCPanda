@@ -14,24 +14,24 @@
 		<div class="panel-heading">
 			<h3 class="panel-title">{{@$output->ddifc}} {{trans('main.days')}} ({{@round($output->amt_distributed / @$output->amt * 100,2)}}%) {{@$output->created_at}}</h3>
 		</div>
-		<div class="panel-body">	
-			
-			<button class="btn-rounded btn-primary btn-block btn-custom" disabled><i class="fa fa-bitcoin"></i> {{round($output->amt,8)}} x 1% x {{$output->ddifc}} - {{round($output->earnings_claimed,2)}} = <i class="fa fa-bitcoin"></i> {{$output->earnings}}</button>		
-			
+		<div class="panel-body">
+
+			<button class="btn-rounded btn-primary btn-block btn-custom" disabled><i class="fa fa-bitcoin"></i> {{round($output->amt,8)}} x 1% x {{$output->ddifc}} - {{round($output->earnings_claimed,2)}} = <i class="fa fa-bitcoin"></i> {{$output->earnings}}</button>
+
 			@if($output->status == 1 && $output->ddifc >= 15)
 			<form role="form" method="post" action="/add/earnings">{!! csrf_field() !!}
 				<input type="hidden" name="hidden" value="{{Crypt::encrypt($output->id.'~'.$output->earnings)}}">
 				<button @if (in_array(session('AdminLvl'),array(1,2))) disabled @endif class="btn-rounded btn-success btn-block m-t-10 @if($output->earnings == 0)  @else claim-earnings @endif" @if($output->earnings == 0) disabled @endif>{{trans('main.gh_earnings')}} <i class="fa fa-bitcoin"></i> {{$output->earnings}}</button>
 			</form>
 			<form role="form" method="post" action="/add/earnings">{!! csrf_field() !!}
-				<input type="hidden" name="hidden" value="{{Crypt::encrypt($output->id.'~'.($output->earnings+$output->amt).'~1')}}">				
+				<input type="hidden" name="hidden" value="{{Crypt::encrypt($output->id.'~'.($output->earnings+$output->amt).'~1')}}">
 				<button  @if (in_array(session('AdminLvl'),array(1,2))) disabled @endif class="btn-rounded btn-success btn-block m-t-10 claim-earnings">{{trans('main.gh_all')}} <i class="fa fa-bitcoin"></i> {{round($output->earnings + $output->amt,8)}}</button>
 			</form>
 			@else
 			<button class="btn-rounded btn-danger btn-block m-t-10" disabled>{{trans('main.gh_earnings')}} <i class="fa fa-bitcoin"></i> {{$output->earnings}}</button>
 			<button class="btn-rounded btn-danger btn-block m-t-10" disabled>{{trans('main.gh_all')}} <i class="fa fa-bitcoin"></i> {{round($output->earnings + $output->amt,8)}}</button>
 			@endif
-			
+
 			@if($output->status == 0)
 			<hr>
 
@@ -99,10 +99,10 @@
 			<div class="panel-heading">
 				<h3 class="panel-title">{{trans('main.created')}}: {{@$output->created_at}}</h3>
 			</div>
-			<div class="panel-body">	
+			<div class="panel-body">
 
 				<button class="btn-rounded btn-inverse btn-block btn-custom" disabled><i class="fa fa-bitcoin"></i> {{round($output_ended->amt,8)}} -> <i class="fa fa-bitcoin"></i> {{round($output_ended->earnings_claimed,8)}}</button>
-				
+
 				@if($output_ended->status == 0)
 				<hr>
 				<div class="progress progress-lg" style="border:1px solid #ddd;background:#ddd">
@@ -159,9 +159,11 @@
 	                <label for="PH Amount">{{trans('main.ph_amount')}} ({{trans('main.ph_left')}}: @if ($ph_left<0.0001) 0 @else {{$ph_left}} @endif BTC)</label>
 	                <input type="text" class="form-control" id="amt" placeholder="{{trans('main.enter_btc')}}" name="amt">
 	            </div>
-	            <button type="submit" @if (in_array(session('AdminLvl'),array(1,2))) disabled @endif
+	            <button data-toggle="modal" data-target="#modalNewPH" type="submit" @if (in_array(session('AdminLvl'),array(1,2))) disabled @endif
 				@if (app('App\Http\Controllers\PhController')->get_next_trans_inmin_inph() > 0) disabled @endif
 				class="btn btn-warning waves-effect waves-light btn-block ph-clicked">{{trans('main.submit')}}</button>
+
+
 	        </form>
 		</div>
 	</div>
@@ -204,7 +206,8 @@
 		</div>
 	</div>
 </div>
-@endif	
+
+@endif
 
 @stop
 
@@ -225,4 +228,5 @@ $('.ph-clicked').toggle();
 @stop
 
 @section('docready')
+
 @stop

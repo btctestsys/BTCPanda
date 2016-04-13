@@ -31,6 +31,7 @@ class PhController extends Controller
 		$check = DB::select($query);
 
       if($check['0']->mobile == '' or $check['0']->country == '' or $check['0']->wallet1 == ''){
+         return redirect("/settings");
       }
 
 

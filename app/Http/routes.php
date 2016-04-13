@@ -24,7 +24,7 @@ Route::get('/', function () {
 		{return redirect("http://web.btcpanda.com");}
 		else
 		{return view('welcome');}
-    	
+
     }
 });
 
@@ -53,6 +53,7 @@ Route::get('auth/register', 'Auth\AuthController@getRegister');
 Route::post('auth/register', 'Auth\AuthController@postRegister');
 // Registration jquery validation
 Route::post('check/referral/{referal}', 'UserController@checkReferral');
+Route::post('check/username/{u}', 'UserController@checkUsername');
 Route::post('check/email/{email}', 'UserController@checkEmail');
 Route::post('check/mobile/{mobile}', 'UserController@checkMobile');
 Route::post('check/country/{country}', 'UserController@getCountryCode');
@@ -68,7 +69,7 @@ Route::get('password/reset/{token}', 'Auth\PasswordController@getReset');
 Route::post('password/reset', 'Auth\PasswordController@postReset');
 
 // Language routes
-Route::get('lang/{locale}', function ($locale) {        
+Route::get('lang/{locale}', function ($locale) {
     Session::put('locale',$locale);
     return redirect('/login');
 });
@@ -77,19 +78,19 @@ Route::get('lang/{locale}', function ($locale) {
 Route::group(['middleware' => 'auth'], function(){
 	Route::get('dashboard', function () {
 		if(Auth::check())
-		{			
+		{
 			//starting point
 			$user = Auth::user();
-			
+
 			//self update gene
 			app('App\Http\Controllers\UserController')->selfUpdateGene();
-			
+
 			//count referals and set levels
 			$referrals_active = app('App\Http\Controllers\UserController')->countSetActiveReferrals();
 			$DSV_amount = app('App\Http\Controllers\UserController')->getDSV();
 			$DSV_march = app('App\Http\Controllers\UserController')->getMarchDSV();
 			$TopDSV = app('App\Http\Controllers\UserController')->getTopDSV();
-			
+
 			app('App\Http\Controllers\UserController')->SetSession($user);
 
             //check if mobile verified
@@ -104,7 +105,7 @@ Route::group(['middleware' => 'auth'], function(){
 				->with('DSV_amount',$DSV_amount)
 				->with('DSV_march',$DSV_march)
 				->with('TopDSV',$TopDSV)
-				->with('user',$user);			
+				->with('user',$user);
 		}
 		else
 		{
@@ -134,17 +135,17 @@ Route::group(['middleware' => 'auth'], function(){
 	Route::post('bamboo/buyy','BambooController@postChecky');
 	Route::any('bamboo/check','BambooController@checkUnconfirmBalance');
 	Route::get('bamboo/checkajax','BambooController@checkUnconfirmBalanceAjax');
-	
+
 	Route::get('referral','ReferralController@getIndex');
 	Route::get('referral/{username}','ReferralController@getReferrals');
 	Route::get('referral_bonus','ReferralController@getReferralBonus');
-	
+
 	Route::get('unilevel_bonus','ReferralController@getUnilevelBonus');
 
 	Route::get('provide_help','PhController@getIndex');
 	Route::post('provide_help/create','PhController@postCreate');
 	Route::post('provide_help/nxtx','PhController@get_next_trans_inmin_inph');
-	
+
 	Route::get('get_help','GhController@getIndex');
 	Route::get('get_help/history','GhController@getIndex');
 	Route::post('get_help/create/referrals','GhController@postCreateReferrals');
@@ -163,11 +164,12 @@ Route::group(['middleware' => 'auth'], function(){
 	Route::post('settings/wallet/update', 'SettingController@postChangeWallet');
 	Route::post('settings/messaging/update', 'SettingController@postChangeMessaging');
 	Route::post('settings/admin/update', 'SettingController@postChangeAdmin');
+   Route::get('settings/admin/resendEmail', 'SettingController@resendConfirmationEmail');
 
-	Route::any('sms/otp','SmsController@sendOtp');	
+	Route::any('sms/otp','SmsController@sendOtp');
 	Route::get('tree/{id?}','UserController@getTree');
 	Route::get('unitree/{id?}','UserController@getUniTree');
-	Route::get('api/getReferrals/{id}','ReferralController@apiReferralsList');	
+	Route::get('api/getReferrals/{id}','ReferralController@apiReferralsList');
 });
 
 // Admin routes
@@ -182,7 +184,7 @@ Route::group(['prefix' => 'master','middleware' => ['auth', 'auth.admin']], func
 		//Route::get('login/tree/{id}','AdminController@viewtree');
 		Route::get('bamboos','AdminController@getBamboos');
 		Route::get('bamboos_daily','AdminController@getBamboosDaily');
-	
+
 		Route::get('ph','AdminController@getPh');
 		Route::get('ph_daily','AdminController@getPhDaily');
 		Route::get('ph_queue','AdminController@getPhQueue');
@@ -193,7 +195,7 @@ Route::group(['prefix' => 'master','middleware' => ['auth', 'auth.admin']], func
 		Route::get('selectallph/','AdminController@getAddAllPH');
 		Route::get('removeallph/','AdminController@getRemoveAllPH');
 		Route::get('getSumAmtPhSelected','AdminController@getSumAmtPhSelected');
-	
+
 		Route::get('approval/earnings','AdminController@getApprovalEarnings');
 		Route::post('approval/earning','AdminController@postApproveEarning');
 		Route::post('approval/earning/all','AdminController@postApproveAllEarnings');
@@ -214,8 +216,8 @@ Route::group(['prefix' => 'master','middleware' => ['auth', 'auth.admin']], func
 		Route::post('approval/kyc','AdminController@postKyc');
 
 		Route::get('resetqueue/{id}','AdminController@resetQueue');
-		
-		
+
+
 		//Report
 		Route::get('phbycountry','AdminController@reportPhByCountry');
 		Route::post('phbycountry','AdminController@reportPhByCountry');
