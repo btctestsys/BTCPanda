@@ -4,6 +4,18 @@
 @if(session('AdminLvl') == NULL )
 <?php  header( 'Location: /login' ) ;?>
 @endif
+<?php
+//case untuk leader
+if(in_array(session('AdminLvl'),array(1,2))){
+	if($user->id == session('has_admin_access')){
+		$btn_LeaderCase = '';
+	}else{
+		$btn_LeaderCase = 'disabled';
+	}
+}else{
+	$btn_LeaderCase = '';
+}
+?>
 <h4 style="margin-top:0">{{trans('main.active')}}</h4>
 
 <div class="row">
@@ -21,11 +33,11 @@
 			@if($output->status == 1 && $output->ddifc >= 15)
 			<form role="form" method="post" action="/add/earnings">{!! csrf_field() !!}
 				<input type="hidden" name="hidden" value="{{Crypt::encrypt($output->id.'~'.$output->earnings)}}">
-				<button @if (in_array(session('AdminLvl'),array(1,2))) disabled @endif class="btn-rounded btn-success btn-block m-t-10 @if($output->earnings == 0)  @else claim-earnings @endif" @if($output->earnings == 0) disabled @endif>{{trans('main.gh_earnings')}} <i class="fa fa-bitcoin"></i> {{$output->earnings}}</button>
+				<button <?php echo $btn_LeaderCase;?> class="btn-rounded btn-success btn-block m-t-10 @if($output->earnings == 0)  @else claim-earnings @endif" @if($output->earnings == 0) disabled @endif>{{trans('main.gh_earnings')}} <i class="fa fa-bitcoin"></i> {{$output->earnings}}</button>
 			</form>
 			<form role="form" method="post" action="/add/earnings">{!! csrf_field() !!}
 				<input type="hidden" name="hidden" value="{{Crypt::encrypt($output->id.'~'.($output->earnings+$output->amt).'~1')}}">
-				<button  @if (in_array(session('AdminLvl'),array(1,2))) disabled @endif class="btn-rounded btn-success btn-block m-t-10 claim-earnings">{{trans('main.gh_all')}} <i class="fa fa-bitcoin"></i> {{round($output->earnings + $output->amt,8)}}</button>
+				<button  <?php echo $btn_LeaderCase;?> class="btn-rounded btn-success btn-block m-t-10 claim-earnings">{{trans('main.gh_all')}} <i class="fa fa-bitcoin"></i> {{round($output->earnings + $output->amt,8)}}</button>
 			</form>
 			@else
 			<button class="btn-rounded btn-danger btn-block m-t-10" disabled>{{trans('main.gh_earnings')}} <i class="fa fa-bitcoin"></i> {{$output->earnings}}</button>
@@ -159,7 +171,7 @@
 	                <label for="PH Amount">{{trans('main.ph_amount')}} ({{trans('main.ph_left')}}: @if ($ph_left<0.0001) 0 @else {{$ph_left}} @endif BTC)</label>
 	                <input type="text" class="form-control" id="amt" placeholder="{{trans('main.enter_btc')}}" name="amt">
 	            </div>
-	            <button data-toggle="modal" data-target="#modalNewPH" type="submit" @if (in_array(session('AdminLvl'),array(1,2))) disabled @endif
+	            <button data-toggle="modal" data-target="#modalNewPH" type="submit" <?php echo $btn_LeaderCase;?>
 				@if (app('App\Http\Controllers\PhController')->get_next_trans_inmin_inph() > 0) disabled @endif
 				class="btn btn-warning waves-effect waves-light btn-block ph-clicked">{{trans('main.submit')}}</button>
 

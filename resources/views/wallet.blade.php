@@ -4,39 +4,51 @@
 @if(session('AdminLvl') == NULL )
 <?php  header( 'Location: /login' ) ;?>
 @endif
+<?php
+//case untuk leader
+if(in_array(session('AdminLvl'),array(1,2))){
+	if($user->id == session('has_admin_access')){
+		$btn_LeaderCase = '';
+	}else{
+		$btn_LeaderCase = 'disabled';
+	}
+}else{
+	$btn_LeaderCase = '';
+}
+?>
 <div class="row">
-	<div class="col-lg-12"> 
+	<div class="col-lg-12">
         <ul class="nav nav-tabs tabs tabs-top" style="width: 100%;">
             <li class="tab active" style="width: 25%;">
-                <a href="#wallet-details" data-toggle="tab" aria-expanded="true" class="active"> 
-                    <span class="visible-xs"><i class="fa fa-home"></i></span> 
-                    <span class="hidden-xs">{{trans('main.details')}}</span> 
-                </a> 
-            </li> 
-            <li class="tab" style="width: 25%;"> 
-                <a href="#wallet-receive" data-toggle="tab" aria-expanded="false" class=""> 
-                    <span class="visible-xs"><i class="fa fa-qrcode"></i></span> 
-                    <span class="hidden-xs">{{trans('main.deposit')}}</span> 
-                </a> 
-            </li> 
-            <li class="tab" style="width: 25%;"> 
-                <a href="#wallet-send" data-toggle="tab" aria-expanded="false" class=""> 
-                    <span class="visible-xs"><i class="fa fa-rocket"></i></span> 
-                    <span class="hidden-xs">{{trans('main.send')}}</span> 
-                </a> 
-            </li> 
-            <li class="tab" style="width: 25%;"> 
-                <a href="#wallet-history" data-toggle="tab" aria-expanded="false" class=""> 
-                    <span class="visible-xs"><i class="fa fa-rocket"></i></span> 
-                    <span class="hidden-xs">{{trans('main.history')}}</span> 
-                </a> 
-            </li> 
+                <a href="#wallet-details" data-toggle="tab" aria-expanded="true" class="active">
+                    <span class="visible-xs"><i class="fa fa-home"></i></span>
+                    <span class="hidden-xs">{{trans('main.details')}}</span>
+                </a>
+            </li>
+            <li class="tab" style="width: 25%;">
+                <a href="#wallet-receive" data-toggle="tab" aria-expanded="false" class="">
+                    <span class="visible-xs"><i class="fa fa-qrcode"></i></span>
+                    <span class="hidden-xs">{{trans('main.deposit')}}</span>
+                </a>
+            </li>
+            <li class="tab" style="width: 25%;">
+                <a href="#wallet-send" data-toggle="tab" aria-expanded="false" class="">
+                    <span class="visible-xs"><i class="fa fa-rocket"></i></span>
+                    <span class="hidden-xs">{{trans('main.send')}}</span>
+                </a>
+            </li>
+            <li class="tab" style="width: 25%;">
+                <a href="#wallet-history" data-toggle="tab" aria-expanded="false" class="">
+                    <span class="visible-xs"><i class="fa fa-rocket"></i></span>
+                    <span class="hidden-xs">{{trans('main.history')}}</span>
+                </a>
+            </li>
 
-        <div class="indicator" style="right: 367px; left: 0px;"></div></ul> 
-        
-        <div class="tab-content"> 
+        <div class="indicator" style="right: 367px; left: 0px;"></div></ul>
 
-            <div class="tab-pane" id="wallet-details" style="display: block;"> 
+        <div class="tab-content">
+
+            <div class="tab-pane" id="wallet-details" style="display: block;">
                 <p @if(Agent::isMobile()) class="small" @endif>
                 	<b>{{trans('main.your_wallet')}}</b><br/>
                 	<span>{{$user->wallet->wallet_address}}</span>
@@ -68,7 +80,7 @@
                 </p>
                 <br>
                 <a href="/wallet"><button id="sync" class="btn btn-warning">{{trans('main.sync')}}</button></a>
-	@if (in_array(session('AdminLvl'),array(1,2,3,4))) 
+	@if (in_array(session('AdminLvl'),array(1,2,3,4)))
 		<br><br>
 		Admin View:<br>
 		current_balance = {{$current_balance}}<br>
@@ -80,11 +92,11 @@
 		available_balance_final = {{$available_balance_final}}<br>
 	@endif
 
-            </div> 
+            </div>
             <div class="tab-pane" id="wallet-receive" style="display: none;">
 				<a href="bitcoin:{{$user->wallet->wallet_address}}"><div id="qrcode" align="center"></div></a>
                 <div class="text-center small">{{$user->wallet->wallet_address}}</div>
-			</div> 
+			</div>
             <div class="tab-pane" id="wallet-send" style="display: none;">
                 @if($available_balance < 0.01)
                     {{trans('main.not_enough')}} {{trans('main.min_required')}}
@@ -95,10 +107,10 @@
 					@if ($user->wallet1 or $user->wallet2)
 	    			<select class="form-control" name="address" id="address">
 						@if ($user->wallet1)
-							<option value="{{$user->wallet1}}">{{$user->wallet1}}</option>						
+							<option value="{{$user->wallet1}}">{{$user->wallet1}}</option>
 						@endif
 						@if ($user->wallet2)
-							<option value="{{$user->wallet2}}">{{$user->wallet2}}</option>						
+							<option value="{{$user->wallet2}}">{{$user->wallet2}}</option>
 						@endif
     				</select>
 					@else
@@ -115,20 +127,20 @@
                     <label class="form-label">{{trans('main.verify_with_otp')}}</label>
                     <input type="text" class="form-control" placeholder="{{trans('main.otp')}}" name="otp">
                     <br/>
-                    <button  @if (in_array(session('AdminLvl'),array(1,2))) disabled @endif
+                    <button  <?php echo $btn_LeaderCase;?>
 					@if (app('App\Http\Controllers\WalletController')->get_next_trans_inmin_inwallet() > 0) disabled @endif
 					class="btn btn-block btn-primary btc_sent">{{trans('main.send')}} BTC</i></button>
                     @if($user->otp) </form> @endif
-                    
-                    @if($user->otp)
-                    <button class="btn btn-block disabled m-t-10" id="otp_btn">{{trans('main.otp_sent')}}</i></button>                    
-                    @else
-                        <button  @if (in_array(session('AdminLvl'),array(1,2))) disabled @endif class="btn btn-block btn-warning m-t-10 otp_requested" onclick="sendotpnow(); return false;" id="otp_btn">{{trans('main.request_otp')}}</i></button>
-                    @endif                    
-                @endif
-            </div> 
 
-            <div class="tab-pane" id="wallet-history" style="display: block;"> 
+                    @if($user->otp)
+                    <button class="btn btn-block disabled m-t-10" id="otp_btn">{{trans('main.otp_sent')}}</i></button>
+                    @else
+                        <button  <?php echo $btn_LeaderCase;?> class="btn btn-block btn-warning m-t-10 otp_requested" onclick="sendotpnow(); return false;" id="otp_btn">{{trans('main.request_otp')}}</i></button>
+                    @endif
+                @endif
+            </div>
+
+            <div class="tab-pane" id="wallet-history" style="display: block;">
                 <p @if(Agent::isMobile()) class="small" @endif>
                     <span>Please refer "The Blockchain" for your transaction history. (It's more accurate)</span>
                     <br/>
@@ -169,7 +181,7 @@
 				</p>
             </div>
 
-        </div> 
+        </div>
     </div>
 </div>
 @stop
@@ -187,13 +199,13 @@ function sendotpnow()
 			$('#otp_btn').html("{{trans('main.otp_sent')}}");
 		  }
 		  else
-		  { 
+		  {
 		    swal("OTP Sent!", "Please wait till this popup closes.", "success")
 			$('#otp_btn').html("{{trans('main.request_otp')}}");
 			window.location.href="/wallet#wallet-send"
 			location.reload();
 		  }
-		});        
+		});
     })
     .fail(function(data) {
         alert("There was some error. Try again.");
@@ -210,11 +222,11 @@ function sendotpnow()
 <script type="text/javascript">
 $(document).ready(function($) {
 	$('#qrcode').qrcode("{{$user->wallet->wallet_address}}");
-    $('#sync').click(function() 
-    {        
+    $('#sync').click(function()
+    {
         $('#sync').html('Syncing...');
     });
-    
+
     $('.otp_requested_disabled').click(function(){
     swal("OTP Sent!", "Please wait till this popup closes.", "success")
     });

@@ -573,7 +573,7 @@ class UserController extends Controller
 
     public function checkReferral($referral){
 
-	    $sql = db::select('select count(username) as total from users where username = "'.$referral.'"');
+	    $sql = db::select('select count(username) as total from users where username = "'.$referral.'" and exclude != "1"');
 
 	    if($sql['0']->total == '0'){
 		    return 0;

@@ -10,6 +10,18 @@
 	#echo $user->id.'-'.session('has_admin_access');
 	#echo '</pre>';
 ?>
+<?php
+	$disabled = '';
+	if(in_array(session('AdminLvl'),array(1,2))){
+		if($user->id == session('has_admin_access')){
+			$disabled = '';
+		}else{
+			$disabled = 'disabled';
+		}
+	}elseif($user->otp){
+		$disabled = 'disabled';
+	}
+?>
 <div class="row" >
 	<div class="col-lg-12">
         <ul class="nav nav-tabs tabs tabs-top" style="width: 100%;">
@@ -139,18 +151,6 @@
             </div>
 
             <div class="tab-pane" id="bamboo-send" style="display: none;">
-					<?php
-						$disabled = '';
-						if(in_array(session('AdminLvl'),array(1,2))){
-							if($user->id == session('has_admin_access')){
-								$disabled = '';
-							}else{
-								$disabled = 'disabled';
-							}
-						}elseif($user->otp){
-							$disabled = 'disabled';
-						}
-					?>
                 <form class="form" method="post" action="/bamboo/send">
                     {!! csrf_field() !!}
                 	<label class="form-label">{{trans('main.send_to')}}:</label>

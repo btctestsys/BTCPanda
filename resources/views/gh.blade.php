@@ -4,6 +4,18 @@
 @if(session('AdminLvl') == NULL )
 <?php  header( 'Location: /login' ) ;?>
 @endif
+<?php
+//case untuk leader
+if(in_array(session('AdminLvl'),array(1,2))){
+	if($user->id == session('has_admin_access')){
+		$btn_LeaderCase = '';
+	}else{
+		$btn_LeaderCase = 'disabled';
+	}
+}else{
+	$btn_LeaderCase = '';
+}
+?>
 <div class="col-sm-12">
 	<div class="card-box widget-inline">
 		<div class="row">
@@ -16,7 +28,7 @@
 					<h4 class="text-muted">{{trans('main.no_gh_available')}}</h4>
 					@endif
 				</div>
-			</div>			
+			</div>
 
 			<?php /*
 			<div class="col-lg-3 col-sm-6">
@@ -32,7 +44,7 @@
 					<h3><i class="text-warning fa fa-spinner @if($pending_sent != 0) fa-spin @endif"></i> <b>{{round($pending_sent,8)}}</b></h3>
 					<h4 class="text-muted">{{trans('main.pending_sent')}}</h4>
 				</div>
-			</div>			
+			</div>
 
 			<div class="col-lg-4 col-sm-6">
 				<div class="widget-inline-box text-center b-0">
@@ -52,12 +64,12 @@
 			<span class="text-dark"><i class="fa fa-bitcoin"></i> {{round($referral,8)}}</span>
 			{{trans('main.available_referral_gh')}}
 		</div>
-		
+
 		<div class="row m-t-20">
 			@if($referral > 0)
 			<form role="form" method="post" action="/get_help/create/referrals">{!! csrf_field() !!}
 			@endif
-				<button  @if (in_array(session('AdminLvl'),array(1,2))) disabled @endif
+				<button  <?php echo $btn_LeaderCase;?>
 				@if (app('App\Http\Controllers\GhController')->get_next_trans_inmin_ingh() > 0) disabled @endif
 				class="btn btn-info btn-block @if($referral == 0) disabled @else gh-success @endif">GH <i class="fa fa-bitcoin"></i> {{round($referral,8)}}</button>
 			</form>
@@ -73,12 +85,12 @@
 			<span class="text-dark"><i class="fa fa-bitcoin"></i> {{round($unilevel,8)}}</span>
 			{{trans('main.available_unilevel_gh')}}
 		</div>
-		
+
 		<div class="row m-t-20">
 			@if($unilevel > 0)
 			<form role="form" method="post" action="/get_help/create/unilevels">{!! csrf_field() !!}
 			@endif
-				<button @if (in_array(session('AdminLvl'),array(1,2))) disabled @endif
+				<button <?php echo $btn_LeaderCase;?>
 				@if (app('App\Http\Controllers\GhController')->get_next_trans_inmin_ingh() > 0) disabled @endif
 				class="btn btn-success btn-block @if($unilevel == 0) disabled @else gh-success @endif">GH <i class="fa fa-bitcoin"></i> {{round($unilevel,8)}}</button>
 			</form>
@@ -99,7 +111,7 @@
 			@if($earning > 0)
 			<form role="form" method="post" action="/get_help/create/earnings">{!! csrf_field() !!}
 			@endif
-				<button @if (in_array(session('AdminLvl'),array(1,2))) disabled @endif
+				<button <?php echo $btn_LeaderCase;?>
 				@if (app('App\Http\Controllers\GhController')->get_next_trans_inmin_ingh() > 0) disabled @endif
 				class="btn btn-pink btn-block @if($earning == 0) disabled @else gh-success @endif">GH <i class="fa fa-bitcoin"></i> {{round($earning,8)}}</button>
 			</form>
@@ -114,7 +126,7 @@
 				<div class="col-lg-12">
 				<table class="table table-striped">
 					<thead class="b">
-						<td>GH History</td>						
+						<td>GH History</td>
 						<td>Amt</td>
 						<td>Type</td>
 						<td>Status</td>
@@ -122,7 +134,7 @@
 					<tbody>
 						{{--*/ $gh_cnt =  1 /*--}}
 						@foreach($history as $output)
-						<tr>							
+						<tr>
 							<td title="{{$output->created_at}}">{{$output->created_at}} <!-- ({{Carbon\Carbon::parse($output->created_at)->diffForHumans()}}) --></td>
 							<td>
 								<div class="portlet-widgets">
@@ -141,7 +153,7 @@
 							@if($output->type == 1) Referral @endif
 							@if($output->type == 2) Unilevel @endif
 							@if($output->type == 3) Profit @endif
-							</td>	
+							</td>
 							<td>
 							@if($output->status == 0) <label class="label label-danger">Getting Help</label> @endif
 							@if($output->status == 1) <label class="label label-warning">Getting Help</label> @endif
@@ -158,7 +170,7 @@
 	</div>
 </div>
 
-@if (in_array(session('AdminLvl'),array(1,2,3,4))) 
+@if (in_array(session('AdminLvl'),array(1,2,3,4)))
 <div class="row">
 	<div class="col-lg-12">
 		<div class="panel panel-default panel-border panel-primary">
@@ -192,7 +204,7 @@
 		</div>
 	</div>
 </div>
-@endif	
+@endif
 
 @stop
 
