@@ -217,6 +217,8 @@ Route::group(['prefix' => 'master','middleware' => ['auth', 'auth.admin']], func
 
 		Route::get('resetqueue/{id}','AdminController@resetQueue');
 
+      //auditTrail
+      Route::get('audit_trail/','AdminController@auditTrail');
 
 		//Report
 		Route::get('phbycountry','AdminController@reportPhByCountry');

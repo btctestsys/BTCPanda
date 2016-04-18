@@ -406,7 +406,7 @@ $(document).ready(function($) {
 
 	var act = $('#act').val();
 	if(act == 1){
-		swal("Please Update", "Mobile Number, Country and Wallet Address is required before you can PH.", "error")
+		swal("Please Update", "Mobile Number nad Country is required before you can PH.", "error")
 	}
 
 	$('#btn_resend_email').on('click', function () {

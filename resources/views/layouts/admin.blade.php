@@ -35,7 +35,7 @@
         <body class="fixed-left">
 
         <!-- Begin page -->
-        
+
         @if(Agent::isMobile())
         <div id="wrapper" class="enlarged forced">
         @else
@@ -46,7 +46,7 @@
 
                 <!-- LOGO -->
                 <div class="topbar-left">
-                    <div class="text-center">                        
+                    <div class="text-center">
                         <a href="/home" class="logo"><img src="/img/panda.gif" height="40px" class="icon-c-logo"><span> BTC <img src="/img/panda.gif" height="40px" style="position:relative;bottom:4px">Panda</span></a>
                     </div>
                 </div>
@@ -221,9 +221,9 @@
                 		</div>
                 	</div>
                     <!--- Divider -->
-                    <div id="sidebar-menu" class="p-t-10">                        
+                    <div id="sidebar-menu" class="p-t-10">
                       <ul>
-						
+
 						 <!--- Marketing -->
                         @if(session('AdminLvl')==1)
 						<li class="text-muted menu-title hide">Main</li>
@@ -288,7 +288,8 @@
 						<li><a href="/master/ph" class="waves-effect"><i class="md-local-hospital"></i> <span> PH Sales </span> </a></li>
 						<li><a href="/master/ph_daily" class="waves-effect"><i class="md-local-hospital"></i> <span> PH Sales Daily </span> </a></li>
 						<li><a href="/master/approval/kyc" class="waves-effect"><i class="fa fa-youtube-play"></i> <span> ID & Video Testi. </span> </a></li>
-                        @endif
+						<li><a href="/master/audit_trail" class="waves-effect"><i class="fa fa-list-ol"></i> <span> Audit Trail </span> </a></li>
+						      @endif
 
 
                       <div class="clearfix"></div>
@@ -297,7 +298,7 @@
                 </div>
             </div>
             <!-- Left Sidebar End -->
-        
+
             <!-- ============================================================== -->
             <!-- Start right Content here -->
             <!-- ============================================================== -->
@@ -315,7 +316,7 @@
             <footer class="footer text-right">
             2015 © BTC Panda All Rights Reserved.
             </footer>
-            </div>    
+            </div>
 
             <!-- ============================================================== -->
             <!-- End Right content here -->
@@ -451,9 +452,9 @@
         <script src="/assets/js/jquery.scrollTo.min.js"></script>
 
         <script src="/assets/plugins/peity/jquery.peity.min.js"></script>
-	   
+
 	   <script src="/assets/js/jquery.growl.js" type="text/javascript"></script>
-        
+
 	   <!-- jQuery  -->
         <script src="/assets/plugins/waypoints/lib/jquery.waypoints.js"></script>
         <script src="/assets/plugins/counterup/jquery.counterup.min.js"></script>
@@ -480,7 +481,7 @@
         <!-- Sweet-Alert  -->
         <script src="/assets/plugins/sweetalert/dist/sweetalert.min.js"></script>
         <script src="/assets/pages/jquery.sweet-alert.init.js"></script>
-	   
+
 	   <script src="/assets/js/bootstrap-datepicker.min.js"></script>
 
         @yield('js')
@@ -501,7 +502,7 @@
         </script>
 
         @yield('docready')
-        
+
         <script>
         (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
         (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -512,7 +513,6 @@
         ga('send', 'pageview');
 
         </script>
-        
+
         </body>
 </html>
-        

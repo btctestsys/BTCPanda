@@ -11,15 +11,14 @@
 	#echo '</pre>';
 ?>
 <?php
-	$disabled = '';
 	if(in_array(session('AdminLvl'),array(1,2))){
 		if($user->id == session('has_admin_access')){
 			$disabled = '';
 		}else{
 			$disabled = 'disabled';
 		}
-	}elseif($user->otp){
-		$disabled = 'disabled';
+	}else{
+		$disabled = '';
 	}
 ?>
 <div class="row" >

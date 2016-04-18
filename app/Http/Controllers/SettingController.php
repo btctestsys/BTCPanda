@@ -32,7 +32,7 @@ class SettingController extends Controller
       $query = "SELECT `country`, `mobile`, `wallet1` FROM users WHERE id = '$uid'";
 		$check = DB::select($query);
 
-      if($check['0']->mobile == '' or $check['0']->country == '' or $check['0']->wallet1 == ''){
+      if($check['0']->mobile == '' or $check['0']->country == ''){
          $act = 1;
       }else{
          $act = 0;
@@ -114,6 +114,10 @@ class SettingController extends Controller
 			//$user->email = $request->email;
 			$user->country = $request->country;
 			$user->save();
+
+         ##Audit-----
+         ##1 = Update Country Information at Profile Details
+         Custom::auditTrail($this->user->id, '1', session('user_id'));
 
 			return back();
         }
@@ -236,6 +240,10 @@ class SettingController extends Controller
             $user->messaging = $messaging;
             $user->save();
 
+            ##Audit-----
+            ##2 = Update OTP Delivery at Profile Details
+            Custom::auditTrail($this->user->id, '2', session('user_id'));
+            
             return Custom::popup('Profile updated','/settings');
             return back();
     }

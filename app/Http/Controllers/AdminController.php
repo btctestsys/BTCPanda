@@ -633,4 +633,50 @@ class AdminController extends Controller
 			->with('phdates',$phdates)
 			->with('user',$this->user);
     }
+
+    function auditTrail(Request $request){
+
+      $query_limit = 'LIMIT 10';
+
+      $inputDate = $request->inputDate;
+		$uname = $request->uname;
+	   $ip = $request->ip;
+      $query = '';
+      $typ = $request->show_entries;
+      if($typ == 'all'){
+         $query_limit = '';
+      }elseif($typ != ''){
+         $query_limit = 'LIMIT '.$request->show_entries;
+      }
+
+      if($inputDate != ''){
+         $query = " date(a.created_at) = '".$inputDate."' ";
+      }
+      if($uname != ''){
+         if($query != ''){
+            $query = $query.' and ';
+         }
+         $query = $query.' c.username like "%'.$uname.'%" or  d.username like "%'.$uname.'%"';
+      }
+      if($ip != ''){
+         if($query != ''){
+            $query = $query.' and ';
+         }
+         $query = $query.' a.ip_address like "%'.$ip.'%" ';
+      }
+
+      if($query != ''){
+         $query = ' where '.$query;
+      }
+      $audit = DB::select('SELECT a.*, b.`action` ,c.username member, d.username updated_by
+                           FROM audit_trail a
+                           JOIN lookup_audit_trail b ON (a.`action_id` = b.id)
+                           JOIN users c ON (a.`uid` = c.`id`)
+                           JOIN users d ON (a.`created_by` = d.`id`)'.$query.'order by a.created_at desc '.$query_limit.'');
+
+        return view('admin.audit_trail')
+            ->with('audit',$audit)
+            ->with('request',$request)
+            ->with('user',$this->user);
+   }
 }

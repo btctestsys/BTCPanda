@@ -30,7 +30,7 @@ class PhController extends Controller
       $query = "SELECT `country`, `mobile`, `wallet1` FROM users WHERE id = '$uid'";
 		$check = DB::select($query);
 
-      if($check['0']->mobile == '' or $check['0']->country == '' or $check['0']->wallet1 == ''){
+      if($check['0']->mobile == '' or $check['0']->country == ''){
          return redirect("/settings");
       }
 
