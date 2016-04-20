@@ -318,13 +318,13 @@ class Custom {
       );
       $yourbrowser= $ua['name'] . " version " . $ua['version'] . " on " .$ua['platform'];
       //-------------------------
-      $db_audit = \DB::connection('mysql_audit');
-
-      $db_audit->table('audit_trail')->insert(
+      #$db_audit = \DB::connection('mysql_audit');
+      $db2 = getenv('DB_EXT_DATABASE');
+      DB::table($db2.'.audit_trail')->insert(
          [
             'uid'          => $user_id,
             'action_id'    => $action,
-            'created_at'   => $db_audit->raw('now()'),
+            'created_at'   => DB::raw('now()'),
             'ip_address'   => $ipaddress,
             'device'       => $yourbrowser,
             'created_by'   => $created_by,

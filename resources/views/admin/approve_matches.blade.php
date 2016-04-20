@@ -122,12 +122,14 @@
 									outputToMatch="{{round($output->amt,8)}}">
 									Approve
 								</button>
+								@if($output->kyc!=2)
 								<span class="btnKYCed{{$output->user_id}}"></span>
 								<button data-toggle="modal" data-target="#modalKYC" class="btn btn-xs btn-warning btnKYC btnKYC{{$output->user_id}}"
 									outputUserId="{{$output->user_id}}"
 									outputUsername="{{$output->username}}">
 									KYC
 								</button>
+								@endif
 							<!-- </form> -->
 							</td>
 						</tr>

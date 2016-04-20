@@ -94,7 +94,7 @@ if(in_array(session('AdminLvl'),array(1,2))){
  					</div>
 					<div class="form-group">
 						<label for="youtube">KYC Note</label>
-						<textarea class="form-control" placeholer="KYC Note" name="kyc_note"></textarea>
+						<textarea class="form-control" placeholer="KYC Note" name="kyc_note">{{$user->kyc_note}}</textarea>
  					</div>
 					@endif
 					@if (in_array(session('AdminLvl'),array(4)))
