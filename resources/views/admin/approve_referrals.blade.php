@@ -9,11 +9,11 @@
 					<thead class="b">
 						<td>Date</td>
 						<td>Member</td>
-						<td>Referral Bonus</td>						
+						<td>Referral Bonus</td>
 						<td>Days</td>
 						<td>
 							<form method="post" action="/master/approval/referral/all">
-								{!! csrf_field() !!} 
+								{!! csrf_field() !!}
 								<button class="btn btn-xs btn-danger">Approve All</button>
 							</form>
 						</td>
@@ -21,7 +21,7 @@
 					<tbody>
 						{{--*/ $total_ref =  0 /*--}}
 						@foreach($referrals as $output)
-						<tr>							
+						<tr>
 							<td>{{$output->created_at}}</td>
 							<td>
 							@if($output->u3s>=1)
@@ -45,15 +45,17 @@
 							<td>{{Carbon\Carbon::parse($output->created_at)->diffindays()+1}}</td>
 							<td>
 							<form method="post" action="/master/approval/referral">
-								{!! csrf_field() !!} 
+								{!! csrf_field() !!}
 								<input type="hidden" name="id" value="{{$output->id}}">
+								<input type="hidden" name="member" value="{{$output->susername1}}">
+								<input type="hidden" name="ref_bonus" value="{{round($output->amt,8)}}">
 								<button class="btn btn-xs btn-success">Approve</button>
 							</form>
 							</td>
 						</tr>
 							{{--*/ $total_ref =  $total_ref + $output->amt /*--}}
 						@endforeach
-						<tr>							
+						<tr>
 							<td></td>
 							<td>Total</td>
 							<td>{{round($total_ref,8)}}</td>

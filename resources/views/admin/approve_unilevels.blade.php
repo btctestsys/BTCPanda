@@ -9,11 +9,11 @@
 					<thead class="b">
 						<td>Date</td>
 						<td>Member</td>
-						<td>Unilevel Bonus</td>						
+						<td>Unilevel Bonus</td>
 						<td>Days</td>
 						<td>
 							<form method="post" action="/master/approval/unilevel/all">
-								{!! csrf_field() !!} 
+								{!! csrf_field() !!}
 								<button class="btn btn-xs btn-danger">Approve All</button>
 							</form>
 						</td>
@@ -21,7 +21,7 @@
 					<tbody>
 						{{--*/ $total_uni =  0 /*--}}
 						@foreach($unilevels as $output)
-						<tr>							
+						<tr>
 							<td>{{$output->created_at}}</td>
 							<td>
 							@if($output->u3s>=1)
@@ -44,15 +44,17 @@
 							<td>{{Carbon\Carbon::parse($output->created_at)->diffindays()}}</td>
 							<td>
 							<form method="post" action="/master/approval/unilevel">
-								{!! csrf_field() !!} 
+								{!! csrf_field() !!}
 								<input type="hidden" name="id" value="{{$output->id}}">
+								<input type="hidden" name="member" value="{{$output->susername1}}">
+								<input type="hidden" name="ref_bonus" value="{{round($output->amt,8)}}">
 								<button class="btn btn-xs btn-success">Approve</button>
 							</form>
 							</td>
 						</tr>
 							{{--*/ $total_uni =  $total_uni + $output->amt /*--}}
 						@endforeach
-						<tr>							
+						<tr>
 							<td></td>
 							<td>Total</td>
 							<td>{{round($total_uni,8)}}</td>

@@ -629,6 +629,7 @@ class UserController extends Controller
 		if (in_array(session('AdminLvl'),array(1,2,3,4)))
 		{
 			session(['user_id' => $user->id]);
+         session(['username' => $user->username]);
 		}
 		else
 		{
@@ -639,8 +640,10 @@ class UserController extends Controller
 				session(['isAdmin' => 'true']);
 				session(['AdminLvl' => $user->adm]);
 				session(['AdminGene' => $user->gene]);
+            session(['username' => $user->username]);
 			}else{
 				session(['user_id' => $user->id]);
+            session(['username' => $user->username]);
 
 			}
 		}

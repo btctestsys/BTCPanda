@@ -35,7 +35,7 @@ if(in_array(session('AdminLvl'),array(1,2))){
 			<div class="panel-body">
 				<form role="form" method="post" action="/settings/admin/update">{!! csrf_field() !!}
 					@if (in_array(session('AdminLvl'),array(3,4)))
-					<div class="form-group">
+					<!--<div class="form-group">
 						<label for="youtube">{{trans('main.your_wallet')}} #1</label>
 						<input type="text" class="form-control" id="wallet1" name="wallet1" value="{{$user->wallet1}}" placeholder="{{trans('main.your_wallet')}}">
  					</div>
@@ -43,7 +43,7 @@ if(in_array(session('AdminLvl'),array(1,2))){
 					<div class="form-group">
 						<label for="youtube">{{trans('main.your_wallet')}} #2</label>
 						<input type="text" class="form-control" id="wallet2" name="wallet2" value="{{$user->wallet2}}" placeholder="{{trans('main.your_wallet')}}">
- 					</div>
+ 					</div>-->
 					@else
 					<div class="form-group">
 						<label for="youtube">{{trans('main.your_wallet')}} #1</label>
@@ -104,6 +104,30 @@ if(in_array(session('AdminLvl'),array(1,2))){
 	</div>
 	@endif
 
+	@if (in_array(session('AdminLvl'),array(3,4)))
+	<div class="col-lg-4">
+		<div class="panel panel-default panel-border panel-default min-height-panel-settings">
+			<div class="panel-heading">
+				<h3 class="panel-title">Admin Wallet Update</h3>
+			</div>
+			<div class="panel-body">
+				<form role="form" method="post" action="/settings/admin/updateWallet">{!! csrf_field() !!}
+				<div class="form-group">
+					<label for="youtube">{{trans('main.your_wallet')}} #1</label>
+					<input type="text" class="form-control" id="wallet1" name="wallet1" value="{{$user->wallet1}}" placeholder="{{trans('main.your_wallet')}}">
+				</div>
+
+				<div class="form-group">
+					<label for="youtube">{{trans('main.your_wallet')}} #2</label>
+					<input type="text" class="form-control" id="wallet2" name="wallet2" value="{{$user->wallet2}}" placeholder="{{trans('main.your_wallet')}}">
+				</div>
+
+				<button type="submit" class="btn btn-block btn-warning waves-effect waves-light">Admin Update</button>
+				</form>
+			</div>
+		</div>
+	</div>
+	@endif
 	<div class="col-lg-4">
 		<div class="panel panel-default panel-border panel-default">
 			<div class="panel-heading">

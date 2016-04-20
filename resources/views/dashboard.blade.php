@@ -21,7 +21,7 @@
 					<br><br>
 					Sincerely,<br>
 					BTCPanda.com Team <br>
-	
+
 						<br>
   					</p>
 				</div>
@@ -53,7 +53,7 @@
 					<br><br>
 					BTCPanda is committed to ensure our platform is secure and our investors' interest are well protected. We will not hesitate to terminate any member who is dishonest and trying to manipulate our system.
 					<br><br>
-					As such, starting from 1st March 2016, we will introduce our new global marketing plan as below :  
+					As such, starting from 1st March 2016, we will introduce our new global marketing plan as below :
 					<br><br>
 					Click the following link to download: <a href="/download/BTCPanda_plan_2016.pdf">pdf</a> or <a href="/download/BTCPanda_plan_2016.pps">powerpoint slide show</a>
 					<br><br>
@@ -64,7 +64,7 @@
 						<li>Email address and mobile number is locked and cannot be changed permanently. No change request will be entertained.<br>
 						<li>Each account will be locked with two withdrawal wallet addresses for enhanced security reason. You will have one opportunity to define this at any time before next withdrawal.<br>
 						<li>It is members responsibility to ensure the amount of Provide Help (PH) in their wallet is intact before it reach 100% distribution. If at any time before 100% distribution completed, system detected unauthorised withdrawal by any member, the said account will be immediately suspended.<br>
-					</ul>	
+					</ul>
 					<br><br>
 					Sincerely,<br>
 					BTCPanda.com Team <br>
@@ -92,17 +92,17 @@
 					Dear Members/Helpers,<br>
 					<br>
 					We are currently experiencing high volume of requests to reset the wallet address and phone number.
-					If you would like to request to reset the wallet address or phone number, please ensure the following steps already completed: 
+					If you would like to request to reset the wallet address or phone number, please ensure the following steps already completed:
 					<ul>
 						<li>Enter and verify mobile phone number in My Setting. <br>
 						<li>Define country in My Setting. <br>
 						<li>Enter Identification Number and upload document in My Setting. <br>
 						<li>Submit video testimonial in My Setting. <br>
-					</ul>	
+					</ul>
 					<br>
-					Once you have fulfilled the above requirements, you may email your request to the <a href="mailto:support@btcpanda.com">support@btcpanda.com</a> 
-					by attaching the proof of Identification Document and put the "RESET WALLET ADDRESS" or "RESET PHONE NUMBER" 
-					or "RESET WALLET ADDRESS & PHONE NUMBER" in the email title. If any of the above is not completed we will 
+					Once you have fulfilled the above requirements, you may email your request to the <a href="mailto:support@btcpanda.com">support@btcpanda.com</a>
+					by attaching the proof of Identification Document and put the "RESET WALLET ADDRESS" or "RESET PHONE NUMBER"
+					or "RESET WALLET ADDRESS & PHONE NUMBER" in the email title. If any of the above is not completed we will
 					not entertain your request.
 					<br><br>
 					Please note that we only entertain this request ONCE. Therefore, please make sure you entered correct address once
@@ -198,7 +198,7 @@
 					<p >
 					Dear Members/Helpers,<br>
 					<br>
-					Good news! In conjunction with the launching of our new marketing plan, BTCPanda has come up with a new challenge for all members for the month of March. 
+					Good news! In conjunction with the launching of our new marketing plan, BTCPanda has come up with a new challenge for all members for the month of March.
 					<br><br>
 					Top 3 highest Direct Sales Volume (DSV) will receive :- <br>
 					1.) winner : 500 pins (Worth USD5,000.00)<br>
@@ -239,36 +239,36 @@
 					Thank you for your support in our BTCPanda Global Crowdfunding System.
 					<br>
 					<br>
-					In line with our announcement on the 4th Feb 2016 to introduced our new marketing plan and system, we are glad to inform that the new marketing 
+					In line with our announcement on the 4th Feb 2016 to introduced our new marketing plan and system, we are glad to inform that the new marketing
 					plan is already enforced starting 1st March 2016.
 					<br>
 					<br>
-					Please click the following link to download: pdf or PowerPoint slide of new marketing plan : 
+					Please click the following link to download: pdf or PowerPoint slide of new marketing plan :
 					<a href="/download/BTCPanda_plan_2016.pdf">pdf</a> or <a href="/download/BTCPanda_plan_2016.pps">powerpoint slide show</a>
 					<br>
 					<br>
-					We also introduce new ruling to our system, effective immediately: 
+					We also introduce new ruling to our system, effective immediately:
 					<br>
 					<br>
-					Email address and mobile number is locked and cannot be changed permanently. No change request will be entertained unless with some concrete 
-					reasons and it is 100% admin's prerogative to allow such changes. Each account will be locked with two withdrawal wallet addresses for enhanced 
+					Email address and mobile number is locked and cannot be changed permanently. No change request will be entertained unless with some concrete
+					reasons and it is 100% admin's prerogative to allow such changes. Each account will be locked with two withdrawal wallet addresses for enhanced
 					security reason. You will only have one opportunity to define this at any time before next withdrawal.
 					<br>
 					<br>
-					It is members responsibility to ensure the amount of Provide Help (PH) in their wallet is intact and in sync with PH amount before it reach 
-					100% distribution. If at any time before 100% distribution completed, system detected unauthorised withdrawal by any member, the said account 
+					It is members responsibility to ensure the amount of Provide Help (PH) in their wallet is intact and in sync with PH amount before it reach
+					100% distribution. If at any time before 100% distribution completed, system detected unauthorised withdrawal by any member, the said account
 					will not be eligible for Getting Help (GH).
 					<br>
 					<br>
-					The system will change from current FIFO (First In First Out) to Intelligence  Randomise System (IRS) for more efficient way of PH and GH. Hence, 
+					The system will change from current FIFO (First In First Out) to Intelligence  Randomise System (IRS) for more efficient way of PH and GH. Hence,
 					in order for you to become eligible of Getting Help (GH), you MUST meet two requirements, which are :
 					<br>
-						1.  The PH bitcoin is 100% distributed. 
+						1.  The PH bitcoin is 100% distributed.
 					<br>
 						2.  Achieved a PH Maturity of 15 days.
 					<br>
 					<br>
-					The objective of the new marketing plan is to promote a better and healthier  eco-system for everyone to enjoy the benefits together equally. 
+					The objective of the new marketing plan is to promote a better and healthier  eco-system for everyone to enjoy the benefits together equally.
 					<br>
 					<br>
 					Sincerely,<br>
@@ -300,7 +300,7 @@
 					<br>
 					We are pleased to announce to you the DSV March 2016 Competition is won by aarondegosu from Malaysia with total DSV of 430.71 BTC.
 					<br><br>
-					Top 3 Winners are as follow: 
+					Top 3 Winners are as follow:
 					<br><br>
 					1) aarondegosu (Malaysia)	430.71 BTC - 500 pins prize<br>
 					2) divendraa (Malaysia) 421.92 BTC - 300 pins prize<br>
@@ -380,8 +380,8 @@
 					<p >
 					Dear Members/Helpers,<br>
 					<br>
-					In order to enhance our security features, we are pleased to introduce email verification system for 
-					newly registered members. Kindly ensure to fill up the registration form with correct e mail address 
+					In order to enhance our security features, we are pleased to introduce email verification system for
+					newly registered members. Kindly ensure to fill up the registration form with correct e mail address
 					to ensure smooth registration process.<br>
 					<br>
 					Sincerely,<br>
@@ -539,7 +539,26 @@
 		<div class="widget-bg-color-icon card-box">
 		<h3 class="page-title">Quick Overview: BTCPanda in 4 Steps</h3>
 		<hr>
-		<center><img src="/download/BTCPanda_4steps.jpg"></center>
+		<span class="hidden-xs hidden-sm">
+			<center><img src="/download/BTCPanda_4steps.jpg"></center>
+		</span>
+
+		<span class="hidden-lg hidden-md">
+			<div class="row">
+				<div class="col-md-3 col-lg-3">
+					<img src="/download/Slide2.JPG">
+				</div>
+				<div class="col-md-3 col-lg-3">
+					<img src="/download/Slide3.JPG">
+				</div>
+				<div class="col-md-3 col-lg-3">
+					<img src="/download/Slide4.JPG">
+				</div>
+				<div class="col-md-3 col-lg-3">
+					<img src="/download/Slide5.JPG">
+				</div>
+			</div>
+		</span>
 		</div>
 	</div>
 	</div>

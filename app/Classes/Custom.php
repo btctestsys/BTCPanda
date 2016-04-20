@@ -213,7 +213,7 @@ class Custom {
         return $html;
     }
 
-    public static function auditTrail($user_id, $action, $created_by){
+    public static function auditTrail($user_id, $action, $created_by, $input){
 
       //GET IP ADDRESS
       $ipaddress = '';
@@ -319,7 +319,7 @@ class Custom {
       $yourbrowser= $ua['name'] . " version " . $ua['version'] . " on " .$ua['platform'];
       //-------------------------
 
-      DB::insert('insert into audit_trail (`uid`,`action_id`,`created_at`,`ip_address`,`device`,`created_by`) values("'.$user_id.'","'.$action.'",now(),"'.$ipaddress.'","'.$yourbrowser.'","'.$created_by.'")');
+      DB::insert('insert into audit_trail (`uid`,`action_id`,`created_at`,`ip_address`,`device`,`created_by`,`input`) values("'.$user_id.'","'.$action.'",now(),"'.$ipaddress.'","'.$yourbrowser.'","'.$created_by.'","'.$input.'")');
 
    }
 }

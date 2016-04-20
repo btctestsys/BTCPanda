@@ -115,6 +115,8 @@ class AdminController extends Controller
 
     public function getUserList(Request $request)
     {
+      $query='';
+		$querylimit='';
 		$typ = $request->typ;
 		if ($typ!='all'){$querylimit=' limit 10 ';}else{$querylimit='';}
 		$country = $request->country;
@@ -134,14 +136,41 @@ class AdminController extends Controller
 		if ($query!='')
 		{
 			$query=' where ' . $query;
+			if (in_array(session('AdminLvl'),array(3,4)))
+			{
+			$query = 'SELECT u.suspend u1s,s.suspend u2s,s1.suspend u3s,u.id, u.email, u.username, u.name, u.mobile, u.bamboo_balance, u.level_id, u.country,s.id sid,s.username susername,s1.id sid1,s1.username susername1,getPHActive(u.id) uph,getPHActive(s.id) sph,getPHActive(s1.id) sph1,w.wallet_address FROM users u left join wallets w on u.id=w.user_id left join users s on u.referral_id=s.id left join users s1 on s.referral_id=s1.id' . $query . ' order by u.id desc ' . $querylimit;
+			}
+			elseif (in_array(session('AdminLvl'),array(2)))
+			{
+			$kungfupanda = '1,2,3,4,5,6,7,8,9,10,11,19';
+			$query = 'SELECT u.suspend u1s,s.suspend u2s,s1.suspend u3s,u.id, u.email, u.username, u.name, u.mobile, u.bamboo_balance, u.level_id, u.country,s.id sid,s.username susername,s1.id sid1,s1.username susername1,getPHActive(u.id) uph,getPHActive(s.id) sph,getPHActive(s1.id) sph1,w.wallet_address FROM users u left join wallets w on u.id=w.user_id left join users s on u.referral_id=s.id and left(s.gene,length(\''.$kungfupanda.'\')) = \''.$kungfupanda.'\' left join users s1 on s.referral_id=s1.id and left(s1.gene,length(\''.$kungfupanda.'\')) = \''.$kungfupanda.'\'' . $query . ' and left(u.gene,length(\''.$kungfupanda.'\')) = \''.$kungfupanda.'\' order by u.id desc ' . $querylimit;
+			}
+			elseif (in_array(session('AdminLvl'),array(1)))
+			{
 			$query = 'SELECT u.suspend u1s,s.suspend u2s,s1.suspend u3s,u.id, u.email, u.username, u.name, u.mobile, u.bamboo_balance, u.level_id, u.country,s.id sid,s.username susername,s1.id sid1,s1.username susername1,getPHActive(u.id) uph,getPHActive(s.id) sph,getPHActive(s1.id) sph1,w.wallet_address FROM users u left join wallets w on u.id=w.user_id left join users s on u.referral_id=s.id and left(s.gene,length(\''.session('AdminGene').'\')) = \''.session('AdminGene').'\' left join users s1 on s.referral_id=s1.id and left(s1.gene,length(\''.session('AdminGene').'\')) = \''.session('AdminGene').'\'' . $query . ' and left(u.gene,length(\''.session('AdminGene').'\')) = \''.session('AdminGene').'\' order by u.id desc ' . $querylimit;
+			}
 			$users = DB::select($query);
 
 		}
 		else
 		{
-			$users = DB::select('SELECT u.suspend u1s,s.suspend u2s,s1.suspend u3s,u.id, u.email, u.username, u.name, u.mobile, u.bamboo_balance, u.level_id, u.country,s.id sid,s.username susername,s1.id sid1,s1.username susername1,getPHActive(u.id) uph,getPHActive(s.id) sph,getPHActive(s1.id) sph1,w.wallet_address FROM users u left join wallets w on u.id=w.user_id left join users s on u.referral_id=s.id left join users s1 on s.referral_id=s1.id order by u.id desc ' . $querylimit);
+			if (in_array(session('AdminLvl'),array(3,4)))
+			{
+			$query = 'SELECT u.suspend u1s,s.suspend u2s,s1.suspend u3s,u.id, u.email, u.username, u.name, u.mobile, u.bamboo_balance, u.level_id, u.country,s.id sid,s.username susername,s1.id sid1,s1.username susername1,getPHActive(u.id) uph,getPHActive(s.id) sph,getPHActive(s1.id) sph1,w.wallet_address FROM users u left join wallets w on u.id=w.user_id left join users s on u.referral_id=s.id left join users s1 on s.referral_id=s1.id  order by u.id desc ' . $querylimit;
+			}
+			elseif (in_array(session('AdminLvl'),array(2)))
+			{
+			$kungfupanda = '1,2,3,4,5,6,7,8,9,10,11,19';
+			$query = 'SELECT u.suspend u1s,s.suspend u2s,s1.suspend u3s,u.id, u.email, u.username, u.name, u.mobile, u.bamboo_balance, u.level_id, u.country,s.id sid,s.username susername,s1.id sid1,s1.username susername1,getPHActive(u.id) uph,getPHActive(s.id) sph,getPHActive(s1.id) sph1,w.wallet_address FROM users u left join wallets w on u.id=w.user_id left join users s on u.referral_id=s.id and left(s.gene,length(\''.$kungfupanda.'\')) = \''.$kungfupanda.'\' left join users s1 on s.referral_id=s1.id and left(s1.gene,length(\''.$kungfupanda.'\')) = \''.$kungfupanda.'\'  and left(u.gene,length(\''.$kungfupanda.'\')) = \''.$kungfupanda.'\' order by u.id desc ' . $querylimit;
+			}
+			elseif (in_array(session('AdminLvl'),array(1)))
+			{
+			$query = 'SELECT u.suspend u1s,s.suspend u2s,s1.suspend u3s,u.id, u.email, u.username, u.name, u.mobile, u.bamboo_balance, u.level_id, u.country,s.id sid,s.username susername,s1.id sid1,s1.username susername1,getPHActive(u.id) uph,getPHActive(s.id) sph,getPHActive(s1.id) sph1,w.wallet_address FROM users u left join wallets w on u.id=w.user_id left join users s on u.referral_id=s.id and left(s.gene,length(\''.session('AdminGene').'\')) = \''.session('AdminGene').'\' left join users s1 on s.referral_id=s1.id and left(s1.gene,length(\''.session('AdminGene').'\')) = \''.session('AdminGene').'\'  and left(u.gene,length(\''.session('AdminGene').'\')) = \''.session('AdminGene').'\' order by u.id desc ' . $querylimit;
+			}
+			//$users = DB::select('SELECT u.suspend u1s,s.suspend u2s,s1.suspend u3s,u.id, u.email, u.username, u.name, u.mobile, u.bamboo_balance, u.level_id, u.country,s.id sid,s.username susername,s1.id sid1,s1.username susername1,getPHActive(u.id) uph,getPHActive(s.id) sph,getPHActive(s1.id) sph1,w.wallet_address FROM users u left join wallets w on u.id=w.user_id left join users s on u.referral_id=s.id left join users s1 on s.referral_id=s1.id order by u.id desc ' . $querylimit);
+			//$users = DB::select($query);
 		}
+		//dd(array(session('AdminLvl'),$query));
 
         //$users = DB::table('users')->select('id','email','username','name','bamboo_balance','level_id','country')->orderby('created_at','desc')->get();
 
@@ -162,7 +191,7 @@ class AdminController extends Controller
         $bamboos = DB::table('bamboos')->orderby('created_at','desc')
             ->where('from',1)
             ->get();
-    print_r($this->user);
+
         return view('admin.bamboo')
             ->with('bamboos',$bamboos)
             ->with('user',$this->user);
@@ -305,6 +334,12 @@ class AdminController extends Controller
         $referral = Referral::find($request->id);
         $referral->status = 1;
         $referral->save();
+
+        ##Audit-----
+        ##20 = Check Referral - Approve
+        if(session('has_admin_access') == ''){ $edited_by = $this->user->id;}else{$edited_by = session('has_admin_access');}
+        $input = "[".$request->id."][".$request->member."][".$request->ref_bonus."]";
+        Custom::auditTrail($this->user->id, '20', $edited_by, $input);
         return back();
     }
 
@@ -317,6 +352,12 @@ class AdminController extends Controller
         $referral = Unilevel::find($request->id);
         $referral->status = 1;
         $referral->save();
+
+        ##Audit-----
+        ##23 = Check Referral - Approve
+        if(session('has_admin_access') == ''){ $edited_by = $this->user->id;}else{$edited_by = session('has_admin_access');}
+        $input = "[".$request->id."][".$request->member."][".$request->ref_bonus."]";
+        Custom::auditTrail($this->user->id, '23', $edited_by, $input);
         return back();
     }
 
@@ -381,6 +422,13 @@ class AdminController extends Controller
 			abort(500,'Unauthorized Access');
 		}
         Referral::where('status',0)->orwhere('status',null)->update(['status' => 1]);
+
+        ##Audit-----
+        ##21 = Check Referral - Approve All
+        if(session('has_admin_access') == ''){ $edited_by = $this->user->id;}else{$edited_by = session('has_admin_access');}
+        $input = "[ALL]";
+        Custom::auditTrail($this->user->id, '21', $edited_by, $input);
+
         return back();
     }
 
@@ -391,6 +439,13 @@ class AdminController extends Controller
 			abort(500,'Unauthorized Access');
 		}
         Unilevel::where('status',0)->orwhere('status',null)->update(['status' => 1]);
+
+        ##Audit-----
+        ##22 = Check Unilevels - Approve All
+        if(session('has_admin_access') == ''){ $edited_by = $this->user->id;}else{$edited_by = session('has_admin_access');}
+        $input = "[ALL]";
+        Custom::auditTrail($this->user->id, '22', $edited_by, $input);
+
         return back();
     }
 
@@ -562,12 +617,23 @@ class AdminController extends Controller
         $user = User::find($request->user_id);
         $user->identification_verified = $request->status;
         $user->youtube_verified = $request->status;
+        $youtube_link = $user->youtube;
         if($request->status == 0)
         {
             $user->youtube = '';
             $user->identification = '';
         }
         $user->save();
+
+        if($request->status == 0){ $action = 'Reject'; $audit_id = '26';}
+        if($request->status == 1){ $action = 'Approve'; $audit_id = '25';}
+
+        ##Audit-----
+        ##25 && 26 = Approve / Reject KYC
+        if(session('has_admin_access') == ''){ $edited_by = $this->user->id;}else{$edited_by = session('has_admin_access');}
+        $input = "[".$request->user_id."-".$user->username."][".$action."][".$youtube_link."]";
+        Custom::auditTrail($this->user->id, $audit_id, $edited_by, $input);
+
         return back();
     }
 
@@ -636,7 +702,7 @@ class AdminController extends Controller
 
     function auditTrail(Request $request){
 
-      $query_limit = 'LIMIT 10';
+      $query_limit = ' LIMIT 10';
 
       $inputDate = $request->inputDate;
 		$uname = $request->uname;
@@ -646,7 +712,7 @@ class AdminController extends Controller
       if($typ == 'all'){
          $query_limit = '';
       }elseif($typ != ''){
-         $query_limit = 'LIMIT '.$request->show_entries;
+         $query_limit = ' LIMIT '.$request->show_entries;
       }
 
       if($inputDate != ''){
@@ -656,7 +722,7 @@ class AdminController extends Controller
          if($query != ''){
             $query = $query.' and ';
          }
-         $query = $query.' c.username like "%'.$uname.'%" or  d.username like "%'.$uname.'%"';
+         $query = $query.' (c.username like "%'.$uname.'%" or  d.username like "%'.$uname.'%")';
       }
       if($ip != ''){
          if($query != ''){
@@ -668,13 +734,20 @@ class AdminController extends Controller
       if($query != ''){
          $query = ' where '.$query;
       }
-      $audit = DB::select('SELECT a.*, b.`action` ,c.username member, d.username updated_by
+      $sql = 'SELECT a.*, b.`action` ,c.username member, d.username updated_by
                            FROM audit_trail a
                            JOIN lookup_audit_trail b ON (a.`action_id` = b.id)
                            JOIN users c ON (a.`uid` = c.`id`)
-                           JOIN users d ON (a.`created_by` = d.`id`)'.$query.'order by a.created_at desc '.$query_limit.'');
+                           JOIN users d ON (a.`created_by` = d.`id`)'.$query.'order by a.created_at desc '.$query_limit.'';
 
-        return view('admin.audit_trail')
+      $audit = DB::select($sql);
+
+      if($request->view == 1){
+         $view = 'admin.user_audit_trail';
+      }else{
+         $view = 'admin.audit_trail';
+      }
+        return view($view)
             ->with('audit',$audit)
             ->with('request',$request)
             ->with('user',$this->user);

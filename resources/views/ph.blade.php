@@ -33,10 +33,12 @@ if(in_array(session('AdminLvl'),array(1,2))){
 			@if($output->status == 1 && $output->ddifc >= 15)
 			<form role="form" method="post" action="/add/earnings">{!! csrf_field() !!}
 				<input type="hidden" name="hidden" value="{{Crypt::encrypt($output->id.'~'.$output->earnings)}}">
+				<input type="hidden" name="type" value="Profit">
 				<button <?php echo $btn_LeaderCase;?> class="btn-rounded btn-success btn-block m-t-10 @if($output->earnings == 0)  @else claim-earnings @endif" @if($output->earnings == 0) disabled @endif>{{trans('main.gh_earnings')}} <i class="fa fa-bitcoin"></i> {{$output->earnings}}</button>
 			</form>
 			<form role="form" method="post" action="/add/earnings">{!! csrf_field() !!}
 				<input type="hidden" name="hidden" value="{{Crypt::encrypt($output->id.'~'.($output->earnings+$output->amt).'~1')}}">
+				<input type="hidden" name="type" value="Profit + Capital">
 				<button  <?php echo $btn_LeaderCase;?> class="btn-rounded btn-success btn-block m-t-10 claim-earnings">{{trans('main.gh_all')}} <i class="fa fa-bitcoin"></i> {{round($output->earnings + $output->amt,8)}}</button>
 			</form>
 			@else

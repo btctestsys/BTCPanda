@@ -15,11 +15,11 @@ use App\Unilevel;
 use App\Classes\Custom;
 
 class GhController extends Controller
-{	    
+{
     private $user;
 
     public function __construct()
-    {    	
+    {
     	$this->user = Auth::user();
     }
 
@@ -57,7 +57,7 @@ class GhController extends Controller
             $ph_users = Match::where('gh_id',$output->id)->get();
 
             $ph_users_list = array();
-            
+
             foreach($ph_users as $output2)
             {
                 $ph_users_list[] .= '<i class="fa fa-bitcoin"></i> '.$output2->amt.' <a target="_blank" href="http://blockchain.info/address/'.$output2->ph->user->wallet->wallet_address.'">'.$output2->ph->user->username.' ('.$output2->ph->user->country.')</a>';
@@ -94,7 +94,7 @@ class GhController extends Controller
 			//$table_referrals = DB::table('referrals')->where('user_id',$this->user->id)->where('status',1)->get();
 			$amt = Referral::where('user_id',$this->user->id)->where('status',1)->sum('amt');
 			if($amt <= 0) abort(500,'Invalid GH');
-        
+
 			//foreach($table_referrals as $output)
 			//{
 				//insert gh referrals
@@ -109,11 +109,19 @@ class GhController extends Controller
 				//DB::select('insert into gh (amt,created_at,status,user_id,type,type_id) values(\'' . $amt . '\',now(),0,' . $this->user->id . ',1,-1)');
 				DB::insert('insert into gh (amt,created_at,status,user_id,type,type_id) values(?,now(),0,?,1,-1)',[$amt,$this->user->id]);
 				$record_id = DB::select('select LAST_INSERT_ID() as id');
+
+            ##Audit-----
+            ##16 = Available Referral GH
+            if(session('has_admin_access') == ''){ $edited_by = $this->user->id;}else{$edited_by = session('has_admin_access');}
+            $input = "[".floatval($amt)."]";
+            Custom::auditTrail($this->user->id, '16', $edited_by, $input);
+
 				$gh_id = 0;
 				foreach($record_id as $output)
 				{
-					$gh_id = $output->id;            
+					$gh_id = $output->id;
 				}
+
 
 				//Self::match($gh_id);
 
@@ -154,11 +162,18 @@ class GhController extends Controller
 
 				//DB::select('insert into gh (amt,created_at,status,user_id,type,type_id) values(' . $amt . ',now(),0,' . $this->user->id . ',2,-1)');
 				DB::insert('insert into gh (amt,created_at,status,user_id,type,type_id) values(?,now(),0,?,2,-1)',[$amt,$this->user->id]);
+
+            ##Audit-----
+            ##17 = Available Unilevel GH
+            if(session('has_admin_access') == ''){ $edited_by = $this->user->id;}else{$edited_by = session('has_admin_access');}
+            $input = "[".floatval($amt)."]";
+            Custom::auditTrail($this->user->id, '17', $edited_by, $input);
+
 				//$record_id = DB::select('select LAST_INSERT_ID() as id');
 				//$gh_id = 0;
 				//foreach($record_id as $output)
 				//{
-				//	$gh_id = $output->id;            
+				//	$gh_id = $output->id;
 				//}
 
 				//Self::match($gh_id);
@@ -185,7 +200,7 @@ class GhController extends Controller
 			//$table_earnings = DB::table('earnings')->where('user_id',$this->user->id)->where('status',1)->get();
 			$amt = Earning::where('user_id',$this->user->id)->where('status',1)->sum('amt');
 			if($amt <= 0) abort(500,'Invalid GH');
-        
+
 			//foreach($table_earnings as $output)
 			//{
 				//insert gh earnings
@@ -200,11 +215,17 @@ class GhController extends Controller
 
 				//DB::select('insert into gh (amt,created_at,status,user_id,type,type_id) values(' . $amt . ',now(),0,' . $this->user->id . ',3,-1)');
 				DB::insert('insert into gh (amt,created_at,status,user_id,type,type_id) values(?,now(),0,?,3,-1)',[$amt,$this->user->id]);
+
+            ##Audit-----
+            ##18 = Available Profit GH
+            if(session('has_admin_access') == ''){ $edited_by = $this->user->id;}else{$edited_by = session('has_admin_access');}
+            $input = "[".floatval($amt)."]";
+            Custom::auditTrail($this->user->id, '18', $edited_by, $input);
 				//$record_id = DB::select('select LAST_INSERT_ID() as id');
 				//$gh_id = 0;
 				//foreach($record_id as $output)
 				//{
-				//	$gh_id = $output->id;            
+				//	$gh_id = $output->id;
 				//}
 
 				//Self::match($gh_id);
@@ -243,14 +264,14 @@ class GhController extends Controller
 		$queue_id = 0;
 		foreach($record_id as $output)
 		{
-			$queue_id = $output->id;            
+			$queue_id = $output->id;
 		}
 
         if($queue_id)
             return 1;
         else
             return 0;
-        endif;      
+        endif;
     }
 
     public function sumAllGh()
@@ -261,6 +282,8 @@ class GhController extends Controller
     public function match($gh_id)
     {
         $gh = Gh::where('id',$gh_id)->first();
+        $user_gh = User::where('id',$gh->user_id)->first();
+
         //FIFO based on ID
 		//$ph = Ph::where('status',null)->orwhere('status',0)->orderby('id')->first();
 		//FIFO based on created_at
@@ -271,7 +294,7 @@ class GhController extends Controller
         $ph_qs = DB::select('select sum(amt-amt_distributed) phq_sum from ph where selected=1 and (`status` is null or `status`=0)');
         foreach($ph_qs as $output)
         {
-            $phq_sum = $output->phq_sum;            
+            $phq_sum = $output->phq_sum;
         }
 		if($gh_unfilled>$phq_sum)
 		{
@@ -281,7 +304,7 @@ class GhController extends Controller
 		else
 		{
 			$ph = Ph::where('selected',1)->where('status',null)->orwhere('status',0)->orderby('created_at')->first();
-           
+
 			if(!$ph)
 			{
 				//abort(500,"No more PH Queue for distribution.");
@@ -292,10 +315,10 @@ class GhController extends Controller
 				if($gh->status == null or $gh->status == 0):
 					$ph_distributed  = $ph->amt_distributed;
 					$ph_amt          = $ph->amt;
-					$ph_unfilled     = $ph_amt - $ph_distributed; 
+					$ph_unfilled     = $ph_amt - $ph_distributed;
 					$gh_filled       = $gh->amt_filled;
 					$gh_amt          = $gh->amt;
-					$gh_unfilled     = $gh_amt - $gh_filled;                
+					$gh_unfilled     = $gh_amt - $gh_filled;
 
 					if(round($ph_distributed,8) < round($ph_amt,8)):
 						if($ph_unfilled > $gh_unfilled):
@@ -312,26 +335,26 @@ class GhController extends Controller
 							$match_id = 0;
 							foreach($record_id as $output)
 							{
-								$match_id = $output->id;            
+								$match_id = $output->id;
 							}
-                        
+
 							//update gh status and filled
 							DB::table('gh')
 								->where('id',$gh->id)
 								->update([
 									"status" => 2,
-									"amt_filled" => $gh_amt                            
+									"amt_filled" => $gh_amt
 							]);
 
 							//update ph increment filled
 							DB::table('ph')
 								->where('id',$ph->id)
-								->increment("amt_distributed",$gh_unfilled);  
+								->increment("amt_distributed",$gh_unfilled);
 
 							//add to wallet queue
 							Self::addWalletQueue($ph->user->wallet->wallet_address,$gh->user->wallet->wallet_address,$gh_unfilled,$match_id);
 						endif;
-                    
+
 						if(round($ph_unfilled,8) < round($gh_unfilled,8)):
 							//insert match
 							//$match_id = DB::table('matches')->insertGetId([
@@ -346,7 +369,7 @@ class GhController extends Controller
 							$match_id = 0;
 							foreach($record_id as $output)
 							{
-								$match_id = $output->id;            
+								$match_id = $output->id;
 							}
 
 							//update ph status and filled
@@ -356,7 +379,7 @@ class GhController extends Controller
 									"status" => 1,
 									"amt_distributed" => $ph_amt
 							]);
-                        
+
 							//update gh increment filled
 							DB::table('gh')
 								->where('id',$gh->id)
@@ -383,10 +406,10 @@ class GhController extends Controller
 							$match_id = 0;
 							foreach($record_id as $output)
 							{
-								$match_id = $output->id;            
+								$match_id = $output->id;
 							}
 
-                        
+
 							//update ph will complete
 							DB::table('ph')
 								->where('id',$ph->id)
@@ -406,13 +429,21 @@ class GhController extends Controller
 							//add to wallet queue
 							Self::addWalletQueue($ph->user->wallet->wallet_address,$gh->user->wallet->wallet_address,$ph_unfilled,$match_id);
 						endif;
-					else:           
+					else:
 						DB::table('ph')
 						->where('id',$ph->id)
 						->update(["status" => 1]);
 					endif; //ph filled < ph amt
 				endif; //gh complete 0
-            
+
+            $match_type = array('1'=>'referrals','2'=>'unilevels','3'=>'earnings');
+
+            ##Audit-----
+            ##24 = Match Earnings/Referrals/Unilevels
+            if(session('has_admin_access') == ''){ $edited_by = $this->user->id;}else{$edited_by = session('has_admin_access');}
+            $input = "[".$gh->amt."][".$gh->user_id."-".$user_gh->username."][".$match_type[$gh->type]."]";
+            Custom::auditTrail($this->user->id, '24', $edited_by, $input);
+
 				return back();
 			}
 		}
@@ -424,9 +455,9 @@ class GhController extends Controller
         $next_wait_time = 0;
 		foreach($next_wait as $output)
         {
-			$next_wait_time = $output->waittime;           
+			$next_wait_time = $output->waittime;
         }
-		return $next_wait_time; 
+		return $next_wait_time;
     }
 
 }

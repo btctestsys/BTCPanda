@@ -164,6 +164,7 @@ Route::group(['middleware' => 'auth'], function(){
 	Route::post('settings/wallet/update', 'SettingController@postChangeWallet');
 	Route::post('settings/messaging/update', 'SettingController@postChangeMessaging');
 	Route::post('settings/admin/update', 'SettingController@postChangeAdmin');
+   Route::post('settings/admin/updateWallet', 'SettingController@postChangeWalletAdmin');
    Route::get('settings/admin/resendEmail', 'SettingController@resendConfirmationEmail');
 
 	Route::any('sms/otp','SmsController@sendOtp');
@@ -217,9 +218,9 @@ Route::group(['prefix' => 'master','middleware' => ['auth', 'auth.admin']], func
 
 		Route::get('resetqueue/{id}','AdminController@resetQueue');
 
-      //auditTrail
-      Route::get('audit_trail/','AdminController@auditTrail');
-
+      //Audit
+		Route::get('audit_trail','AdminController@auditTrail');
+      //Route::get('user_audit_trail','AdminController@userAuditTrail');
 		//Report
 		Route::get('phbycountry','AdminController@reportPhByCountry');
 		Route::post('phbycountry','AdminController@reportPhByCountry');

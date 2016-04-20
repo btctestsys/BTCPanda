@@ -13,6 +13,7 @@ use App\Earning;
 use App\Referral;
 use App\Unilevel;
 use App\Ph;
+use App\Classes\Custom;
 
 class PhController extends Controller
 {
@@ -175,6 +176,12 @@ class PhController extends Controller
 							//DB::select('call setManagerTitle('.$this->user->id.')');
 							//DB::select('call setManagerTitle('.$this->user->referral_id.')');
 
+                     ##Audit-----
+               		##14 = Add New PH
+               		if(session('has_admin_access') == ''){ $edited_by = $this->user->id;}else{$edited_by = session('has_admin_access');}
+               		$input = "[".$request->amt."]";
+               		Custom::auditTrail($this->user->id, '14', $edited_by, $input);
+
                 			return redirect("/provide_help");
 						}
 						else
@@ -323,6 +330,12 @@ class PhController extends Controller
 					//    'status'        => 1,
 					//]);
 					DB::insert('insert into earnings (user_id,ph_id,created_at,amt,status) values(' . $this->user->id . ',' . $ph_id . ',now(),' . floatval($amt) . ',1)');
+
+               ##Audit-----
+         		##15 = PH - Take Profit
+         		if(session('has_admin_access') == ''){ $edited_by = $this->user->id;}else{$edited_by = session('has_admin_access');}
+         		$input = "[".$request->type."][".floatval($amt)."]";
+         		Custom::auditTrail($this->user->id, '15', $edited_by, $input);
 
 					//deduct bamboos
 					app('App\Http\Controllers\BambooController')->deductBamboo($bamboo_required,$notes);

@@ -250,6 +250,7 @@
 						<li><a href="/master/ph" class="waves-effect"><i class="md-local-hospital"></i> <span> PH Sales </span> </a></li>
 						<li><a href="/master/ph_daily" class="waves-effect"><i class="md-local-hospital"></i> <span> PH Sales Daily </span> </a></li>
 						<li><a href="/master/approval/kyc" class="waves-effect"><i class="fa fa-youtube-play"></i> <span> ID & Video Testi. </span> </a></li>
+						<li><a href="/master/audit_trail" class="waves-effect"><i class="fa fa-list-ol"></i> <span> Audit Trail </span> </a></li>
                         @endif
 
 						 <!--- superadmin -->

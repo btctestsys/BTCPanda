@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('layouts.master')
 
 
 @section('content')
@@ -22,7 +22,7 @@
 							</div>
 						</div>
 						<div class="col-md-2">
-							<input type="text" value="<?php echo $request->uname;?>" name="uname" class="form-control" placeholder="Enter Username">
+							<input type="text" value="<?php echo $request->uname;?>" name="uname" class="form-control" placeholder="Enter Username" readonly>
 						</div>
 						<div class="col-md-2">
 							<input type="text" value="<?php echo $request->ip;?>" name="ip" class="form-control" placeholder="Enter IP Address">
@@ -36,7 +36,8 @@
 							</select>
 						</div>
 						<button class="btn btn-success" style="margin-top:2px;"><i class="fa fa-search"></i> Search</button>
-						<a href="audit_trail/" class="btn btn-primary" style="margin-top:2px;"><i class="fa fa-spinner"></i> Reset</a>
+						<a href="audit_trail?inputDate=&uname=<?php echo $request->uname;?>&ip=&show_entries=10&view=1" class="btn btn-primary" style="margin-top:2px;"><i class="fa fa-spinner"></i> Reset</a>
+						<input type="hidden" value="1" name="view">
 					</div>
 				</form>
 
@@ -88,7 +89,7 @@
 @section('docready')
 <script type="text/javascript">
 	jQuery(document).ready(function () {
-		
+
 
 		$(function () {
 			$('#datepicker1').datepicker({

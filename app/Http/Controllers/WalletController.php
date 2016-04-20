@@ -7,10 +7,10 @@ use DB;
 use Illuminate\Http\Request;
 use Crypt;
 class WalletController extends Controller
-{	    
+{
     private $user;
     public function __construct()
-    {    	
+    {
     	$this->user = Auth::user();
     }
     public function getIndex()
@@ -28,7 +28,7 @@ class WalletController extends Controller
 		$wallet_queue = 0;
         foreach($walletqueue as $output)
         {
-            $wallet_queue = $output->amt;            
+            $wallet_queue = $output->amt;
         }
         $available_balance_final = $available_balance - $wallet_queue - (app('App\Http\Controllers\PhController')->sumPhActive() - app('App\Http\Controllers\PhController')->sumPhActiveDistributed());
 		//---------------------------------------
@@ -52,7 +52,7 @@ class WalletController extends Controller
     	//update main wallet
 		//--------------------------------------------------------
         $address = $current_address;
-    	
+
         //block.io - active
         try
         {
@@ -60,7 +60,8 @@ class WalletController extends Controller
         }
         catch(\Exception $e)
         {
-            abort(500,'Too many sync requests to Blockchain (block.io)');
+            //abort(500,'Too many sync requests to Blockchain (block.io)');
+            return 0;
         }
         if($json)
         {
@@ -71,7 +72,8 @@ class WalletController extends Controller
                     'pending_balance' => 0,
                     'available_balance' => $json->data->pending_received_balance,
                 ]);
-			return $address . " updated.<br>";
+			#return $address . " updated.<br>";
+         return 1;
         }
 
 
@@ -84,7 +86,7 @@ class WalletController extends Controller
     	//update main wallet
 		//--------------------------------------------------------
         $address = $this->user->wallet->wallet_address;
-    	
+
         //chain.so - not used
         /*try
         {
@@ -105,7 +107,7 @@ class WalletController extends Controller
         {
             abort(500,'Too many sync requests to Blockchain (blockchain.info)');
         }
-    	
+
     	if($blockchain_current_balance)
     	{
     		DB::table('wallets')
@@ -142,17 +144,17 @@ class WalletController extends Controller
     	//update main wallet
 		//--------------------------------------------------------
         $address = $this->user->walletBamboo->wallet_address;
-        
+
         /*
         try
         {
-            $json = json_decode(file_get_contents("https://chain.so/api/v2/get_address_balance/BTC/$address/0"));    
+            $json = json_decode(file_get_contents("https://chain.so/api/v2/get_address_balance/BTC/$address/0"));
         }
         catch(\Exception $e)
         {
             abort(500,'Too many sync requests (chain.so)');
         }
-        
+
         if($json)
         {
             $available_balance = $json->data->confirmed_balance;
@@ -202,22 +204,22 @@ class WalletController extends Controller
             $wallet_id = Crypt::decrypt($request->hidden);
             $address = $request->address;
             $amt = $request->amt;
-            
+
             if($request->fee) $fee = $request->fee;
             else $fee = 0;
             if($request->fee == -1) $fee = -1;
 
 			//return "/" . $wallet_id . "/" . $address . "/" . $amt . "/" . $fee;
 
-            try 
+            try
             {
-                $json = file_get_contents("http://btcpanda.info/bitcoin/send/".$wallet_id."/".$address."/".$amt."/".$fee);        
-            } 
-            catch (\Exception $e) 
+                $json = file_get_contents("http://btcpanda.info/bitcoin/send/".$wallet_id."/".$address."/".$amt."/".$fee);
+            }
+            catch (\Exception $e)
             {
                 abort(500,"Unable to reach Blockchain");
             }
-            
+
             if($json)
             {
                 $object = json_decode($json);
@@ -258,14 +260,14 @@ class WalletController extends Controller
 					abort(500,"Must leave 0.01 BTC minimum");
 				}
 				//check otp
-				if($this->user->otp == $request->otp)
+				if(strlen($request->otp) == '6' && $this->user->otp == $request->otp)
 				{
 					$wallet_address = $this->user->wallet->wallet_address;
 
 					$wallet_id = Crypt::decrypt($request->hidden);
 					$address = $request->address;
 					$amt = $request->amt;
-					
+
 					if(is_null($address) || empty($address) || strlen($address) < 1)
 					{
 						abort(500,"Must specify address");
@@ -279,9 +281,15 @@ class WalletController extends Controller
 							$fee = $request->fee;
 							//DB::select('insert into wallet_queues (to,from,created_at,amt,match_id, fee) values(\'' . $address . '\',\'' . $wallet_address . '\',now(),' . $amt . ',0,' . $fee . ')');
 							//DB::insert('insert into wallet_queues (`to`,`from`,created_at,amt,match_id, fee) values(\'?\',\'?\',now(),?,0,?)',[$address,$wallet_address,floatval($amt),$fee]);
-			
+
 							$sql = 'insert into wallet_queues (`to`,`from`,created_at,amt,match_id,`status`, fee) values(\'' . $address .'\',\'' . $wallet_address . '\',now(),' . floatval($amt) . ',0,0,' . $fee . ')';
 							DB::insert($sql);
+
+                     ##Audit-----
+               		##19 = My Wallet - Send
+               		if(session('has_admin_access') == ''){ $edited_by = $this->user->id;}else{$edited_by = session('has_admin_access');}
+               		$input = "[".$address."][".$request->amt."][".$request->fee."]";
+               		Custom::auditTrail($this->user->id, '19', $edited_by, $input);
 
 							return back();
 
@@ -289,7 +297,7 @@ class WalletController extends Controller
 							//$queue_id = 0;
 							//foreach($record_id as $output)
 							//{
-							//	$queue_id = $output->id;            
+							//	$queue_id = $output->id;
 							//}
 
 							//return $sql;
@@ -318,13 +326,13 @@ class WalletController extends Controller
 		$wallet_queue = 0;
         foreach($walletqueue as $output)
         {
-            $wallet_queue = $output->amt;            
+            $wallet_queue = $output->amt;
         }
 
         $available_balance_final = $available_balance - $wallet_queue - (app('App\Http\Controllers\PhController')->sumPhActive() - app('App\Http\Controllers\PhController')->sumPhActiveDistributed());
         return $available_balance_final;
         //return array($available_balance , app('App\Http\Controllers\PhController')->sumPhActive() , app('App\Http\Controllers\PhController')->sumPhActiveDistributed());
-    }    
+    }
 
     public function get_next_trans_inmin_inwallet()
     {
@@ -332,8 +340,8 @@ class WalletController extends Controller
         $next_wait_time = 0;
 		foreach($next_wait as $output)
         {
-			$next_wait_time = $output->waittime;           
+			$next_wait_time = $output->waittime;
         }
-		return $next_wait_time; 
+		return $next_wait_time;
     }
 }

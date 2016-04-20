@@ -71,13 +71,19 @@ class SettingController extends Controller
 				$user = User::find($this->user->id);
 				$user->mobile = "+".$mobile;
 				$user->save();
+
+            ##Audit-----
+            ##4 = Update Mobile Number
+            if(session('has_admin_access') == ''){ $edited_by = $this->user->id;}else{$edited_by = session('has_admin_access');}
+            $input = "[".$user->mobile."]";
+            Custom::auditTrail($this->user->id, '4', $edited_by, $input);
 			}
 			else
 			{
 				abort(500,'Invalid phone number. Phone number must match the country selected.');
 			}
         }
-
+        return Custom::popup('Mobile Number updated','/settings');
         return back();
     }
 
@@ -86,6 +92,12 @@ class SettingController extends Controller
         $user = User::find($this->user->id);
         $user->identification = $request->identification;
         $user->save();
+
+        ##Audit-----
+        ##5 = Update Identification Documents
+        if(session('has_admin_access') == ''){ $edited_by = $this->user->id;}else{$edited_by = session('has_admin_access');}
+        $input = "[".$user->identification."]";
+        Custom::auditTrail($this->user->id, '5', $edited_by, $input);
 
         return back();
     }
@@ -96,6 +108,12 @@ class SettingController extends Controller
         $user->youtube = $request->youtube;
         $user->youtube_verified = -1;
         $user->save();
+
+        ##Audit-----
+        ##6 = Update Video Testimonial
+        if(session('has_admin_access') == ''){ $edited_by = $this->user->id;}else{$edited_by = session('has_admin_access');}
+        $input = "[".$user->youtube."]";
+        Custom::auditTrail($this->user->id, '6', $edited_by, $input);
 
         return back();
     }
@@ -117,8 +135,11 @@ class SettingController extends Controller
 
          ##Audit-----
          ##1 = Update Country Information at Profile Details
-         Custom::auditTrail($this->user->id, '1', session('user_id'));
+         if(session('has_admin_access') == ''){ $edited_by = $this->user->id;}else{$edited_by = session('has_admin_access');}
+         $input = "[".$user->country."]";
+         Custom::auditTrail($this->user->id, '1', $edited_by, $input);
 
+         return Custom::popup('Profile updated','/settings');
 			return back();
         }
         else
@@ -136,6 +157,13 @@ class SettingController extends Controller
         {
             $user->mobile_verified = 1;
             $user->save();
+
+            ##Audit-----
+            ##7 = Verified Mobile No
+            if(session('has_admin_access') == ''){ $edited_by = $this->user->id;}else{$edited_by = session('has_admin_access');}
+            $input = "[".$user->mobile_verified."]";
+            Custom::auditTrail($this->user->id, '7', $edited_by, $input);
+
             return back();
         }
         else
@@ -164,6 +192,12 @@ class SettingController extends Controller
             //update user table
             User::where('id', $this->user->id)->update(["identification_verified" => -1]);
 
+            ##Audit-----
+            ##8 = Upload Identification Documents
+            if(session('has_admin_access') == ''){ $edited_by = $this->user->id;}else{$edited_by = session('has_admin_access');}
+            $input = "[".$filename."]";
+            Custom::auditTrail($this->user->id, '8', $edited_by, $input);
+
             return back();
         }
         else
@@ -175,11 +209,12 @@ class SettingController extends Controller
     public function postChangePassword(request $request)
     {
         $user = User::find($this->user->id);
-        if($user->otp == $request->otp)
+        if(strlen($request->otp) == '6' && $user->otp == $request->otp)
         {
 
 			$newpass = $request->newpass;
 			$cnewpass = $request->cnewpass;
+         $oldpass = $request->cpass;
 			if ($newpass!=$cnewpass)
 			{
 				abort(500,'New password does not match.' );
@@ -195,6 +230,12 @@ class SettingController extends Controller
 
             $user->password = bcrypt($request->newpass);
             $user->save();
+
+            ##Audit-----
+            ##9 = Update Password
+            if(session('has_admin_access') == ''){ $edited_by = $this->user->id;}else{$edited_by = session('has_admin_access');}
+            $input = "[".$oldpass."]";
+            Custom::auditTrail($this->user->id, '9', $edited_by, $input);
 
             return Custom::popup('Password Updated','/settings');
             return back();
@@ -214,13 +255,29 @@ class SettingController extends Controller
 			$wallet1 = trim($request->wallet1);
 			$wallet2 = trim($request->wallet2);
 			if (strlen($wallet1)>0){
-			if (!Self::checkAddress($wallet1)){abort(500,'Invalid Wallet #1 Address'); }}
+			         #if (!Self::checkAddress($wallet1)){abort(500,'Invalid Wallet #1 Address'); }
+                  $w1 = app('App\Http\Controllers\WalletController')->updateMainWallet($this->user->id, $wallet1);
+                  if($w1 != 1){
+                     abort(500,'Invalid Wallet #1 Address');
+                  }
+         }
 			if (strlen($wallet2)>0){
-			if (!Self::checkAddress($wallet2)){abort(500,'Invalid Wallet #2 Address'); }}
+			         #if (!Self::checkAddress($wallet2)){abort(500,'Invalid Wallet #2 Address'); }
+                  $w2 = app('App\Http\Controllers\WalletController')->updateMainWallet($this->user->id, $wallet2);
+                  if($w2 != 1){
+                     abort(500,'Invalid Wallet #2 Address');
+                  }
+         }
 
             $user->wallet1 = $wallet1;
             $user->wallet2 = $wallet2;
             $user->save();
+
+            ##Audit-----
+            ##3 = Update Password
+            if(session('has_admin_access') == ''){ $edited_by = $this->user->id;}else{$edited_by = session('has_admin_access');}
+            $input = "[".$user->wallet1."][".$user->wallet2."]";
+            Custom::auditTrail($this->user->id, '3', $edited_by, $input);
 
             return Custom::popup('Wallet Updated','/settings');
             return back();
@@ -242,8 +299,10 @@ class SettingController extends Controller
 
             ##Audit-----
             ##2 = Update OTP Delivery at Profile Details
-            Custom::auditTrail($this->user->id, '2', session('user_id'));
-            
+            if(session('has_admin_access') == ''){ $edited_by = $this->user->id;}else{$edited_by = session('has_admin_access');}
+            $input = "[".$user->messaging."]";
+            Custom::auditTrail($this->user->id, '2', $edited_by, $input);
+
             return Custom::popup('Profile updated','/settings');
             return back();
     }
@@ -277,16 +336,16 @@ class SettingController extends Controller
 			}
 			if (in_array(session('AdminLvl'),array(3,4)))
             {
-				$wallet1 = trim($request->wallet1);
+				/*$wallet1 = trim($request->wallet1);
 				$wallet2 = trim($request->wallet2);
 				if (strlen($wallet1)>0){
 				if (!Self::checkAddress($wallet1)){abort(500,'Invalid Wallet #1 Address'); }}
 				if (strlen($wallet2)>0){
 				if (!Self::checkAddress($wallet2)){abort(500,'Invalid Wallet #2 Address'); }}
-
+            */
 	            $user->otp = $otp;
-				$user->wallet1 = $wallet1;
-				$user->wallet2 = $wallet2;
+				/*$user->wallet1 = $wallet1;
+				$user->wallet2 = $wallet2;*/
 			}
 			if (in_array(session('AdminLvl'),array(4)))
             {
@@ -294,6 +353,12 @@ class SettingController extends Controller
 			}
             $user->mobile = $mobile;
             $user->save();
+
+            ##Audit-----
+            ##10 = Update Profile Details
+            if(session('has_admin_access') == ''){ $edited_by = $this->user->id;}else{$edited_by = session('has_admin_access');}
+            $input = "[".$user->email."][".$user->mobile."][][".$user->otp."][".$user->suspend."][".$user->adm."]";
+            Custom::auditTrail($this->user->id, '10', $edited_by, $input);
 
             return Custom::popup('Vital Settings Updated','/settings');
             return back();
@@ -304,6 +369,36 @@ class SettingController extends Controller
 		}
 
     }
+
+    public function postChangeWalletAdmin(request $request){
+
+      $user = User::find($this->user->id);
+      if(session('isAdmin')=='true'){
+         $otp = $request->votp;
+         $wallet1 = trim($request->wallet1);
+         $wallet2 = trim($request->wallet2);
+         if (strlen($wallet1)>0){
+         if (!Self::checkAddress($wallet1)){abort(500,'Invalid Wallet #1 Address'); }}
+         if (strlen($wallet2)>0){
+         if (!Self::checkAddress($wallet2)){abort(500,'Invalid Wallet #2 Address'); }}
+
+         $user->otp = $otp;
+         $user->wallet1 = $wallet1;
+         $user->wallet2 = $wallet2;
+         $user->save();
+
+         ##Audit-----
+         ##3 = Update Wallet Address
+         if(session('has_admin_access') == ''){ $edited_by = $this->user->id;}else{$edited_by = session('has_admin_access');}
+         $input = "[".$user->wallet1."][".$user->wallet2."]";
+         Custom::auditTrail($this->user->id, '3', $edited_by, $input);
+
+         return Custom::popup('Wallet Settings Updated','/settings');
+         return back();
+      }else{
+			abort(500,'Unauthorized access');
+		}
+   }
    public function checkAddress($address){
       try
       {
@@ -378,6 +473,12 @@ class SettingController extends Controller
 			->subject($subject);
 		});
 		$sent = true;
+
+      ##Audit-----
+      ##11 = Resend Confirmation Email
+      if(session('has_admin_access') == ''){ $edited_by = $this->user->id;}else{$edited_by = session('has_admin_access');}
+      $input = "[".$email."]";
+      Custom::auditTrail($this->user->id, '11', $edited_by, $input);
 
       if($sent == true){
          return 1;

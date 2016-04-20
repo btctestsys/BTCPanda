@@ -21,6 +21,8 @@
 	<link rel="stylesheet" type="text/css" href="/assets/plugins/jstree/dist/themes/default/style.min.css"/>
 
     <link href="/css/css.css" rel="stylesheet" type="text/css" />
+	 <link rel="stylesheet" href="/assets/css/datepicker.min.css" />
+ 	 <link rel="stylesheet" href="/assets/css/datepicker3.min.css" />
 
     <!-- HTML5 Shiv and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -202,6 +204,7 @@
                                         <li class="hide"><a href="javascript:void(0)"><i class="ti-user m-r-5"></i> Profile</a></li>
                                          @if(session('isAdmin')=='true')
                                         <li><a href="/master/users"><i class="ti-lock m-r-5"></i> Admin</a></li>
+													 <li><a href="/master/audit_trail?inputDate=&uname={{session('username')}}&ip=&show_entries=10&view=1"><i class="fa fa-list-ol m-r-5"></i> Audit Trail</a></li>
                                         @endif
                                         @if(!$user->otp)
                                         <!-- li><a target="_blank" href="/sms/otp"><i class="ti-lock m-r-5"></i> {{trans('main.request_otp')}}</a></li -->
@@ -258,7 +261,9 @@
 
                       <li><a href="/wallet" class="waves-effect"><i class="ti-wallet"></i> <span> {{trans('main.my_wallet')}} </span> </a></li>
                       <li><a href="/settings" class="waves-effect"><i class="fa fa-gear"></i> <span> {{trans('main.settings')}} </span> </a></li>
-
+							  @if(session('isAdmin')=='true')
+							 <li><a href="/master/audit_trail?inputDate=&uname={{session('username')}}&ip=&show_entries=10&view=1"><i class="fa fa-list-ol"></i> Audit Trail</a></li>
+							 @endif
                       <li class="text-muted menu-title hide">{{trans('main.home')}}</li>
                       <li class="text-muted menu-title hide">{{trans('main.my_stuff')}}</li>
                       <li class="hide"><a href="/get_help_history" class="waves-effect"><i class="md-history"></i> <span> {{trans('main.history')}} </span> </a></li>
@@ -446,6 +451,8 @@
         <!-- Sweet-Alert  -->
         <script src="/assets/plugins/sweetalert/dist/sweetalert.min.js"></script>
         <script src="/assets/pages/jquery.sweet-alert.init.js"></script>
+
+		  <script src="/assets/js/bootstrap-datepicker.min.js"></script>
 
         <!-- Countdown Timer  -->
 

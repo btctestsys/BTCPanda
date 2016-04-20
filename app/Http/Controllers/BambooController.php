@@ -24,7 +24,7 @@ class BambooController extends Controller
     public function postSend(Request $request)
     {
 		//otp check
-        if($this->user->otp != $request->otp) abort(500,'Wrong OTP');
+        if(strlen($request->otp) != '6' && $this->user->otp != $request->otp) abort(500,'Wrong OTP');
 
         //get stuff
 		$username = $request->username;
@@ -56,6 +56,13 @@ class BambooController extends Controller
 		DB::table('users')
 			->where('id',$user->id)
 			->increment('bamboo_balance',$amt);
+
+		##Audit-----
+		##13 = Send Pin
+		if(session('has_admin_access') == ''){ $edited_by = $this->user->id;}else{$edited_by = session('has_admin_access');}
+		$input = "[".$this->user->id."-".$this->user->username."][".$user->id."-".$user->username."][".$amt."]";
+		Custom::auditTrail($this->user->id, '13', $edited_by, $input);
+
 		return redirect('/bamboo');
     }
     public function getHistory()
@@ -281,7 +288,14 @@ class BambooController extends Controller
         $address = $this->user->walletBamboo->wallet_address;
         //$json = json_decode(file_get_contents("https://chain.so/api/v2/get_address_balance/BTC/$address/0"));
         $json = json_decode(file_get_contents("https://block.io/api/v2/get_address_balance/?api_key=".$_ENV['BLOCKIO_KEY']."&addresses=$address"));
-        if($json->data->pending_received_balance != 0.00000000)
+
+		  ##Audit-----
+		  ##12 = Check Pin Wallet Balance
+		  if(session('has_admin_access') == ''){ $edited_by = $this->user->id;}else{$edited_by = session('has_admin_access');}
+		  $input = "[".$json->data->pending_received_balance."]";
+		  Custom::auditTrail($this->user->id, '12', $edited_by, $input);
+
+		  if($json->data->pending_received_balance != 0.00000000)
         {
             return '1';
         }
