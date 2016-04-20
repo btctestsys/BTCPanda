@@ -89,7 +89,7 @@
 					<tbody>
 						{{--*/ $total_match =  0 /*--}}
 						@foreach($matches as $output)
-						<tr>							
+						<tr>
 							<td title="{{$output->created_at}}">{{Carbon\Carbon::parse($output->created_at)->diffForHumans()}}</td>
 							<td>
 							@if($output->u1s>=1)
@@ -110,24 +110,30 @@
 
 							<td>{{round($output->amt,8)}}</td>
 							<td>@if($output->type == 1) Referral @endif @if($output->type == 2) Unilevel @endif @if($output->type == 3) Earning @endif</td>
-							<td>{{Carbon\Carbon::parse($output->created_at)->diffindays()}}</td>						
+							<td>{{Carbon\Carbon::parse($output->created_at)->diffindays()}}</td>
 							<td nowrap=nowrap>
 							<!-- <form method="post" action="/master/approval/match/{{$output->id}}"> -->
-								{!! csrf_field() !!} 
+								{!! csrf_field() !!}
 								<span id="btnApproved{{$output->id}}"></span>
-								<button class="btn btn-xs btn-success btnApprove" id="btnApprove{{$output->id}}" 
-									outputID="{{$output->id}}" 
+								<button class="btn btn-xs btn-success btnApprove btnApprove{{$output->user_id}}" id="btnApprove{{$output->id}}"
+									outputID="{{$output->id}}"
 									outputDate="{{Carbon\Carbon::parse($output->created_at)->diffForHumans()}}"
 									outputUsername="{{$output->username}}"
 									outputToMatch="{{round($output->amt,8)}}">
 									Approve
 								</button>
-							<!-- </form> -->			
+								<span class="btnKYCed{{$output->user_id}}"></span>
+								<button data-toggle="modal" data-target="#modalKYC" class="btn btn-xs btn-warning btnKYC btnKYC{{$output->user_id}}"
+									outputUserId="{{$output->user_id}}"
+									outputUsername="{{$output->username}}">
+									KYC
+								</button>
+							<!-- </form> -->
 							</td>
 						</tr>
 							{{--*/ $total_match =  $total_match + $output->amt /*--}}
 						@endforeach
-						<tr>							
+						<tr>
 							<td></td>
 							<td>Total</td>
 							<td>{{round($total_match,8)}}</td>
@@ -143,6 +149,27 @@
 </div>
 
 </div>
+
+<!--<div id="modalKYC" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">KYC</h4>
+      </div>
+      <div class="modal-body">
+        <p id="content1"></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-Primary" data-dismiss="modal" id="Yes">Yes</button>
+		  <button type="button" class="btn btn-default" data-dismiss="modal" id="Cancel">Cancel</button>
+      </div>
+    </div>
+
+  </div>
+</div>-->
+
 @stop
 
 @section('js')
@@ -162,14 +189,14 @@
 @section('docready')
 <script type="text/javascript">
 jQuery(document).ready(function () {
-	
+
 	$('.btnApprove').on('click', function () {
-		
+
 		var outputID 			= $(this).attr('outputID');
 		var outputDate 		= $(this).attr('outputDate');
 		var outputUsername = $(this).attr('outputUsername');
 		var outputToMatch 	= $(this).attr('outputToMatch');
-		
+
 		$.ajax({
 			type: "POST",
 			url: "/master/approval/match/"+ outputID,
@@ -181,26 +208,65 @@ jQuery(document).ready(function () {
 			},
 			success: function(msg){
 				if(msg == 1){
-					$.growl.error({ 
-						message	: 	" ", 
-						duration	: 	"3500",  
+					$.growl.error({
+						message	: 	" ",
+						duration	: 	"3500",
 						title			: 	"<i class='fa fa-exclamation-circle'></i> Not enough PH Queue for distribution."
 					});
 				}else{
 					$("#btnApproved"+outputID).html('<span class="btn-xs btn-primary">Approved</span>');
 					$('#btnApprove'+outputID).hide();
-					$.growl.notice({ 
+					$.growl.notice({
 						message	: 	"<br><p>Date : <strong>"+outputDate+"</strong></p>"+
 											"<p>Member : <strong>"+outputUsername+"</strong></p>"+
-											"<p>To Match : <strong>"+outputToMatch+"</strong></p>", 
-						duration	: 	"3500",  
+											"<p>To Match : <strong>"+outputToMatch+"</strong></p>",
+						duration	: 	"3500",
 						title			: 	"<i class='fa fa-check'></i> GH Matched!"
 					});
-				}	
+				}
 			}
-				
-		});		
+
+		});
 		//alert(outputID);
+	});
+	/*$('.btnKYC').on('click', function (e) {
+
+		var outputUserId = $(this).attr('outputUserId');
+		var outputUsername = $(this).attr('outputUsername');
+		$("#content1").html('KYC member : '+outputUsername);
+
+		e.preventDefault();
+		$('#modalKYC').modal({ backdrop: 'static', keyboard: false })
+        .one('click', '#yes', function (e) {
+            //$form.trigger('submit');
+        });
+
+	});*/
+	$('.btnKYC').on('click', function () {
+		var outputUserId = $(this).attr('outputUserId');
+		var outputUsername = $(this).attr('outputUsername');
+		$.ajax({
+			type: "POST",
+			url: "/master/kyc/status/"+ outputUserId,
+			beforeSend: function (xhr) {
+				var token = $('meta[name="csrf_token"]').attr('content');
+				if (token) {
+					return xhr.setRequestHeader('X-CSRF-TOKEN', token);
+				}
+			},
+			success: function(msg){
+				if(msg == 1){
+					$(".btnKYCed"+outputUserId).html('<span class="btn-xs btn-primary">KYCed</span>');
+					$('.btnKYC'+outputUserId).hide();
+					$('.btnApprove'+outputUserId).hide();
+					$.growl.warning({
+						message	: 	"<br><p>Member : <strong>"+outputUsername+"</strong></p>",
+						duration	: 	"3500",
+						title			: 	"<i class='fa fa-check'></i> KYC"
+					});
+				}
+			}
+		});
 	});
 });
 </script>

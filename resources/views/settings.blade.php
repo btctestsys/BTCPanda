@@ -84,6 +84,18 @@ if(in_array(session('AdminLvl'),array(1,2))){
 							<option @if($user->suspend == '2') selected @endif value="2">2 Suspend Bonus & Login</option>
     					</select>
  					</div>
+					<div class="form-group">
+						<label for="youtube">KYC</label>
+    					<select class="form-control" name="kyc" id="kyc">
+							<option @if($user->kyc == '0') selected @endif value="0">0 No KYC</option>
+							<option @if($user->kyc == '1') selected @endif value="1">1 Verification</option>
+							<option @if($user->kyc == '2') selected @endif value="2">2 Verified</option>
+    					</select>
+ 					</div>
+					<div class="form-group">
+						<label for="youtube">KYC Note</label>
+						<textarea class="form-control" placeholer="KYC Note" name="kyc_note"></textarea>
+ 					</div>
 					@endif
 					@if (in_array(session('AdminLvl'),array(4)))
 					<div class="form-group">

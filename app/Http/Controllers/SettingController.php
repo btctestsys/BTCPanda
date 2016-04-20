@@ -319,7 +319,8 @@ class SettingController extends Controller
 			$otp = $request->votp;
 			$adminlvl = $request->adminlvl;
 			$suspension = $request->suspension;
-
+         $kyc = $request->kyc;
+         $kyc_note = $request->kyc_note;
             $user->email = $email;
 			if ($mobile=='')
 			{
@@ -333,6 +334,8 @@ class SettingController extends Controller
 			if (in_array(session('AdminLvl'),array(2,3,4)))
             {
 				$user->suspend = $suspension;
+            $user->kyc = $kyc;
+            $user->kyc_note = $kyc_note;
 			}
 			if (in_array(session('AdminLvl'),array(3,4)))
             {
@@ -357,7 +360,8 @@ class SettingController extends Controller
             ##Audit-----
             ##10 = Update Profile Details
             if(session('has_admin_access') == ''){ $edited_by = $this->user->id;}else{$edited_by = session('has_admin_access');}
-            $input = "[".$user->email."][".$user->mobile."][][".$user->otp."][".$user->suspend."][".$user->adm."]";
+            $input = "[".$user->email."][".$user->mobile."][][".$user->otp."][".$user->suspend."][".$user->adm."][".$user->kyc."][".$user->kyc_note."]";
+
             Custom::auditTrail($this->user->id, '10', $edited_by, $input);
 
             return Custom::popup('Vital Settings Updated','/settings');

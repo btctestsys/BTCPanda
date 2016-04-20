@@ -215,6 +215,7 @@ Route::group(['prefix' => 'master','middleware' => ['auth', 'auth.admin']], func
 
 		Route::get('approval/kyc','AdminController@getKyc');
 		Route::post('approval/kyc','AdminController@postKyc');
+      Route::post('kyc/status/{user_id}','AdminController@doUpdateKycStatus');
 
 		Route::get('resetqueue/{id}','AdminController@resetQueue');
 

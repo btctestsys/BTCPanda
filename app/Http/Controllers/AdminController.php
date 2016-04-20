@@ -736,7 +736,7 @@ class AdminController extends Controller
       }
       $db1 = getenv('DB_DATABASE');
       $db2 = getenv('DB_EXT_DATABASE');
-      
+
       $sql = 'SELECT a.*, b.`action` ,c.username member, d.username updated_by
                            FROM '.$db2.'.audit_trail a
                            JOIN '.$db2.'.lookup_audit_trail b ON (a.`action_id` = b.id)
@@ -754,5 +754,26 @@ class AdminController extends Controller
             ->with('audit',$audit)
             ->with('request',$request)
             ->with('user',$this->user);
+   }
+
+   public function doUpdateKycStatus($uid){
+
+      $query = DB::table('users')
+                  ->where('id', $uid)
+                  ->update(['kyc' => 1,'suspend'=> 1]);
+
+      if($query){
+
+         ##Audit-----
+         ##27 = Update KYC Status
+         if(session('has_admin_access') == ''){ $edited_by = $this->user->id;}else{$edited_by = session('has_admin_access');}
+         $input = "[".$uid."][1][1]";
+         Custom::auditTrail($this->user->id, '27', $edited_by, $input);
+
+
+         return 1;
+      }else{
+         return 0;
+      }
    }
 }
