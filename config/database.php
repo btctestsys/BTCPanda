@@ -64,6 +64,18 @@ return [
             'strict'    => false,
         ],
 
+        'mysql_audit' => [
+            'driver'    => 'mysql',
+            'host'      => env('DB_EXT_HOST', 'localhost'),
+            'database'  => env('DB_EXT_DATABASE', 'forge'),
+            'username'  => env('DB_EXT_USERNAME', 'forge'),
+            'password'  => env('DB_EXT_PASSWORD', ''),
+            'charset'   => 'utf8',
+            'collation' => 'utf8_unicode_ci',
+            'prefix'    => '',
+            'strict'    => false,
+        ],
+
         'pgsql' => [
             'driver'   => 'pgsql',
             'host'     => env('DB_HOST', 'localhost'),

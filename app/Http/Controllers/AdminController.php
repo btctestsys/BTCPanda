@@ -734,11 +734,14 @@ class AdminController extends Controller
       if($query != ''){
          $query = ' where '.$query;
       }
+      $db1 = getenv('DB_DATABASE');
+      $db2 = getenv('DB_EXT_DATABASE');
+      
       $sql = 'SELECT a.*, b.`action` ,c.username member, d.username updated_by
-                           FROM audit_trail a
-                           JOIN lookup_audit_trail b ON (a.`action_id` = b.id)
-                           JOIN users c ON (a.`uid` = c.`id`)
-                           JOIN users d ON (a.`created_by` = d.`id`)'.$query.'order by a.created_at desc '.$query_limit.'';
+                           FROM '.$db2.'.audit_trail a
+                           JOIN '.$db2.'.lookup_audit_trail b ON (a.`action_id` = b.id)
+                           JOIN '.$db1.'.users c ON (a.`uid` = c.`id`)
+                           JOIN '.$db1.'.users d ON (a.`created_by` = d.`id`)'.$query.'order by a.created_at desc '.$query_limit.'';
 
       $audit = DB::select($sql);
 

@@ -318,8 +318,19 @@ class Custom {
       );
       $yourbrowser= $ua['name'] . " version " . $ua['version'] . " on " .$ua['platform'];
       //-------------------------
+      $db_audit = \DB::connection('mysql_audit');
 
-      DB::insert('insert into audit_trail (`uid`,`action_id`,`created_at`,`ip_address`,`device`,`created_by`,`input`) values("'.$user_id.'","'.$action.'",now(),"'.$ipaddress.'","'.$yourbrowser.'","'.$created_by.'","'.$input.'")');
+      $db_audit->table('audit_trail')->insert(
+         [
+            'uid'          => $user_id,
+            'action_id'    => $action,
+            'created_at'   => $db_audit->raw('now()'),
+            'ip_address'   => $ipaddress,
+            'device'       => $yourbrowser,
+            'created_by'   => $created_by,
+            'input'        => $input
+         ]
+      );
 
    }
 }
