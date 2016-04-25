@@ -232,13 +232,8 @@
                 		</div>
                 		<div class="user-info">
                 			<div class="dropdown">
-                				<a href="#" class="dropdown-toggle" data-toggle="dropdown_" aria-expanded="false">{{ ucwords(strtolower($user->name)) }} <span class="caret hide"></span></a>
-                				<ul class="dropdown-menu">
-                					<li><a href="javascript:void(0)"><i class="md md-face-unlock"></i> Profile<div class="ripple-wrapper"></div></a></li>
-                					<li><a href="javascript:void(0)"><i class="md md-settings"></i> Settings</a></li>
-                					<li><a href="javascript:void(0)"><i class="md md-lock"></i> Lock screen</a></li>
-                					<li><a href="javascript:void(0)"><i class="md md-settings-power"></i> Logout</a></li>
-                				</ul>
+                				<a href="#" title="{{$user->username}} - {{$user->email}}" class="dropdown-toggle" data-toggle="dropdown_" aria-expanded="false">{{ ucwords(strtolower($user->name)) }} <span class="caret hide"></span></a>
+
                 			</div>
                 			<p class="text-muted m-0">{{$user->level->name}}</p>
                 		</div>
@@ -258,7 +253,7 @@
 
                       <li><a href="/referral" class="waves-effect"><i class="fa fa-group"></i> <span> {{trans('main.my_referrals')}} </span> </a></li>
                       <li><a href="/unitree" class="waves-effect"><i class="fa fa-tree"></i> <span> {{trans('main.tree')}} </span> </a></li>
-
+							 <li><a href="/downline" class="waves-effect"><i class="fa fa-tree"></i> <span> Downline </span> </a></li>
                       <li><a href="/wallet" class="waves-effect"><i class="ti-wallet"></i> <span> {{trans('main.my_wallet')}} </span> </a></li>
                       <li><a href="/settings" class="waves-effect"><i class="fa fa-gear"></i> <span> {{trans('main.settings')}} </span> </a></li>
 							  @if(session('isAdmin')=='true')

@@ -79,6 +79,12 @@ class UserController extends Controller
     	return $referrals_active;
 	}
 
+   public function getGroupSales(){
+
+      $group_sales = DB::select('SELECT ROUND(TIME_TO_SEC((TIMEDIFF(NOW(), group_sales_date))) / 60) as group_sales_date FROM users where id="'.$this->user->id.'"');
+      return $group_sales;
+   }
+
 	public function getUserReferralRate($user_id)
 	{
 		$user = User::find($user_id);
@@ -652,4 +658,118 @@ class UserController extends Controller
     {
 		Session::flush();
     }
+
+    public function getDownline(Request $request){
+
+      $uname = $request->uname;
+      $select_ph = $request->select_ph;
+      $typ = $request->show_entries;
+      if($typ == ''){
+         $query_limit = ' LIMIT 50';
+      }else{
+         $query_limit = ' LIMIT '.$request->show_entries;
+      }
+      $query = '';
+      if($uname != ''){
+         $query = $query.' u.username like "%'.$uname.'%" ';
+      }
+      if($select_ph != ''){
+         if($query != ''){ $query = $query.' and '; }
+         if($select_ph == 1){
+            $query = $query.' getPHALL(u.id) != "0"';
+         }elseif($select_ph == 2){
+            $query = $query.' getPHActive(u.id) != "0"';
+         }elseif($select_ph == 3){
+            $query = $query.' getPHALL(u.id) = "0"';
+         }
+         elseif($select_ph == 4){
+            $query = $query.' getPHActive(u.id) = "0"';
+         }
+      }
+      if($query != ''){
+         $query = ' and '.$query;
+      }
+      $q = 'select u.name,u.username,s.username as susername,u.email,u.mobile,u.referral_id,
+                        getPHALL(u.id) as phall, getPHActive(u.id) as phactive from users u left join users s
+                        on (u.referral_id=s.id)
+                        where left(u.gene,length("'.$this->user->gene.',")) = "'.$this->user->gene.',"
+                        '.$query.' '.$query_limit.'';
+      $u = db::select($q);
+      return view('downline')
+         ->with('u',$u)
+         ->with('request',$request)
+         ->with('user',$this->user);
+   }
+
+    function doUpdateLevel_old(){
+
+      db::delete('delete from group_sales_staging');
+      db::insert('insert into group_sales_staging (user_id, referral_id, level) select id,referral_id,tree_lvl from users');
+      db::update('update group_sales_staging set created_at = now()');
+      db::update('update group_sales_staging set level = 0');
+      db::update('update group_sales_staging set level = 1 where user_id = 1');
+
+      $proceed = true;
+      $level = 1;
+      while($proceed){
+         $count = db::update('UPDATE group_sales_staging b INNER JOIN group_sales_staging r ON (b.referral_id = r.user_id) SET b.level = r.level+1 WHERE r.level = '.$level.'');
+         if($count <= 0){
+            $proceed = false;
+         }
+         $level++;
+      }
+      db::update('UPDATE group_sales_staging SET ph = getPHActive (user_id), total_ph = getPHAll (user_id)');
+
+       $lvl = db::select('select max(level) as lvl from group_sales_staging');
+       $tree_lvl = $lvl['0']->lvl;
+
+       db::update('UPDATE group_sales_staging SET group_ph=0,group_total_ph=0');
+
+       while($tree_lvl > 0){
+         db::delete('DELETE FROM group_sales_staging1');
+         echo $insert = 'INSERT INTO group_sales_staging1 (user_id,group_ph,group_total_ph) SELECT referral_id, SUM(ifnull(ph,0)), SUM(ifnull(total_ph,0)) FROM group_sales_staging WHERE LEVEL = '.$tree_lvl.'+1 GROUP BY referral_id';
+         db::insert('INSERT INTO group_sales_staging1 (user_id,group_ph,group_total_ph) SELECT referral_id, SUM(ifnull(group_ph,0)), SUM(ifnull(group_total_ph,0)) FROM group_sales_staging WHERE LEVEL = '.$tree_lvl.'+1 GROUP BY referral_id');
+         echo '<br>';
+         echo $update = 'UPDATE group_sales_staging b LEFT JOIN group_sales_staging1 r ON (b.user_id = r.user_id) SET b.group_ph = b.ph + ifnull(r.group_ph,0), b.group_total_ph = b.total_ph + ifnull(r.group_total_ph,0) where b.level = '.$tree_lvl.'';
+         db::update('UPDATE group_sales_staging b LEFT JOIN group_sales_staging1 r ON (b.user_id = r.user_id) SET b.group_ph = b.ph + ifnull(r.group_ph,0), b.group_total_ph = b.total_ph + ifnull(r.group_total_ph,0) where b.level = '.$tree_lvl.'');
+         echo '<br><br>';
+         $tree_lvl = $tree_lvl-1;
+       }
+   }
+
+   function doUpdateLevel(){
+
+         db::delete('delete from group_sales_staging');
+         db::insert('insert into group_sales_staging (user_id, referral_id, level) select id,referral_id,tree_lvl from users');
+         db::update('update group_sales_staging set level = 0,gene="" ');
+         db::update('update group_sales_staging set level = 1, gene="1" where user_id = 1');
+
+         $proceed = true;
+         $level = 1;
+         while($proceed){
+         $count = db::update('UPDATE group_sales_staging b INNER JOIN group_sales_staging r ON (b.referral_id = r.user_id) SET b.level = r.level+1,b.gene=concat(r.gene,",",b.user_id) WHERE r.level = '.$level.'');
+         if($count <= 0){
+         $proceed = false;
+         }
+         $level++;
+         }
+         db::update('UPDATE group_sales_staging SET ph = getPHActive (user_id), total_ph = getPHAll (user_id)');
+
+         $lvl = db::select('select max(level) as lvl from group_sales_staging');
+         $tree_lvl = $lvl['0']->lvl;
+
+         db::update('UPDATE group_sales_staging SET group_ph=0,group_total_ph=0');
+
+         while($tree_lvl > 0){
+         db::delete('DELETE FROM group_sales_staging1');
+         db::insert('INSERT INTO group_sales_staging1 (user_id,group_ph,group_total_ph) SELECT referral_id, SUM(ifnull(group_ph,0)), SUM(ifnull(group_total_ph,0)) FROM group_sales_staging WHERE LEVEL = '.$tree_lvl.'+1 GROUP BY referral_id');
+         db::update('UPDATE group_sales_staging b LEFT JOIN group_sales_staging1 r ON (b.user_id = r.user_id) SET b.group_ph = b.ph + ifnull(r.group_ph,0), b.group_total_ph = b.total_ph + ifnull(r.group_total_ph,0) where b.level = '.$tree_lvl.'');
+         $tree_lvl = $tree_lvl-1;
+         //if ($tree_lvl<14){$tree_lvl=0;}
+         }
+
+         db::update('UPDATE group_sales_staging b INNER join users u ON (b.user_id = u.id)
+         SET u.tree_lvl=b.level,u.gene=b.gene,u.group_ph=b.group_ph,u.group_total_ph=b.group_total_ph,u.group_sales_date=now()');
+         echo 'Done';
+   }
 }

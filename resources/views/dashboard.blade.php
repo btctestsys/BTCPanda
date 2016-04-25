@@ -5,6 +5,9 @@
 <?php  header( 'Location: /login' ) ;?>
 @endif
 <!-- Announcement -->
+<?php
+
+?>
 	<div class="modal fade" id="announce1" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
 		<div class="modal-dialog">
 			<div class="modal-content">
@@ -528,6 +531,78 @@
 				</div>
 				</a>
 			</div>
+			<!-- ----------------------------------------------- -->
+			<div class="col-md-3 col-lg-3">
+				<div class="widget-bg-color-icon card-box fadeInDown animated">
+					<div class="bg-icon bg-icon-info pull-left">
+						<i class="fa fa-upload text-purple"></i>
+					</div>
+					<div class="text-right">
+						<h3 class="text-dark"><i class="fa fa-bitcoin"></i> <b class="counter">
+						<?php if(!empty($user->group_ph)){
+							echo $user->group_ph;
+						}
+						?>
+						</b></h3>
+						<p class="text-muted">
+							GS Active PH
+							<?php
+							if(!empty($user->group_sales_date)){
+								#echo $user->group_sales_date;
+
+								echo '<br>';
+								echo '<span class=small> Last Update: ';
+								$min = $group_sales['0']->group_sales_date;
+								$hours = floor($min / 60);
+								if($hours != '0'){
+									echo $hours.' hours,';
+								}
+								echo $minutes = $min % 60;
+								echo ' min ago';
+								echo '</span>';
+							}
+							?>
+						</p>
+					</div>
+					<div class="clearfix"></div>
+				</div>
+			</div>
+			<!-- ----------------------------------------------- -->
+			<div class="col-md-3 col-lg-3">
+				<div class="widget-bg-color-icon card-box fadeInDown animated">
+					<div class="bg-icon bg-icon-info pull-left">
+						<i class="fa fa-upload text-purple"></i>
+					</div>
+					<div class="text-right">
+						<h3 class="text-dark"><i class="fa fa-bitcoin"></i> <b class="counter">
+						<?php if(!empty($user->group_total_ph)){
+							echo $user->group_total_ph;
+						}
+						?>
+						</b></h3>
+						<p class="text-muted">GS Total PH
+							<?php
+							if(!empty($user->group_sales_date)){
+								#echo $user->group_sales_date;
+
+								echo '<br>';
+								echo '<span class=small> Last Update: ';
+								$min = $group_sales['0']->group_sales_date;
+								$hours = floor($min / 60);
+								if($hours != '0'){
+									echo $hours.' hours,';
+								}
+								echo $minutes = $min % 60;
+								echo ' min ago';
+								echo '</span>';
+							}
+							?>
+						</p>
+					</div>
+					<div class="clearfix"></div>
+				</div>
+			</div>
+			<!-- ----------------------------------------------- -->
 		</div>
 	</div>
 <!-- End Statistics -->

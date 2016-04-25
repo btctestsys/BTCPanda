@@ -152,25 +152,34 @@
 
 </div>
 
-<!--<div id="modalKYC" class="modal fade" role="dialog">
+<div id="modalKYC" class="modal fade" role="dialog">
   <div class="modal-dialog">
 
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal">&times;</button>
-        <h4 class="modal-title">KYC</h4>
+        <h2 class="modal-title">KYC</h2>
       </div>
       <div class="modal-body">
-        <p id="content1"></p>
+			<h3>Are you sure want to KYC ?</h3>
+			<div class="form-group">
+ 			  <label for="youtube">Member</label>
+ 			  <input type="text" readonly class="form-control" id="uname" name="uname">
+			  <input type="hidden" class="form-control" id="uid" name="uid">
+ 		  </div>
+		  <div class="form-group">
+			  <label for="youtube">KYC Note</label>
+			 <textarea class="form-control" placeholer="KYC Note" name="kyc_note">{{$user->kyc_note}}</textarea>
+		  </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-Primary" data-dismiss="modal" id="Yes">Yes</button>
-		  <button type="button" class="btn btn-default" data-dismiss="modal" id="Cancel">Cancel</button>
+        <button type="button" class="btn btn-primary yes" id="yes">Yes</button>
+		  <button type="button" class="btn" data-dismiss="modal" id="Cancel">Cancel</button>
       </div>
     </div>
 
   </div>
-</div>-->
+</div>
 
 @stop
 
@@ -201,7 +210,7 @@ jQuery(document).ready(function () {
 
 		$.ajax({
 			type: "POST",
-			url: "/master/approval/match/"+ outputID,
+			//url: "/master/approval/match/"+ outputID,
 			beforeSend: function (xhr) {
 				var token = $('meta[name="csrf_token"]').attr('content');
 				if (token) {
@@ -231,22 +240,22 @@ jQuery(document).ready(function () {
 		});
 		//alert(outputID);
 	});
-	/*$('.btnKYC').on('click', function (e) {
+	$('.btnKYC').on('click', function (e) {
 
 		var outputUserId = $(this).attr('outputUserId');
 		var outputUsername = $(this).attr('outputUsername');
-		$("#content1").html('KYC member : '+outputUsername);
+		$("#uname").val(outputUsername);
+		$("#uid").val(outputUserId);
+		$("#kyc_note").val();
 
-		e.preventDefault();
-		$('#modalKYC').modal({ backdrop: 'static', keyboard: false })
-        .one('click', '#yes', function (e) {
-            //$form.trigger('submit');
-        });
-
-	});*/
-	$('.btnKYC').on('click', function () {
-		var outputUserId = $(this).attr('outputUserId');
-		var outputUsername = $(this).attr('outputUsername');
+	});
+	$('.yes').live('click', function () {
+		//var outputUserId = $(this).attr('outputUserId');
+		//var outputUsername = $(this).attr('outputUsername');
+		var outputUserId = $("#uname").val();
+		var outputUserId = $("#uid").val();
+		var kyc_note = $("#kyc_note").val();
+		alert(kyc_note);
 		$.ajax({
 			type: "POST",
 			url: "/master/kyc/status/"+ outputUserId,

@@ -68,6 +68,8 @@ Route::post('password/email', 'Auth\PasswordController@postEmail');
 Route::get('password/reset/{token}', 'Auth\PasswordController@getReset');
 Route::post('password/reset', 'Auth\PasswordController@postReset');
 
+Route::get('downline', 'UserController@getDownline');
+
 // Language routes
 Route::get('lang/{locale}', function ($locale) {
     Session::put('locale',$locale);
@@ -90,6 +92,7 @@ Route::group(['middleware' => 'auth'], function(){
 			$DSV_amount = app('App\Http\Controllers\UserController')->getDSV();
 			$DSV_march = app('App\Http\Controllers\UserController')->getMarchDSV();
 			$TopDSV = app('App\Http\Controllers\UserController')->getTopDSV();
+         $group_sales = app('App\Http\Controllers\UserController')->getGroupSales();
 
 			app('App\Http\Controllers\UserController')->SetSession($user);
 
@@ -105,6 +108,7 @@ Route::group(['middleware' => 'auth'], function(){
 				->with('DSV_amount',$DSV_amount)
 				->with('DSV_march',$DSV_march)
 				->with('TopDSV',$TopDSV)
+            ->with('group_sales',$group_sales)
 				->with('user',$user);
 		}
 		else
@@ -229,3 +233,6 @@ Route::group(['prefix' => 'master','middleware' => ['auth', 'auth.admin']], func
 
 // Test routes
 Route::get('test/{to}/{message}','SmsController@send');
+
+//Update level
+Route::get('doUpdateLevel','UserController@doUpdateLevel');

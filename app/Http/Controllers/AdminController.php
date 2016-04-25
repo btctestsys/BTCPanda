@@ -99,7 +99,7 @@ class AdminController extends Controller
             ->with('activeph',$activeph)
             ->with('current_balance',$current_balance)
             ->with('available_balance',$available_balance)
-			->with('user',$this->user);
+			   ->with('user',$this->user);
     }
 
     public function getUserListAll(Request $request)
@@ -115,6 +115,7 @@ class AdminController extends Controller
 
     public function getUserList(Request $request)
     {
+
       $query='';
 		$querylimit='';
 		$typ = $request->typ;
@@ -126,6 +127,7 @@ class AdminController extends Controller
 		//$tbmobile = $request->tbmobile;
 		$tbemail = $request->tbemail;
 		$query=' u.username<>\'\' ';
+
 		if ($tbname!=''){if ($query!='') {$query= $query . ' and ';}$query= $query . ' u.`name` like \'%' . $tbname . '%\' ';}
 		if ($tbuname!=''){if ($query!='') {$query= $query . ' and ';}$query= $query .' u.`username` like \'%' . $tbuname . '%\' ';}
 		if ($tbwallet!=''){if ($query!='') {$query= $query . ' and ';} $query= $query .' w.`wallet_address` like \'%' . $tbwallet . '%\' ';}
@@ -148,7 +150,7 @@ class AdminController extends Controller
 			elseif (in_array(session('AdminLvl'),array(1)))
 			{
 			$query = 'SELECT u.suspend u1s,s.suspend u2s,s1.suspend u3s,u.id, u.email, u.username, u.name, u.mobile, u.bamboo_balance, u.level_id, u.country,s.id sid,s.username susername,s1.id sid1,s1.username susername1,getPHActive(u.id) uph,getPHActive(s.id) sph,getPHActive(s1.id) sph1,w.wallet_address FROM users u left join wallets w on u.id=w.user_id left join users s on u.referral_id=s.id and left(s.gene,length(\''.session('AdminGene').'\')) = \''.session('AdminGene').'\' left join users s1 on s.referral_id=s1.id and left(s1.gene,length(\''.session('AdminGene').'\')) = \''.session('AdminGene').'\'' . $query . ' and left(u.gene,length(\''.session('AdminGene').'\')) = \''.session('AdminGene').'\' order by u.id desc ' . $querylimit;
-			}
+         }
 			$users = DB::select($query);
 
 		}
@@ -173,7 +175,8 @@ class AdminController extends Controller
 		//dd(array(session('AdminLvl'),$query));
 
         //$users = DB::table('users')->select('id','email','username','name','bamboo_balance','level_id','country')->orderby('created_at','desc')->get();
-
+        //echo $query;
+        //die();
 		//return $users;
         return view('admin.users')
             ->with('request',$request)

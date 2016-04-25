@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use DB;
 use Illuminate\Http\Request;
 use Crypt;
+use App\Classes\Custom;
+
 class WalletController extends Controller
 {
     private $user;
