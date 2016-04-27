@@ -13,6 +13,7 @@ use App\Referral;
 use App\Unilevel;
 use App\Gh;
 use App\Ph;
+use Mail;
 
 
 class AdminController extends Controller
@@ -102,6 +103,43 @@ class AdminController extends Controller
 			   ->with('user',$this->user);
     }
 
+    public function getUserListKYC(Request $request){
+
+      $uname = $request->uname;
+      $status_kyc = $request->status_kyc;
+      $typ = $request->show_entries;
+      if($typ == ''){
+         $query_limit = ' LIMIT 50';
+      }else{
+         $query_limit = ' LIMIT '.$request->show_entries;
+      }
+      $query = '';
+      if($uname != ''){
+         $query = $query.' username like "%'.$uname.'%" ';
+      }
+      if($status_kyc != ''){
+         if($query != ''){ $query = $query.' and '; }
+         if($status_kyc == 1){
+            $query = $query.' kyc = "1"';
+         }elseif($status_kyc == 2){
+            $query = $query.' kyc = "2"';
+         }elseif($status_kyc == 3){
+            $query = $query.' kyc = "3"';
+         }elseif($status_kyc == 4){
+            $query = $query.' kyc = "4"';
+         }
+      }
+      if($query != ''){
+         $query = ' and '.$query;
+      }
+      $q = 'SELECT * FROM users WHERE (kyc != "0" OR kyc !=  "null") '.$query.' order by kyc_date desc'.$query_limit.'';
+      $users_kyc = db::select($q);
+
+      return view('admin.users_kyc')
+         ->with('request',$request)
+         ->with('users_kyc',$users_kyc)
+         ->with('user',$this->user);
+   }
     public function getUserListAll(Request $request)
     {
 		//$users = DB::table('users')->select('id','email','username','name','bamboo_balance','level_id','country')->orderby('created_at','desc')->get();
@@ -140,16 +178,16 @@ class AdminController extends Controller
 			$query=' where ' . $query;
 			if (in_array(session('AdminLvl'),array(3,4)))
 			{
-			$query = 'SELECT u.suspend u1s,s.suspend u2s,s1.suspend u3s,u.id, u.email, u.username, u.name, u.mobile, u.bamboo_balance, u.level_id, u.country,s.id sid,s.username susername,s1.id sid1,s1.username susername1,getPHActive(u.id) uph,getPHActive(s.id) sph,getPHActive(s1.id) sph1,w.wallet_address FROM users u left join wallets w on u.id=w.user_id left join users s on u.referral_id=s.id left join users s1 on s.referral_id=s1.id' . $query . ' order by u.id desc ' . $querylimit;
+			$query = 'SELECT u.kyc,u.suspend u1s,s.suspend u2s,s1.suspend u3s,u.id, u.email, u.username, u.name, u.mobile, u.bamboo_balance, u.level_id, u.country,s.id sid,s.username susername,s1.id sid1,s1.username susername1,getPHActive(u.id) uph,getPHActive(s.id) sph,getPHActive(s1.id) sph1,w.wallet_address FROM users u left join wallets w on u.id=w.user_id left join users s on u.referral_id=s.id left join users s1 on s.referral_id=s1.id' . $query . ' order by u.id desc ' . $querylimit;
 			}
 			elseif (in_array(session('AdminLvl'),array(2)))
 			{
 			$kungfupanda = '1,2,3,4,5,6,7,8,9,10,11,19';
-			$query = 'SELECT u.suspend u1s,s.suspend u2s,s1.suspend u3s,u.id, u.email, u.username, u.name, u.mobile, u.bamboo_balance, u.level_id, u.country,s.id sid,s.username susername,s1.id sid1,s1.username susername1,getPHActive(u.id) uph,getPHActive(s.id) sph,getPHActive(s1.id) sph1,w.wallet_address FROM users u left join wallets w on u.id=w.user_id left join users s on u.referral_id=s.id and left(s.gene,length(\''.$kungfupanda.'\')) = \''.$kungfupanda.'\' left join users s1 on s.referral_id=s1.id and left(s1.gene,length(\''.$kungfupanda.'\')) = \''.$kungfupanda.'\'' . $query . ' and left(u.gene,length(\''.$kungfupanda.'\')) = \''.$kungfupanda.'\' order by u.id desc ' . $querylimit;
+			$query = 'SELECT u.kyc,u.suspend u1s,s.suspend u2s,s1.suspend u3s,u.id, u.email, u.username, u.name, u.mobile, u.bamboo_balance, u.level_id, u.country,s.id sid,s.username susername,s1.id sid1,s1.username susername1,getPHActive(u.id) uph,getPHActive(s.id) sph,getPHActive(s1.id) sph1,w.wallet_address FROM users u left join wallets w on u.id=w.user_id left join users s on u.referral_id=s.id and left(s.gene,length(\''.$kungfupanda.'\')) = \''.$kungfupanda.'\' left join users s1 on s.referral_id=s1.id and left(s1.gene,length(\''.$kungfupanda.'\')) = \''.$kungfupanda.'\'' . $query . ' and left(u.gene,length(\''.$kungfupanda.'\')) = \''.$kungfupanda.'\' order by u.id desc ' . $querylimit;
 			}
 			elseif (in_array(session('AdminLvl'),array(1)))
 			{
-			$query = 'SELECT u.suspend u1s,s.suspend u2s,s1.suspend u3s,u.id, u.email, u.username, u.name, u.mobile, u.bamboo_balance, u.level_id, u.country,s.id sid,s.username susername,s1.id sid1,s1.username susername1,getPHActive(u.id) uph,getPHActive(s.id) sph,getPHActive(s1.id) sph1,w.wallet_address FROM users u left join wallets w on u.id=w.user_id left join users s on u.referral_id=s.id and left(s.gene,length(\''.session('AdminGene').'\')) = \''.session('AdminGene').'\' left join users s1 on s.referral_id=s1.id and left(s1.gene,length(\''.session('AdminGene').'\')) = \''.session('AdminGene').'\'' . $query . ' and left(u.gene,length(\''.session('AdminGene').'\')) = \''.session('AdminGene').'\' order by u.id desc ' . $querylimit;
+			$query = 'SELECT u.kyc,u.suspend u1s,s.suspend u2s,s1.suspend u3s,u.id, u.email, u.username, u.name, u.mobile, u.bamboo_balance, u.level_id, u.country,s.id sid,s.username susername,s1.id sid1,s1.username susername1,getPHActive(u.id) uph,getPHActive(s.id) sph,getPHActive(s1.id) sph1,w.wallet_address FROM users u left join wallets w on u.id=w.user_id left join users s on u.referral_id=s.id and left(s.gene,length(\''.session('AdminGene').'\')) = \''.session('AdminGene').'\' left join users s1 on s.referral_id=s1.id and left(s1.gene,length(\''.session('AdminGene').'\')) = \''.session('AdminGene').'\'' . $query . ' and left(u.gene,length(\''.session('AdminGene').'\')) = \''.session('AdminGene').'\' order by u.id desc ' . $querylimit;
          }
 			$users = DB::select($query);
 
@@ -158,16 +196,16 @@ class AdminController extends Controller
 		{
 			if (in_array(session('AdminLvl'),array(3,4)))
 			{
-			$query = 'SELECT u.suspend u1s,s.suspend u2s,s1.suspend u3s,u.id, u.email, u.username, u.name, u.mobile, u.bamboo_balance, u.level_id, u.country,s.id sid,s.username susername,s1.id sid1,s1.username susername1,getPHActive(u.id) uph,getPHActive(s.id) sph,getPHActive(s1.id) sph1,w.wallet_address FROM users u left join wallets w on u.id=w.user_id left join users s on u.referral_id=s.id left join users s1 on s.referral_id=s1.id  order by u.id desc ' . $querylimit;
+			$query = 'SELECT u.kyc,u.suspend u1s,s.suspend u2s,s1.suspend u3s,u.id, u.email, u.username, u.name, u.mobile, u.bamboo_balance, u.level_id, u.country,s.id sid,s.username susername,s1.id sid1,s1.username susername1,getPHActive(u.id) uph,getPHActive(s.id) sph,getPHActive(s1.id) sph1,w.wallet_address FROM users u left join wallets w on u.id=w.user_id left join users s on u.referral_id=s.id left join users s1 on s.referral_id=s1.id  order by u.id desc ' . $querylimit;
 			}
 			elseif (in_array(session('AdminLvl'),array(2)))
 			{
 			$kungfupanda = '1,2,3,4,5,6,7,8,9,10,11,19';
-			$query = 'SELECT u.suspend u1s,s.suspend u2s,s1.suspend u3s,u.id, u.email, u.username, u.name, u.mobile, u.bamboo_balance, u.level_id, u.country,s.id sid,s.username susername,s1.id sid1,s1.username susername1,getPHActive(u.id) uph,getPHActive(s.id) sph,getPHActive(s1.id) sph1,w.wallet_address FROM users u left join wallets w on u.id=w.user_id left join users s on u.referral_id=s.id and left(s.gene,length(\''.$kungfupanda.'\')) = \''.$kungfupanda.'\' left join users s1 on s.referral_id=s1.id and left(s1.gene,length(\''.$kungfupanda.'\')) = \''.$kungfupanda.'\'  and left(u.gene,length(\''.$kungfupanda.'\')) = \''.$kungfupanda.'\' order by u.id desc ' . $querylimit;
+			$query = 'SELECT u.kyc,u.suspend u1s,s.suspend u2s,s1.suspend u3s,u.id, u.email, u.username, u.name, u.mobile, u.bamboo_balance, u.level_id, u.country,s.id sid,s.username susername,s1.id sid1,s1.username susername1,getPHActive(u.id) uph,getPHActive(s.id) sph,getPHActive(s1.id) sph1,w.wallet_address FROM users u left join wallets w on u.id=w.user_id left join users s on u.referral_id=s.id and left(s.gene,length(\''.$kungfupanda.'\')) = \''.$kungfupanda.'\' left join users s1 on s.referral_id=s1.id and left(s1.gene,length(\''.$kungfupanda.'\')) = \''.$kungfupanda.'\'  and left(u.gene,length(\''.$kungfupanda.'\')) = \''.$kungfupanda.'\' order by u.id desc ' . $querylimit;
 			}
 			elseif (in_array(session('AdminLvl'),array(1)))
 			{
-			$query = 'SELECT u.suspend u1s,s.suspend u2s,s1.suspend u3s,u.id, u.email, u.username, u.name, u.mobile, u.bamboo_balance, u.level_id, u.country,s.id sid,s.username susername,s1.id sid1,s1.username susername1,getPHActive(u.id) uph,getPHActive(s.id) sph,getPHActive(s1.id) sph1,w.wallet_address FROM users u left join wallets w on u.id=w.user_id left join users s on u.referral_id=s.id and left(s.gene,length(\''.session('AdminGene').'\')) = \''.session('AdminGene').'\' left join users s1 on s.referral_id=s1.id and left(s1.gene,length(\''.session('AdminGene').'\')) = \''.session('AdminGene').'\'  and left(u.gene,length(\''.session('AdminGene').'\')) = \''.session('AdminGene').'\' order by u.id desc ' . $querylimit;
+			$query = 'SELECT u.kyc,u.suspend u1s,s.suspend u2s,s1.suspend u3s,u.id, u.email, u.username, u.name, u.mobile, u.bamboo_balance, u.level_id, u.country,s.id sid,s.username susername,s1.id sid1,s1.username susername1,getPHActive(u.id) uph,getPHActive(s.id) sph,getPHActive(s1.id) sph1,w.wallet_address FROM users u left join wallets w on u.id=w.user_id left join users s on u.referral_id=s.id and left(s.gene,length(\''.session('AdminGene').'\')) = \''.session('AdminGene').'\' left join users s1 on s.referral_id=s1.id and left(s1.gene,length(\''.session('AdminGene').'\')) = \''.session('AdminGene').'\'  and left(u.gene,length(\''.session('AdminGene').'\')) = \''.session('AdminGene').'\' order by u.id desc ' . $querylimit;
 			}
 			//$users = DB::select('SELECT u.suspend u1s,s.suspend u2s,s1.suspend u3s,u.id, u.email, u.username, u.name, u.mobile, u.bamboo_balance, u.level_id, u.country,s.id sid,s.username susername,s1.id sid1,s1.username susername1,getPHActive(u.id) uph,getPHActive(s.id) sph,getPHActive(s1.id) sph1,w.wallet_address FROM users u left join wallets w on u.id=w.user_id left join users s on u.referral_id=s.id left join users s1 on s.referral_id=s1.id order by u.id desc ' . $querylimit);
 			//$users = DB::select($query);
@@ -759,20 +797,50 @@ class AdminController extends Controller
             ->with('user',$this->user);
    }
 
-   public function doUpdateKycStatus($uid){
+   public function doUpdateKycStatus($uid, $status, $kyc_note){
+
+      if($status == '1'){
+         $suspend = '1';
+         $date_kyc = 'kyc_date';
+      }elseif($status == '2'){
+         $suspend = '1';
+         $date_kyc = 'kyc_endorse_date';
+      }elseif($status == '3'){
+         $suspend = '2';
+         $date_kyc = 'kyc_approve_date';
+      }elseif($status == '4'){
+         $suspend = '0';
+         $date_kyc = 'kyc_approve_date';
+      }
 
       $query = DB::table('users')
                   ->where('id', $uid)
-                  ->update(['kyc' => 1,'suspend'=> 1]);
+                  ->update(['kyc' => $status,'suspend'=> $suspend,'kyc_note'=> $kyc_note, $date_kyc => DB::raw("now()")]);
 
       if($query){
+
+         if($status == '1'){
+
+            ##Send Email KYC Verification to member-----
+            $query      = "SELECT `email`,`username`,`name` FROM users WHERE id = '$uid'";
+      		$userInfo   = DB::select($query);
+
+            $subject    = 'Respond To KYC Required';
+            $username   = $userInfo['0']->username;
+            $email      = $userInfo['0']->email;
+            $name       = $userInfo['0']->name;
+
+            Mail::send('emails.emailKYC_verification', ['username' => $username], function($message) use ($subject, $email, $name) {
+      		   $message->to($email, $name)
+      			->subject($subject);
+      		});
+         }
 
          ##Audit-----
          ##27 = Update KYC Status
          if(session('has_admin_access') == ''){ $edited_by = $this->user->id;}else{$edited_by = session('has_admin_access');}
-         $input = "[".$uid."][1][1]";
+         $input = "[".$uid."][".$status."][".$suspend."]";
          Custom::auditTrail($this->user->id, '27', $edited_by, $input);
-
 
          return 1;
       }else{

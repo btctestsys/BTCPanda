@@ -236,6 +236,7 @@
 						<li class="text-muted menu-title hide">Main</li>
 						<li><a href="/master/dashboard" class="waves-effect"><i class="fa fa-dashboard"></i> <span> Dashboard </span> </a></li>
 						<li><a href="/master/users" class="waves-effect"><i class="fa fa-user"></i> <span> User List </span> </a></li>
+						<li><a href="/master/users_kyc" class="waves-effect"><i class="fa fa-ban"></i> <span> KYC List </span> </a></li>
 						<li><a href="/master/approval/kyc" class="waves-effect"><i class="fa fa-youtube-play"></i> <span> ID & Video Testi. </span> </a></li>
                         @endif
 
@@ -244,6 +245,7 @@
 						<li class="text-muted menu-title hide">Main</li>
 						<li><a href="/master/dashboard" class="waves-effect"><i class="fa fa-dashboard"></i> <span> Dashboard </span> </a></li>
 						<li><a href="/master/users" class="waves-effect"><i class="fa fa-user"></i> <span> User List </span> </a></li>
+						<li><a href="/master/users_kyc" class="waves-effect"><i class="fa fa-ban"></i> <span> KYC List </span> </a></li>
 						<li><a href="/master/ph_queue" class="waves-effect"><i class="md-list"></i> <span> PH Queue </span> </a></li>
 						<li><a href="/master/bamboos" class="waves-effect"><i class="fa fa-thumb-tack"></i> <span> Pin Sales </span> </a></li>
 						<li><a href="/master/bamboos_daily" class="waves-effect"><i class="fa fa-thumb-tack"></i> <span> Pin Sales Daily </span> </a></li>
@@ -273,6 +275,7 @@
 							</ul>
 						</li>
 						<li><a href="/master/users" class="waves-effect"><i class="fa fa-user"></i> <span> User List </span> </a></li>
+						<li><a href="/master/users_kyc" class="waves-effect"><i class="fa fa-ban"></i> <span> KYC List </span> </a></li>
 						<li class="text-muted menu-title hide">Reportings</li>
 						<li><a href="/master/ph_queue" class="waves-effect"><i class="md-list"></i> <span> PH Queue </span> </a></li>
 						<li class="text-muted menu-title hide">Approvals</li>

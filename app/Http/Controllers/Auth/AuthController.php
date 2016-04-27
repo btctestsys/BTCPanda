@@ -13,7 +13,7 @@ class AuthController extends Controller
     protected $redirectPath = '/dashboard';
     protected $loginPath = '/login';
     protected $redirectAfterLogout = '/login';
-    
+
     /*
     |--------------------------------------------------------------------------
     | Registration & Login Controller
@@ -64,22 +64,22 @@ class AuthController extends Controller
     protected function create(array $data)
     {
         $user = User::where('username',$data['referral'])->first();
-        
+
         if($user)
-        {        
+        {
             return User::create([
                 'name' => $data['name'],
                 'email' => $data['email'],
-				'mobile' => $data['mobile'],
+				    'mobile' => $data['mobile_code'].''.$data['mobile'],
                 'country' => $data['country'],
-				'verify_email_token' => $data['_token'],
+				    'verify_email_token' => $data['_token'],
                 'password' => bcrypt($data['password']),
                 'username' => str_replace(' ','_',$data['username']),
                 'referral_id' => $user->id,
         ]);
         }
         else
-        {            
+        {
             abort(500,"Referral username does not exist");
         }
     }

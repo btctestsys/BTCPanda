@@ -16,6 +16,7 @@ if(in_array(session('AdminLvl'),array(1,2))){
 	$btn_LeaderCase = '';
 }
 ?>
+<meta name="csrf_token" content="{{ csrf_token() }}" />
 <div class="row">
 
 	<div class="col-lg-12 hide">
@@ -34,17 +35,6 @@ if(in_array(session('AdminLvl'),array(1,2))){
 			</div>
 			<div class="panel-body">
 				<form role="form" method="post" action="/settings/admin/update">{!! csrf_field() !!}
-					@if (in_array(session('AdminLvl'),array(3,4)))
-					<!--<div class="form-group">
-						<label for="youtube">{{trans('main.your_wallet')}} #1</label>
-						<input type="text" class="form-control" id="wallet1" name="wallet1" value="{{$user->wallet1}}" placeholder="{{trans('main.your_wallet')}}">
- 					</div>
-
-					<div class="form-group">
-						<label for="youtube">{{trans('main.your_wallet')}} #2</label>
-						<input type="text" class="form-control" id="wallet2" name="wallet2" value="{{$user->wallet2}}" placeholder="{{trans('main.your_wallet')}}">
- 					</div>-->
-					@else
 					<div class="form-group">
 						<label for="youtube">{{trans('main.your_wallet')}} #1</label>
 						<input type="text" readonly class="form-control" id="wallet1" name="wallet1" value="{{$user->wallet1}}" placeholder="{{trans('main.your_wallet')}}">
@@ -54,7 +44,7 @@ if(in_array(session('AdminLvl'),array(1,2))){
 						<label for="youtube">{{trans('main.your_wallet')}} #2</label>
 						<input type="text" readonly class="form-control" id="wallet2" name="wallet2" value="{{$user->wallet2}}" placeholder="{{trans('main.your_wallet')}}">
  					</div>
-					@endif
+
 					<div class="form-group">
 						<label for="youtube">{{trans('main.email')}} </label>
 						<input type="text" class="form-control" id="email" name="email" value="{{$user->email}}" placeholder="{{trans('main.email')}}">
@@ -69,13 +59,13 @@ if(in_array(session('AdminLvl'),array(1,2))){
 						<label for="youtube">{{trans('main.password')}}</label>
 						<input type="password" class="form-control" id="pwd" name="pwd" value="" placeholder="Enter new password to reset">
  					</div>
-					 @if (in_array(session('AdminLvl'),array(3,4)))
+
 					<div class="form-group">
 						<label for="youtube">OTP</label>
 						<input type="text" class="form-control" id="votp" name="votp" value="{{$user->otp}}" placeholder="Current OTP">
  					</div>
-					@endif
-					@if (in_array(session('AdminLvl'),array(2,3,4)))
+
+
 					<div class="form-group">
 						<label for="youtube">Suspension</label>
     					<select class="form-control" name="suspension" id="suspension">
@@ -89,14 +79,18 @@ if(in_array(session('AdminLvl'),array(1,2))){
     					<select class="form-control" name="kyc" id="kyc">
 							<option @if($user->kyc == '0') selected @endif value="0">0 No KYC</option>
 							<option @if($user->kyc == '1') selected @endif value="1">1 Verification</option>
-							<option @if($user->kyc == '2') selected @endif value="2">2 Verified</option>
+							<option @if($user->kyc == '2') selected @endif value="2">2 Endorsed</option>
+							<option @if($user->kyc == '3') selected @endif value="3">3 Rejected</option>
+							<option @if($user->kyc == '4') selected @endif value="4">4 Verified</option>
     					</select>
  					</div>
+					<?php if($user->kyc == '1'){ ?>
+					<button type="reset" id="btn_resend_email_kyc" class="btn btn-block btn-primary waves-effect waves-light" style="margin-bottom:10px;">Resend KYC Email</button>
+					<?php } ?>
 					<div class="form-group">
 						<label for="youtube">KYC Note</label>
-						<textarea class="form-control" placeholer="KYC Note" name="kyc_note">{{$user->kyc_note}}</textarea>
+						<textarea class="form-control" placeholer="KYC Note" name="kyc_note" id="kyc_note">{{$user->kyc_note}}</textarea>
  					</div>
-					@endif
 					@if (in_array(session('AdminLvl'),array(4)))
 					<div class="form-group">
 						<label for="youtube">Admin Level</label>
@@ -109,8 +103,95 @@ if(in_array(session('AdminLvl'),array(1,2))){
     					</select>
  					</div>
 					@endif
+					<?php
+					if($user->kyc == '0' || $user->kyc == ''){
+						$button_name = "KYC";
+						$status_to_update = '1';
+					}elseif($user->kyc == '1'){
+						$button_name = "Endorse KYC";
+						$status_to_update = '2';
+					}
+					?>
+					<?php
+					if($user->kyc == '0' || $user->kyc == '' || $user->kyc == '1'){
+
+						echo '<button type="reset" class="btn btn-block btn-primary btn_kyc"
+								userid="'.$user->id.'" statustoupdate="'.$status_to_update.'">
+								'.$button_name.'
+								</button>';
+					}elseif($user->kyc == '2'){
+						echo '<a type="reset" class="btn btn-block btn-danger btn_kyc"
+								userid="'.$user->id.'" statustoupdate="3">Reject KYC</a>';
+						echo '<a type="reset" class="btn btn-block btn-success btn_kyc"
+								userid="'.$user->id.'" statustoupdate="4">Approve KYC</a>';
+					}
+					?>
  					<button type="submit" class="btn btn-block btn-warning waves-effect waves-light">Admin Update</button>
 				</form>
+			</div>
+		</div>
+	</div>
+	@endif
+
+	@if (in_array(session('AdminLvl'),array(2)))
+	<div class="col-lg-4">
+		<div class="panel panel-default panel-border panel-default min-height-panel-settings">
+			<div class="panel-heading">
+				<h3 class="panel-title">Admin Update</h3>
+			</div>
+			<div class="panel-body">
+				<form role="form" method="post" action="/settings/admin/csupdate">{!! csrf_field() !!}
+
+					<div class="form-group">
+						<label for="youtube">{{trans('main.password')}}</label>
+						<input type="password" class="form-control" id="pwd" name="pwd" value="" placeholder="Enter new password to reset">
+ 					</div>
+				<button type="submit" class="btn btn-block btn-warning waves-effect waves-light">Admin Update</button>
+				</form>
+
+				<hr>
+					<div class="form-group">
+						<label for="youtube">Suspension</label>
+    					<select class="form-control" name="suspension" id="suspension" disabled>
+							<option @if($user->suspend == '0') selected @endif value="0">0 Active</option>
+							<option @if($user->suspend == '1') selected @endif value="1">1 Suspend Bonus</option>
+							<option @if($user->suspend == '2') selected @endif value="2">2 Suspend Bonus & Login</option>
+    					</select>
+ 					</div>
+					<div class="form-group">
+						<label for="youtube">KYC</label>
+    					<select class="form-control" name="kyc" id="kyc" disabled>
+							<option @if($user->kyc == '0') selected @endif value="0">0 No KYC</option>
+							<option @if($user->kyc == '1') selected @endif value="1">1 Verification</option>
+							<option @if($user->kyc == '2') selected @endif value="2">2 Endorsed</option>
+							<option @if($user->kyc == '3') selected @endif value="3">3 Rejected</option>
+							<option @if($user->kyc == '4') selected @endif value="4">4 Verified</option>
+    					</select>
+ 					</div>
+					<?php if($user->kyc == '1'){ ?>
+					<button type="reset" id="btn_resend_email_kyc" class="btn btn-block btn-primary waves-effect waves-light" style="margin-bottom:10px;">Resend KYC Email</button>
+					<?php } ?>
+					<div class="form-group">
+						<label for="youtube">KYC Note</label>
+						<textarea class="form-control" placeholer="KYC Note" name="kyc_note" id="kyc_note">{{$user->kyc_note}}</textarea>
+ 					</div>
+					<?php
+					if($user->kyc == '0' || $user->kyc == ''){
+						$button_name = "KYC";
+						$status_to_update = '1';
+					}elseif($user->kyc == '1'){
+						$button_name = "Endorse KYC";
+						$status_to_update = '2';
+					}
+					?>
+					<?php if($user->kyc == '0' || $user->kyc == '' || $user->kyc == '1'){ ?>
+					<button type="submit" class="btn btn-block btn-primary btn_kyc"
+					userid="<?php echo $user->id;?>" statustoupdate="<?php echo $status_to_update;?>">
+					<?php echo $button_name;?>
+					</button>
+					<?php } ?>
+
+
 			</div>
 		</div>
 	</div>
@@ -442,7 +523,7 @@ $(document).ready(function($) {
 
 	var act = $('#act').val();
 	if(act == 1){
-		swal("Please Update", "Mobile Number nad Country is required before you can PH.", "error")
+		swal("Please Update", "Mobile Number and Country is required before you can PH.", "error")
 	}
 
 	$('#btn_resend_email').on('click', function () {
@@ -454,6 +535,50 @@ $(document).ready(function($) {
 			}
 		});
 	});
+
+	$('#btn_resend_email_kyc').on('click', function () {
+		$.get("/settings/admin/resendEmailKYCVerification", function (data, status) {
+			if(data == '1'){
+				swal("Sent!", "KYC Verification email has been sent.", "success")
+			}else{
+				swal("Error!", "KYC Verification email can not be sent.", "error")
+			}
+		});
+	});
+
+	$('.btn_kyc').on('click', function () {
+
+		var uid = $(this).attr('userid');
+		var statustoupdate = $(this).attr('statustoupdate');
+		var kyc_note = $("#kyc_note").val();
+
+		$.ajax({
+			type: "POST",
+			url: "/master/kyc/status/"+ uid +"/"+statustoupdate+"/"+ kyc_note,
+			beforeSend: function (xhr) {
+				var token = $('meta[name="csrf_token"]').attr('content');
+				if (token) {
+					return xhr.setRequestHeader('X-CSRF-TOKEN', token);
+				}
+			},
+			success: function(msg){
+				if(msg == 1){
+					swal({
+						  title: "Updated!",
+						  text: "KYC Status updated.",
+						  type: "success",
+						  showCancelButton: false,
+						  confirmButtonText: "Reload Page",
+						  closeOnConfirm: false
+						},
+						function(){
+						  $(location).attr('href', 'settings')
+						});
+				}
+			}
+		});
+	});
+
 });
 </script>
 @stop

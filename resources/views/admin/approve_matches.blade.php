@@ -122,12 +122,23 @@
 									outputToMatch="{{round($output->amt,8)}}">
 									Approve
 								</button>
-								@if($output->kyc!=2)
+								@if($output->kyc == 0)
 								<span class="btnKYCed{{$output->user_id}}"></span>
 								<button data-toggle="modal" data-target="#modalKYC" class="btn btn-xs btn-warning btnKYC btnKYC{{$output->user_id}}"
 									outputUserId="{{$output->user_id}}"
 									outputUsername="{{$output->username}}">
 									KYC
+								</button>
+								@endif
+
+								@if($output->kyc == 3)
+								<button class="btn btn-xs btn-danger" title="KYC Rejected" disabled>
+									<i class='fa fa-times'></i> KYC
+								</button>
+								@endif
+								@if($output->kyc == 4)
+								<button class="btn btn-xs btn-primary" title="KYC Approved" disabled>
+									<i class='fa fa-check'></i> KYC
 								</button>
 								@endif
 							<!-- </form> -->
@@ -169,7 +180,7 @@
  		  </div>
 		  <div class="form-group">
 			  <label for="youtube">KYC Note</label>
-			 <textarea class="form-control" placeholer="KYC Note" name="kyc_note">{{$user->kyc_note}}</textarea>
+			 <textarea class="form-control" placeholer="KYC Note" name="kyc_note" id="kyc_note">{{$user->kyc_note}}</textarea>
 		  </div>
       </div>
       <div class="modal-footer">
@@ -210,7 +221,7 @@ jQuery(document).ready(function () {
 
 		$.ajax({
 			type: "POST",
-			//url: "/master/approval/match/"+ outputID,
+			url: "/master/approval/match/"+ outputID,
 			beforeSend: function (xhr) {
 				var token = $('meta[name="csrf_token"]').attr('content');
 				if (token) {
@@ -242,6 +253,8 @@ jQuery(document).ready(function () {
 	});
 	$('.btnKYC').on('click', function (e) {
 
+		$("#yes").html('Yes');
+		$("#Cancel").show();
 		var outputUserId = $(this).attr('outputUserId');
 		var outputUsername = $(this).attr('outputUsername');
 		$("#uname").val(outputUsername);
@@ -249,16 +262,17 @@ jQuery(document).ready(function () {
 		$("#kyc_note").val();
 
 	});
-	$('.yes').live('click', function () {
-		//var outputUserId = $(this).attr('outputUserId');
-		//var outputUsername = $(this).attr('outputUsername');
-		var outputUserId = $("#uname").val();
-		var outputUserId = $("#uid").val();
+	$('.yes').on('click', function () {
+
+		var uname = $("#uname").val();
+		var uid = $("#uid").val();
 		var kyc_note = $("#kyc_note").val();
-		alert(kyc_note);
+
+		$("#yes").html('<i class="fa fa-spinner"></i> Processing....');
+		$("#Cancel").hide();
 		$.ajax({
 			type: "POST",
-			url: "/master/kyc/status/"+ outputUserId,
+			url: "/master/kyc/status/"+ uid +"/1/"+ kyc_note,
 			beforeSend: function (xhr) {
 				var token = $('meta[name="csrf_token"]').attr('content');
 				if (token) {
@@ -267,11 +281,12 @@ jQuery(document).ready(function () {
 			},
 			success: function(msg){
 				if(msg == 1){
-					$(".btnKYCed"+outputUserId).html('<span class="btn-xs btn-primary">KYCed</span>');
-					$('.btnKYC'+outputUserId).hide();
-					$('.btnApprove'+outputUserId).hide();
+					$('#modalKYC').modal('toggle');
+					$(".btnKYCed"+uid).html('<span class="btn-xs btn-primary">KYCed</span>');
+					$('.btnKYC'+uid).hide();
+					$('.btnApprove'+uid).hide();
 					$.growl.warning({
-						message	: 	"<br><p>Member : <strong>"+outputUsername+"</strong></p>",
+						message	: 	"<br><p>Member : <strong>"+uname+"</strong></p>",
 						duration	: 	"3500",
 						title			: 	"<i class='fa fa-check'></i> KYC"
 					});

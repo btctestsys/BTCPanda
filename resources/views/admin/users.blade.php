@@ -294,6 +294,7 @@
 									<th>Pins</th>
 									<th>Level</th>
 									<th align=right>PH</th>
+									<th></th>
 								</thead>
 								<tbody>
 									{{--*/ $user_cnt =  1 /*--}}
@@ -326,6 +327,34 @@
 										<td>@if($output->bamboo_balance) {{$output->bamboo_balance}} @endif&nbsp;</td>
 										<td>@if($output->level_id){{$output->level_id}} @endif&nbsp;</td>
 										<td align=right>{{round($output->uph,2)}}&nbsp;</td>
+										<td>
+											@if (in_array(session('AdminLvl'),array(2,3,4)))
+												@if($output->kyc == 0)
+												<span class="btnKYCed{{$output->id}}"></span>
+												<button data-toggle="modal" data-target="#modalKYC" class="btn btn-xs btn-warning btnKYC btnKYC{{$output->id}}"
+													outputUserId="{{$output->id}}"
+													outputUsername="{{$output->username}}">
+													KYC
+												</button>
+												@endif
+												@if($output->kyc == 1)
+												<button class="btn btn-xs btn-success">KYCed</button>
+												@endif
+												@if($output->kyc == 2)
+												<button class="btn btn-xs btn-info">KYCing</button>
+												@endif
+												@if($output->kyc == 3)
+												<button class="btn btn-xs btn-danger" title="KYC Rejected" disabled>
+													<i class='fa fa-times'></i> KYC
+												</button>
+												@endif
+												@if($output->kyc == 4)
+												<button class="btn btn-xs btn-primary" title="KYC Approved" disabled>
+													<i class='fa fa-check'></i> KYC
+												</button>
+												@endif
+											@endif
+										</td>
 									</tr>
 									{{--*/ $user_cnt =  $user_cnt + 1 /*--}}
 									{{--*/ $total_ph =  $total_ph + $output->uph /*--}}
@@ -345,7 +374,34 @@
 				</div>
 			</div>
 
+			<div id="modalKYC" class="modal fade" role="dialog">
+			  <div class="modal-dialog">
 
+			    <div class="modal-content">
+			      <div class="modal-header">
+			        <button type="button" class="close" data-dismiss="modal">&times;</button>
+			        <h2 class="modal-title">KYC</h2>
+			      </div>
+			      <div class="modal-body">
+						<h3>Are you sure want to KYC ?</h3>
+						<div class="form-group">
+			 			  <label for="youtube">Member</label>
+			 			  <input type="text" readonly class="form-control" id="uname" name="uname">
+						  <input type="hidden" class="form-control" id="uid" name="uid">
+			 		  </div>
+					  <div class="form-group">
+						  <label for="youtube">KYC Note</label>
+						 <textarea class="form-control" placeholer="KYC Note" name="kyc_note" id="kyc_note">{{$user->kyc_note}}</textarea>
+					  </div>
+			      </div>
+			      <div class="modal-footer">
+			        <button type="button" class="btn btn-primary yes" id="yes">Yes</button>
+					  <button type="button" class="btn" data-dismiss="modal" id="Cancel">Cancel</button>
+			      </div>
+			    </div>
+
+			  </div>
+			</div>
 @stop
 
 @section('js')
@@ -354,7 +410,50 @@
 @section('docready')
 <script type="text/javascript">
 $(document).ready(function($) {
-	//
+
+	$('.btnKYC').on('click', function (e) {
+
+		$("#yes").html('Yes');
+		$("#Cancel").show();
+		var outputUserId = $(this).attr('outputUserId');
+		var outputUsername = $(this).attr('outputUsername');
+		$("#uname").val(outputUsername);
+		$("#uid").val(outputUserId);
+		$("#kyc_note").val();
+
+	});
+	$('.yes').on('click', function () {
+
+		var uname = $("#uname").val();
+		var uid = $("#uid").val();
+		var kyc_note = $("#kyc_note").val();
+
+		$("#yes").html('<i class="fa fa-spinner"></i> Processing....');
+		$("#Cancel").hide();
+		$.ajax({
+			type: "POST",
+			url: "/master/kyc/status/"+ uid +"/1/"+ kyc_note,
+			beforeSend: function (xhr) {
+				var token = $('meta[name="csrf_token"]').attr('content');
+				if (token) {
+					return xhr.setRequestHeader('X-CSRF-TOKEN', token);
+				}
+			},
+			success: function(msg){
+				if(msg == 1){
+					$('#modalKYC').modal('toggle');
+					$(".btnKYCed"+uid).html('<span class="btn-xs btn-success">KYCed</span>');
+					$('.btnKYC'+uid).hide();
+					$('.btnApprove'+uid).hide();
+					$.growl.warning({
+						message	: 	"<br><p>Member : <strong>"+uname+"</strong></p>",
+						duration	: 	"3500",
+						title			: 	"<i class='fa fa-check'></i> KYC"
+					});
+				}
+			}
+		});
+	});
 });
 
 jQuery(document).ready(function () {

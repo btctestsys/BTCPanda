@@ -10,7 +10,7 @@
 		<link rel="shortcut icon" href="/assets/images/favicon_1.ico">
 
 		<title>BTC Panda - {{trans('main.motto')}}</title>
-
+		
 		<link href="/assets/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
     <link href="/assets/css/core1.css" rel="stylesheet" type="text/css" />
     <link href="/assets/css/components.css" rel="stylesheet" type="text/css" />

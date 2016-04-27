@@ -168,8 +168,10 @@ Route::group(['middleware' => 'auth'], function(){
 	Route::post('settings/wallet/update', 'SettingController@postChangeWallet');
 	Route::post('settings/messaging/update', 'SettingController@postChangeMessaging');
 	Route::post('settings/admin/update', 'SettingController@postChangeAdmin');
+   Route::post('settings/admin/csupdate', 'SettingController@postChangeCSAdmin');
    Route::post('settings/admin/updateWallet', 'SettingController@postChangeWalletAdmin');
    Route::get('settings/admin/resendEmail', 'SettingController@resendConfirmationEmail');
+   Route::get('settings/admin/resendEmailKYCVerification', 'SettingController@resendKYCVerificationEmail');
 
 	Route::any('sms/otp','SmsController@sendOtp');
 	Route::get('tree/{id?}','UserController@getTree');
@@ -183,6 +185,7 @@ Route::group(['prefix' => 'master','middleware' => ['auth', 'auth.admin']], func
 	Route::get('dashboard','AdminController@getDashboard');
 
 	Route::get('users','AdminController@getUserList');
+   Route::get('users_kyc','AdminController@getUserListKYC');
 	Route::get('users/q','AdminController@getUserListQuery');
 	Route::get('login/id/{id}','AdminController@login');
 
@@ -219,7 +222,7 @@ Route::group(['prefix' => 'master','middleware' => ['auth', 'auth.admin']], func
 
 		Route::get('approval/kyc','AdminController@getKyc');
 		Route::post('approval/kyc','AdminController@postKyc');
-      Route::post('kyc/status/{user_id}','AdminController@doUpdateKycStatus');
+      Route::post('kyc/status/{user_id}/{kyc_status}/{kyc_note}','AdminController@doUpdateKycStatus');
 
 		Route::get('resetqueue/{id}','AdminController@resetQueue');
 

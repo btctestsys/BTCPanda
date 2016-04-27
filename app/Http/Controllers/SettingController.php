@@ -306,13 +306,32 @@ class SettingController extends Controller
             return Custom::popup('Profile updated','/settings');
             return back();
     }
+    public function postChangeCSAdmin(request $request){
 
+      $user = User::find($this->user->id);
+      if(session('isAdmin')=='true'){
+
+         $pwd = $request->pwd;
+         if ($pwd!='')
+			{
+				$user->password = bcrypt($pwd);
+			}
+
+         ##Audit-----
+         ##9 = Update Password
+         if(session('has_admin_access') == ''){ $edited_by = $this->user->id;}else{$edited_by = session('has_admin_access');}
+         $input = "[ - ]";
+         Custom::auditTrail($this->user->id, '9', $edited_by, $input);
+
+         return Custom::popup('Password Updated','/settings');
+         return back();
+      }
+   }
     public function postChangeAdmin(request $request)
     {
-        $user = User::find($this->user->id);
+      $user = User::find($this->user->id);
 		if(session('isAdmin')=='true')
 		{
-
 			$email = $request->email;
 			$mobile = $request->mobile;
 			$pwd = $request->pwd;
@@ -321,7 +340,22 @@ class SettingController extends Controller
 			$suspension = $request->suspension;
          $kyc = $request->kyc;
          $kyc_note = $request->kyc_note;
-            $user->email = $email;
+         $user->email = $email;
+
+         ##send email kyc verification
+         if($user->kyc != $request->kyc && $request->kyc == '1'){
+
+            $subject    = 'Respond To KYC Required';
+            $username   = $user->username;
+            $email      = $user->email;
+            $name       = $user->name;
+
+            Mail::send('emails.emailKYC_verification', ['username' => $username], function($message) use ($subject, $email, $name) {
+               $message->to($email, $name)
+               ->subject($subject);
+            });
+         }
+
 			if ($mobile=='')
 			{
 				$user->mobile_verified = '0';
@@ -483,6 +517,32 @@ class SettingController extends Controller
       if(session('has_admin_access') == ''){ $edited_by = $this->user->id;}else{$edited_by = session('has_admin_access');}
       $input = "[".$email."]";
       Custom::auditTrail($this->user->id, '11', $edited_by, $input);
+
+      if($sent == true){
+         return 1;
+		}
+   }
+
+   public function resendKYCVerificationEmail(){
+
+      $user = User::find($this->user->id);
+
+      $subject    = 'Respond To KYC Required';
+      $username   = $user->username;
+      $email      = $user->email;
+      $name       = $user->name;
+
+      Mail::send('emails.emailKYC_verification', ['username' => $username], function($message) use ($subject, $email, $name) {
+         $message->to($email, $name)
+         ->subject($subject);
+      });
+		$sent = true;
+
+      ##Audit-----
+      ##28 = Resend KYC Verification Email
+      if(session('has_admin_access') == ''){ $edited_by = $this->user->id;}else{$edited_by = session('has_admin_access');}
+      $input = "[".$email."]";
+      Custom::auditTrail($user->id, '28', $edited_by, $input);
 
       if($sent == true){
          return 1;
