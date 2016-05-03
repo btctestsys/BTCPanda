@@ -11,6 +11,7 @@
 						<td>Member</td>
 						<td>Referral Bonus</td>
 						<td>Days</td>
+						<td>Status KYC</td>
 						<td>
 							<form method="post" action="/master/approval/referral/all">
 								{!! csrf_field() !!}
@@ -43,6 +44,7 @@
 							</td>
 							<td>{{round($output->amt,8)}}</td>
 							<td>{{Carbon\Carbon::parse($output->created_at)->diffindays()+1}}</td>
+							<td><?php echo $arr_status_kyc[$output->kyc];?></td>
 							<td>
 							<form method="post" action="/master/approval/referral">
 								{!! csrf_field() !!}

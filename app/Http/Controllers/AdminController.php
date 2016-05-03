@@ -319,7 +319,7 @@ class AdminController extends Controller
 			abort(500,'Unauthorized Access');
 		}
         //$referrals = Referral::where('status',0)->orwhere('status',null)->get();
-		$referrals = DB::select('SELECT u.suspend u1s,s.suspend u2s,s1.suspend u3s,e.id, e.created_at, e.user_id, u.username,s.id sid,s.username susername, e.amt,s1.id sid1,s1.username susername1,getPHActive(u.id) uph,getPHActive(s.id) sph,getPHActive(s1.id) sph1 FROM referrals e left join users u on e.user_id=u.id left join users s on u.referral_id=s.id left join ph p on e.ph_id=p.id left join users s1 on p.user_id=s1.id where (e.`status` is null or e.`status`=0) and u.suspend=0');
+		$referrals = DB::select('SELECT u.kyc,u.suspend u1s,s.suspend u2s,s1.suspend u3s,e.id, e.created_at, e.user_id, u.username,s.id sid,s.username susername, e.amt,s1.id sid1,s1.username susername1,getPHActive(u.id) uph,getPHActive(s.id) sph,getPHActive(s1.id) sph1 FROM referrals e left join users u on e.user_id=u.id left join users s on u.referral_id=s.id left join ph p on e.ph_id=p.id left join users s1 on p.user_id=s1.id where (e.`status` is null or e.`status`=0) and u.suspend=0');
 
         return view('admin.approve_referrals')
 			->with('referrals',$referrals)
@@ -413,19 +413,14 @@ class AdminController extends Controller
         $referral->save();
         return back();
     }
+    public function getApprovalMatchMain(Request $request){
 
-    public function getApprovalMatch(Request $request)
-    {
-		if (!in_array(session('AdminLvl'),array(3,4)))
+      if (!in_array(session('AdminLvl'),array(3,4)))
 		{
 			abort(500,'Unauthorized Access');
 		}
-        //if($request->type == 'all') $matches = Gh::where('status',0)->orwhere('status',null)->get();
-        //if($request->type == 'referrals') $matches = Gh::where('status',0)->where('type',1)->get();
-        //if($request->type == 'unilevels') $matches = Gh::where('status',0)->where('type',2)->get();
-        //if($request->type == 'earnings') $matches = Gh::where('status',0)->where('type',3)->get();
 
-		if($request->type == 'all') {
+      if($request->type == 'all') {
 			$matches = DB::select('SELECT u.kyc, u.suspend u1s,s.suspend u2s,s1.suspend u3s,e.id, e.created_at, e.user_id, u.username,s.id sid,s.username susername,s1.id sid1,s1.username susername1,getPHActive(u.id) uph,getPHActive(s.id) sph,getPHActive(s1.id) sph1, e.amt, e.`type`,datediff(now(),e.created_at) ddiff,datediff(now(),e.created_at)+1 ddifc FROM gh e left join users u on e.user_id=u.id left join users s on u.referral_id=s.id left join users s1 on s.referral_id=s1.id where (e.`status` is null or e.`status`=0) and u.suspend=0');
 			$matches_sum = DB::select('SELECT sum(if(datediff(now(),e.created_at)-1=1,e.amt,0)) sd1, sum(if(datediff(now(),e.created_at)-1=2,e.amt,0)) sd2, sum(if(datediff(now(),e.created_at)-1=3,e.amt,0)) sd3, sum(if(datediff(now(),e.created_at)-1=4,e.amt,0)) sd4, sum(if(datediff(now(),e.created_at)-1=5,e.amt,0)) sd5, sum(if(datediff(now(),e.created_at)-1=6,e.amt,0)) sd6, sum(if(datediff(now(),e.created_at)-1=7,e.amt,0)) sd7, sum(if(datediff(now(),e.created_at)-1=8,e.amt,0)) sd8, sum(if(datediff(now(),e.created_at)-1=9,e.amt,0)) sd9, sum(if(datediff(now(),e.created_at)-1=10,e.amt,0)) sd10, sum(if(datediff(now(),e.created_at)-1=11,e.amt,0)) sd11, sum(if(datediff(now(),e.created_at)-1=12,e.amt,0)) sd12, sum(if(datediff(now(),e.created_at)-1=13,e.amt,0)) sd13, sum(if(datediff(now(),e.created_at)-1=14,e.amt,0)) sd14, sum(if(datediff(now(),e.created_at)-1=15,e.amt,0)) sd15, sum(if(datediff(now(),e.created_at)-1=16,e.amt,0)) sd16, sum(if(datediff(now(),e.created_at)-1=17,e.amt,0)) sd17, sum(if(datediff(now(),e.created_at)-1=18,e.amt,0)) sd18, sum(if(datediff(now(),e.created_at)-1=19,e.amt,0)) sd19, sum(if(datediff(now(),e.created_at)-1>=20,e.amt,0)) sd20 FROM gh e inner join users u on e.user_id=u.id where (e.`status` is null or e.`status`=0) and u.suspend=0');
 		}
@@ -439,6 +434,84 @@ class AdminController extends Controller
 		}
 		if($request->type == 'earnings') {
 			$matches = DB::select('SELECT u.kyc, u.suspend u1s,s.suspend u2s,s1.suspend u3s,e.id, e.created_at, e.user_id, u.username,s.id sid,s.username susername,s1.id sid1,s1.username susername1,getPHActive(u.id) uph,getPHActive(s.id) sph,getPHActive(s1.id) sph1, e.amt, e.`type`,datediff(now(),e.created_at) ddiff,datediff(now(),e.created_at)+1 ddifc FROM gh e left join users u on e.user_id=u.id left join users s on u.referral_id=s.id left join users s1 on s.referral_id=s1.id where e.`type`=3 and e.`status`=0 and u.suspend=0');
+			$matches_sum = DB::select('SELECT sum(if(datediff(now(),e.created_at)-1=1,e.amt,0)) sd1, sum(if(datediff(now(),e.created_at)-1=2,e.amt,0)) sd2, sum(if(datediff(now(),e.created_at)-1=3,e.amt,0)) sd3, sum(if(datediff(now(),e.created_at)-1=4,e.amt,0)) sd4, sum(if(datediff(now(),e.created_at)-1=5,e.amt,0)) sd5, sum(if(datediff(now(),e.created_at)-1=6,e.amt,0)) sd6, sum(if(datediff(now(),e.created_at)-1=7,e.amt,0)) sd7, sum(if(datediff(now(),e.created_at)-1=8,e.amt,0)) sd8, sum(if(datediff(now(),e.created_at)-1=9,e.amt,0)) sd9, sum(if(datediff(now(),e.created_at)-1=10,e.amt,0)) sd10, sum(if(datediff(now(),e.created_at)-1=11,e.amt,0)) sd11, sum(if(datediff(now(),e.created_at)-1=12,e.amt,0)) sd12, sum(if(datediff(now(),e.created_at)-1=13,e.amt,0)) sd13, sum(if(datediff(now(),e.created_at)-1=14,e.amt,0)) sd14, sum(if(datediff(now(),e.created_at)-1=15,e.amt,0)) sd15, sum(if(datediff(now(),e.created_at)-1=16,e.amt,0)) sd16, sum(if(datediff(now(),e.created_at)-1=17,e.amt,0)) sd17, sum(if(datediff(now(),e.created_at)-1=18,e.amt,0)) sd18, sum(if(datediff(now(),e.created_at)-1=19,e.amt,0)) sd19, sum(if(datediff(now(),e.created_at)-1>=20,e.amt,0)) sd20 FROM gh e inner join users u on e.user_id=u.id where e.`type`=3 and e.`status`=0 and u.suspend=0');
+        }
+      $total_ph = app('App\Http\Controllers\PhController')->sumAllPhActive();
+      $total_phsel = app('App\Http\Controllers\PhController')->sumAllPhSelected();
+      $total_gh = app('App\Http\Controllers\GhController')->sumAllGh();
+      $current_q = DB::select('SELECT p.id,p.created_at, p.user_id, p.amt, p.amt_distributed,datediff(now(),p.created_at) ddiff,datediff(now(),p.created_at)+1 ddifc FROM ph p where (p.`status` is null) and selected=1 order by p.created_at asc limit 1');
+
+      return view('admin.approve_matches_main')
+      ->with('type',$request->type)
+      ->with('current_q',$current_q)
+      ->with('total_ph',$total_ph)
+      ->with('total_phsel',$total_phsel)
+      ->with('total_gh',$total_gh)
+      ->with('matches',$matches)
+      ->with('matches_sum',$matches_sum)
+      ->with('user',$this->user);
+   }
+    public function getApprovalMatch(Request $request)
+    {
+		if (!in_array(session('AdminLvl'),array(3,4)))
+		{
+			abort(500,'Unauthorized Access');
+		}
+        //if($request->type == 'all') $matches = Gh::where('status',0)->orwhere('status',null)->get();
+        //if($request->type == 'referrals') $matches = Gh::where('status',0)->where('type',1)->get();
+        //if($request->type == 'unilevels') $matches = Gh::where('status',0)->where('type',2)->get();
+        //if($request->type == 'earnings') $matches = Gh::where('status',0)->where('type',3)->get();
+
+       #condition KYC status
+       $suspend = '0';
+       if ($request->status_kyc == 'all') {
+          $query = '';
+       }elseif ($request->status_kyc == 'nokyc') {
+          $query = ' and (u.kyc = "0" or u.kyc is null)';
+       }elseif ($request->status_kyc == 'kyc') {
+          $query = ' and (u.kyc = "1" or u.kyc = "2")';
+          $suspend = '1';
+       }elseif ($request->status_kyc == 'verified') {
+          $query = ' and u.kyc = "4"';
+       }
+
+       #print_r($query);
+		if($request->type == 'all') {
+			$matches = DB::select('SELECT u.kyc, u.suspend u1s,s.suspend u2s,s1.suspend u3s,e.id, e.created_at, e.user_id, u.username,s.id sid,s.username susername,
+                                 s1.id sid1,s1.username susername1,getPHActive(u.id) uph,getPHActive(s.id) sph,getPHActive(s1.id) sph1, e.amt, e.`type`,datediff(now(),
+                                 e.created_at) ddiff,datediff(now(),e.created_at)+1 ddifc FROM gh e left join users u on e.user_id=u.id left join users s
+                                 on u.referral_id=s.id left join users s1 on s.referral_id=s1.id where (e.`status` is null or e.`status`=0) and u.suspend='.$suspend.'');
+			$matches_sum = DB::select('SELECT sum(if(datediff(now(),e.created_at)-1=1,e.amt,0)) sd1, sum(if(datediff(now(),e.created_at)-1=2,e.amt,0)) sd2,
+                                 sum(if(datediff(now(),e.created_at)-1=3,e.amt,0)) sd3, sum(if(datediff(now(),e.created_at)-1=4,e.amt,0)) sd4,
+                                 sum(if(datediff(now(),e.created_at)-1=5,e.amt,0)) sd5, sum(if(datediff(now(),e.created_at)-1=6,e.amt,0)) sd6,
+                                 sum(if(datediff(now(),e.created_at)-1=7,e.amt,0)) sd7, sum(if(datediff(now(),e.created_at)-1=8,e.amt,0)) sd8,
+                                 sum(if(datediff(now(),e.created_at)-1=9,e.amt,0)) sd9, sum(if(datediff(now(),e.created_at)-1=10,e.amt,0)) sd10,
+                                 sum(if(datediff(now(),e.created_at)-1=11,e.amt,0)) sd11, sum(if(datediff(now(),e.created_at)-1=12,e.amt,0)) sd12,
+                                 sum(if(datediff(now(),e.created_at)-1=13,e.amt,0)) sd13, sum(if(datediff(now(),e.created_at)-1=14,e.amt,0)) sd14,
+                                 sum(if(datediff(now(),e.created_at)-1=15,e.amt,0)) sd15, sum(if(datediff(now(),e.created_at)-1=16,e.amt,0)) sd16,
+                                 sum(if(datediff(now(),e.created_at)-1=17,e.amt,0)) sd17, sum(if(datediff(now(),e.created_at)-1=18,e.amt,0)) sd18,
+                                 sum(if(datediff(now(),e.created_at)-1=19,e.amt,0)) sd19, sum(if(datediff(now(),e.created_at)-1>=20,e.amt,0)) sd20
+                                 FROM gh e inner join users u on e.user_id=u.id where (e.`status` is null or e.`status`=0) and u.suspend=0');
+		}
+		if($request->type == 'referrals') {
+			$matches = DB::select('SELECT u.kyc, u.suspend u1s,s.suspend u2s,s1.suspend u3s,e.id, e.created_at, e.user_id, u.username,s.id sid,s.username susername,
+                                 s1.id sid1,s1.username susername1,getPHActive(u.id) uph,getPHActive(s.id) sph,getPHActive(s1.id) sph1, e.amt, e.`type`,datediff(now(),
+                                 e.created_at) ddiff,datediff(now(),e.created_at)+1 ddifc FROM gh e left join users u on e.user_id=u.id left join users s
+                                 on u.referral_id=s.id left join users s1 on s.referral_id=s1.id where e.`type`=1 and e.`status`=0 and u.suspend='.$suspend.' '.$query.'');
+			$matches_sum = DB::select('SELECT sum(if(datediff(now(),e.created_at)-1=1,e.amt,0)) sd1, sum(if(datediff(now(),e.created_at)-1=2,e.amt,0)) sd2, sum(if(datediff(now(),e.created_at)-1=3,e.amt,0)) sd3, sum(if(datediff(now(),e.created_at)-1=4,e.amt,0)) sd4, sum(if(datediff(now(),e.created_at)-1=5,e.amt,0)) sd5, sum(if(datediff(now(),e.created_at)-1=6,e.amt,0)) sd6, sum(if(datediff(now(),e.created_at)-1=7,e.amt,0)) sd7, sum(if(datediff(now(),e.created_at)-1=8,e.amt,0)) sd8, sum(if(datediff(now(),e.created_at)-1=9,e.amt,0)) sd9, sum(if(datediff(now(),e.created_at)-1=10,e.amt,0)) sd10, sum(if(datediff(now(),e.created_at)-1=11,e.amt,0)) sd11, sum(if(datediff(now(),e.created_at)-1=12,e.amt,0)) sd12, sum(if(datediff(now(),e.created_at)-1=13,e.amt,0)) sd13, sum(if(datediff(now(),e.created_at)-1=14,e.amt,0)) sd14, sum(if(datediff(now(),e.created_at)-1=15,e.amt,0)) sd15, sum(if(datediff(now(),e.created_at)-1=16,e.amt,0)) sd16, sum(if(datediff(now(),e.created_at)-1=17,e.amt,0)) sd17, sum(if(datediff(now(),e.created_at)-1=18,e.amt,0)) sd18, sum(if(datediff(now(),e.created_at)-1=19,e.amt,0)) sd19, sum(if(datediff(now(),e.created_at)-1>=20,e.amt,0)) sd20 FROM gh e inner join users u on e.user_id=u.id where e.`type`=1 and e.`status`=0 and u.suspend=0');
+		}
+		if($request->type == 'unilevels') {
+			$matches = DB::select('SELECT u.kyc, u.suspend u1s,s.suspend u2s,s1.suspend u3s,e.id, e.created_at, e.user_id, u.username,s.id sid,s.username susername,
+                                 s1.id sid1,s1.username susername1,getPHActive(u.id) uph,getPHActive(s.id) sph,getPHActive(s1.id) sph1, e.amt, e.`type`,datediff(now(),
+                                 e.created_at) ddiff,datediff(now(),e.created_at)+1 ddifc FROM gh e left join users u on e.user_id=u.id left join users s
+                                 on u.referral_id=s.id left join users s1 on s.referral_id=s1.id where e.`type`=2 and e.`status`=0 and u.suspend='.$suspend.'  '.$query.'');
+			$matches_sum = DB::select('SELECT sum(if(datediff(now(),e.created_at)-1=1,e.amt,0)) sd1, sum(if(datediff(now(),e.created_at)-1=2,e.amt,0)) sd2, sum(if(datediff(now(),e.created_at)-1=3,e.amt,0)) sd3, sum(if(datediff(now(),e.created_at)-1=4,e.amt,0)) sd4, sum(if(datediff(now(),e.created_at)-1=5,e.amt,0)) sd5, sum(if(datediff(now(),e.created_at)-1=6,e.amt,0)) sd6, sum(if(datediff(now(),e.created_at)-1=7,e.amt,0)) sd7, sum(if(datediff(now(),e.created_at)-1=8,e.amt,0)) sd8, sum(if(datediff(now(),e.created_at)-1=9,e.amt,0)) sd9, sum(if(datediff(now(),e.created_at)-1=10,e.amt,0)) sd10, sum(if(datediff(now(),e.created_at)-1=11,e.amt,0)) sd11, sum(if(datediff(now(),e.created_at)-1=12,e.amt,0)) sd12, sum(if(datediff(now(),e.created_at)-1=13,e.amt,0)) sd13, sum(if(datediff(now(),e.created_at)-1=14,e.amt,0)) sd14, sum(if(datediff(now(),e.created_at)-1=15,e.amt,0)) sd15, sum(if(datediff(now(),e.created_at)-1=16,e.amt,0)) sd16, sum(if(datediff(now(),e.created_at)-1=17,e.amt,0)) sd17, sum(if(datediff(now(),e.created_at)-1=18,e.amt,0)) sd18, sum(if(datediff(now(),e.created_at)-1=19,e.amt,0)) sd19, sum(if(datediff(now(),e.created_at)-1>=20,e.amt,0)) sd20 FROM gh e inner join users u on e.user_id=u.id where e.`type`=2 and e.`status`=0 and u.suspend=0');
+		}
+		if($request->type == 'earnings') {
+			$matches = DB::select('SELECT u.kyc, u.suspend u1s,s.suspend u2s,s1.suspend u3s,e.id, e.created_at, e.user_id, u.username,s.id sid,s.username susername,
+                                 s1.id sid1,s1.username susername1,getPHActive(u.id) uph,getPHActive(s.id) sph,getPHActive(s1.id) sph1, e.amt, e.`type`,datediff(now(),
+                                 e.created_at) ddiff,datediff(now(),e.created_at)+1 ddifc FROM gh e left join users u on e.user_id=u.id left join users s
+                                 on u.referral_id=s.id left join users s1 on s.referral_id=s1.id where e.`type`=3 and e.`status`=0 and u.suspend='.$suspend.' '.$query.'');
 			$matches_sum = DB::select('SELECT sum(if(datediff(now(),e.created_at)-1=1,e.amt,0)) sd1, sum(if(datediff(now(),e.created_at)-1=2,e.amt,0)) sd2, sum(if(datediff(now(),e.created_at)-1=3,e.amt,0)) sd3, sum(if(datediff(now(),e.created_at)-1=4,e.amt,0)) sd4, sum(if(datediff(now(),e.created_at)-1=5,e.amt,0)) sd5, sum(if(datediff(now(),e.created_at)-1=6,e.amt,0)) sd6, sum(if(datediff(now(),e.created_at)-1=7,e.amt,0)) sd7, sum(if(datediff(now(),e.created_at)-1=8,e.amt,0)) sd8, sum(if(datediff(now(),e.created_at)-1=9,e.amt,0)) sd9, sum(if(datediff(now(),e.created_at)-1=10,e.amt,0)) sd10, sum(if(datediff(now(),e.created_at)-1=11,e.amt,0)) sd11, sum(if(datediff(now(),e.created_at)-1=12,e.amt,0)) sd12, sum(if(datediff(now(),e.created_at)-1=13,e.amt,0)) sd13, sum(if(datediff(now(),e.created_at)-1=14,e.amt,0)) sd14, sum(if(datediff(now(),e.created_at)-1=15,e.amt,0)) sd15, sum(if(datediff(now(),e.created_at)-1=16,e.amt,0)) sd16, sum(if(datediff(now(),e.created_at)-1=17,e.amt,0)) sd17, sum(if(datediff(now(),e.created_at)-1=18,e.amt,0)) sd18, sum(if(datediff(now(),e.created_at)-1=19,e.amt,0)) sd19, sum(if(datediff(now(),e.created_at)-1>=20,e.amt,0)) sd20 FROM gh e inner join users u on e.user_id=u.id where e.`type`=3 and e.`status`=0 and u.suspend=0');
         }
 		$total_ph = app('App\Http\Controllers\PhController')->sumAllPhActive();

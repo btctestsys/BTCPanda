@@ -216,7 +216,8 @@ Route::group(['prefix' => 'master','middleware' => ['auth', 'auth.admin']], func
 		Route::post('approval/unilevel','AdminController@postApproveUnilevel');
 		Route::post('approval/unilevel/all','AdminController@postApproveAllUnilevels');
 
-		Route::get('approval/match/{type}','AdminController@getApprovalMatch');
+		Route::get('approval/match/{type}','AdminController@getApprovalMatchMain');
+      Route::get('approval/match/{type}/{status_kyc}','AdminController@getApprovalMatch');
 		Route::get('approval/match','AdminController@getApprovalMatch');
 		Route::post('approval/match/{gh_id}','GhController@match');
 

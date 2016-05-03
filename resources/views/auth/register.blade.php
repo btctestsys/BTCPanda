@@ -2,6 +2,7 @@
 @extends('layouts.static')
 
 @section('content')
+<script src='https://www.google.com/recaptcha/api.js'></script>
 <div class="account-pages"></div>
 <div class="clearfix"></div>
 <div class="wrapper-page">
@@ -63,7 +64,7 @@
          <input class="form-control" type="text" required="" id="name" name="name" placeholder="{{trans('main.full_name')}}" value="{{ old('name') }}">
       </div>
    </div>
-   
+
    <div class="form-group ">
       <div class="col-xs-12">
          <input class="form-control" type="text" required="" id="username" name="username" placeholder="{{trans('main.username')}}" value="{{ old('username') }}">
@@ -315,17 +316,17 @@
     		</select>
 		</div>
 	</div>
-	
+
 	<div class="form-group ">
 	<div class="col-xs-4">
 		<input type="text" class="form-control" id="mobile_code" name="mobile_code" placeholder="Code" readonly>
 	</div>
       <div class="col-xs-8">
-	    
+
          <input class="form-control" type="text" required="" id="mobile" name="mobile" placeholder="{{trans('main.mobile')}}" value="{{ old('mobile') }}" onkeyup="if (/\D/g.test(this.value)) this.value = this.value.replace(/\D/g,'')">
 		<div id=msgMobile></div>
       </div>
-	 
+
    </div>
 
    <div class="form-group">
@@ -339,7 +340,11 @@
          <input class="form-control" type="password" required="" id="password_confirmation" name="password_confirmation" placeholder="{{trans('main.confirm_password')}}">
       </div>
    </div>
-
+   <div class="form-group">
+      <div class="col-xs-12">
+      <div class="g-recaptcha" data-sitekey="6LdWkB4TAAAAAAIwOL1d5evL_ezR5wc51MfW0HQe"></div>
+      </div>
+   </div>
    <div class="form-group">
       <div class="col-xs-12">
          <div class="checkbox checkbox-primary">
@@ -441,18 +446,18 @@ jQuery(document).ready(function () {
 });
 <script type="text/javascript">
 jQuery(document).ready(function () {
-		
+
 		$('#referral').change( function(){
 			var referral = $('#referral').val();
-			$.ajax({  
-				type: "POST", 
+			$.ajax({
+				type: "POST",
 				beforeSend: function (xhr) {
 					var token = $('meta[name="csrf_token"]').attr('content');
 					if (token) {
 						return xhr.setRequestHeader('X-CSRF-TOKEN', token);
 					}
 				},
-				url: "/check/referral/"+ referral,  
+				url: "/check/referral/"+ referral,
 				success: function(msg){
 					if(msg == 0){
 						$('#msgReferral').show();
@@ -472,12 +477,12 @@ jQuery(document).ready(function () {
 				}
 			});
 		});
-		
+
 		$('#username').change( function(){
 			var username = $('#username').val();
 			$.ajax({
 				type: "POST",
-				url: "/check/username/"+ username,  
+				url: "/check/username/"+ username,
 				beforeSend: function (xhr) {
 					var token = $('meta[name="csrf_token"]').attr('content');
 					if (token) {
@@ -501,12 +506,12 @@ jQuery(document).ready(function () {
 				}
 			});
 		});
-		
+
 		$('#email').change( function(){
 			var email = $('#email').val();
 			$.ajax({
 				type: "POST",
-				url: "/check/email/"+ email,  
+				url: "/check/email/"+ email,
 				beforeSend: function (xhr) {
 					var token = $('meta[name="csrf_token"]').attr('content');
 					if (token) {
@@ -530,14 +535,14 @@ jQuery(document).ready(function () {
 				}
 			});
 		});
-		
+
 		$('#mobile').change( function(){
 			var mobile_ext = $('#mobile').val();
 			var mobile_code = $('#mobile_code').val();
 			var mobile = mobile_code+mobile_ext;
 			$.ajax({
 				type: "POST",
-				url: "/check/mobile/"+ mobile,  
+				url: "/check/mobile/"+ mobile,
 				beforeSend: function (xhr) {
 					var token = $('meta[name="csrf_token"]').attr('content');
 					if (token) {
@@ -561,12 +566,12 @@ jQuery(document).ready(function () {
 				}
 			});
 		});
-		
+
 		$("#country").change( function(){
 			var country = $("#country").val();
 			$.ajax({
 				type: "POST",
-				url: "/check/country/"+ country, 
+				url: "/check/country/"+ country,
 				beforeSend: function (xhr) {
 					var token = $('meta[name="csrf_token"]').attr('content');
 					if (token) {
