@@ -50,13 +50,14 @@ class PhController extends Controller
         foreach($ph as $output)
         {
             //add gh user list to ph
-            $gh_users = Match::where('ph_id',$output->id)->get();
+            //$gh_users = Match::where('ph_id',$output->id)->get();
+			$gh_users = DB::select('SELECT m.*,w.wallet_address,u.username,u.country from matches m inner join gh g on m.gh_id=g.id inner join users u on g.user_id=u.id inner join wallets w on g.user_id=w.id where m.ph_id=' . $output->id);
 
             $gh_users_list = array();
 
             foreach($gh_users as $output2)
             {
-                $gh_users_list[] .= '<i class="fa fa-bitcoin"></i> '.$output2->amt.' <a target="_blank" href="http://blockchain.info/address/'.$output2->gh->user->wallet->wallet_address.'">'.$output2->gh->user->username.' ('.$output2->gh->user->country.')</a>';
+                $gh_users_list[] .= '<i class="fa fa-bitcoin"></i> '.$output2->amt.' <a target="_blank" href="http://blockchain.info/address/'.$output2->wallet_address.'">'.$output2->username.' ('.$output2->country.')</a>';
             }
 
             $output->gh_users_list = $gh_users_list;
@@ -76,13 +77,14 @@ class PhController extends Controller
         foreach($ph_ended as $output)
         {
             //add gh user list to ph
-            $gh_users = Match::where('ph_id',$output->id)->get();
+            //$gh_users = Match::where('ph_id',$output->id)->get();
+			$gh_users = DB::select('SELECT m.*,w.wallet_address,u.username,u.country from matches m inner join gh g on m.gh_id=g.id inner join users u on g.user_id=u.id inner join wallets w on g.user_id=w.id where m.ph_id=' . $output->id);
 
             $gh_users_list = array();
 
             foreach($gh_users as $output2)
             {
-                $gh_users_list[] .= '<i class="fa fa-bitcoin"></i> '.$output2->amt.' <a target="_blank" href="http://blockchain.info/address/'.$output2->gh->user->wallet->wallet_address.'">'.$output2->gh->user->username.' ('.$output2->gh->user->country.')</a>';
+                $gh_users_list[] .= '<i class="fa fa-bitcoin"></i> '.$output2->amt.' <a target="_blank" href="http://blockchain.info/address/'.$output2->wallet_address.'">'.$output2->username.' ('.$output2->country.')</a>';
             }
 
             $output->gh_users_list = $gh_users_list;
@@ -102,7 +104,8 @@ class PhController extends Controller
         //other things to calculate
         $ph_left = app('App\Http\Controllers\UserController')->getUserPhLeft($this->user->id);
 
-		$walletqueue_history = DB::select('select created_at,`from`,`to`,amt,match_id,if(match_id=0,\'SEND\',\'GH\') typ,`status`,json from wallet_queues where `from`=\'' . $this->user->wallet->wallet_address . '\' order by id desc limit 100');
+		//$walletqueue_history = DB::select('select q.created_at,q.`from`,q.`to`,q.amt,q.match_id,if(q.match_id=0,\'SEND\',\'GH\') typ,q.`status`,q.json from wallet_queues q where q.`from`=\'' . $this->user->wallet->wallet_address . '\' order by q.id desc limit 100');
+		$walletqueue_history = DB::select('select q.created_at,q.`from`,q.`to`,q.amt,q.match_id,if(q.match_id=0,\'SEND\',\'GH\') typ,q.`status`,q.json from wallet_queues q inner join wallets w on q.`from`=w.wallet_address where w.id=\'' . $this->user->id . '\' order by q.id desc limit 100');
 
         return view('ph')
             ->with('walletqueue_history',$walletqueue_history)

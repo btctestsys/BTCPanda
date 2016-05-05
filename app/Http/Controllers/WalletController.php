@@ -3,11 +3,11 @@ namespace App\Http\Controllers;
 use Auth;
 use App\User;
 use App\Http\Controllers\Controller;
+use App\Classes\Custom;
+
 use DB;
 use Illuminate\Http\Request;
 use Crypt;
-use App\Classes\Custom;
-
 class WalletController extends Controller
 {
     private $user;
@@ -21,7 +21,7 @@ class WalletController extends Controller
         Self::updateWallet();
 		//---------------------------------------
         $wallet = DB::table('wallets')
-            ->where('user_id',$this->user->id)->first();
+            ->where('id',$this->user->id)->first();
         $available_balance = $wallet->current_balance + ($wallet->pending_balance);
 
 		$walletqueue_history = DB::select('select created_at,`from`,`to`,amt,match_id,if(match_id=0,\'SEND\',\'GH\') typ,`status`,json from wallet_queues where `from`=\'' . $wallet->wallet_address . '\' or `to`=\'' . $wallet->wallet_address . '\' order by id desc limit 100');
@@ -36,6 +36,7 @@ class WalletController extends Controller
 		//---------------------------------------
 
         return view('wallet')
+           ->with('wallet',$wallet)
            ->with('user',$this->user)
            ->with('current_balance',$wallet->current_balance)
            ->with('pending_balance',$wallet->pending_balance)
@@ -68,7 +69,8 @@ class WalletController extends Controller
         if($json)
         {
             DB::table('wallets')
-                ->where('user_id',$current_user)
+                //->where('user_id',$current_user)
+                ->where('id',$current_user)
                 ->update([
                     'current_balance' => $json->data->available_balance,
                     'pending_balance' => 0,
@@ -87,7 +89,10 @@ class WalletController extends Controller
 		//--------------------------------------------------------
     	//update main wallet
 		//--------------------------------------------------------
-        $address = $this->user->wallet->wallet_address;
+        $wallet = DB::table('wallets')
+            ->where('id',$this->user->id)->first();
+
+        $address = $wallet->wallet_address;
 
         //chain.so - not used
         /*try
@@ -113,7 +118,8 @@ class WalletController extends Controller
     	if($blockchain_current_balance)
     	{
     		DB::table('wallets')
-				->where('user_id',$this->user->id)
+				//->where('user_id',$this->user->id)
+				->where('id',$this->user->id)
     			->update([
 	    			//'current_balance' => $json->data->confirmed_balance,
                     'current_balance' => $blockchain_current_balance,
@@ -134,7 +140,8 @@ class WalletController extends Controller
         if($json)
         {
             DB::table('wallets')
-                ->where('user_id',$this->user->id)
+                //->where('user_id',$this->user->id)
+                ->where('id',$this->user->id)
                 ->update([
                     'current_balance' => $json->data->available_balance,
                     'pending_balance' => 0,
@@ -143,9 +150,12 @@ class WalletController extends Controller
         }
 
 		//--------------------------------------------------------
-    	//update main wallet
+    	//update pin wallet
 		//--------------------------------------------------------
-        $address = $this->user->walletBamboo->wallet_address;
+        $wallet = DB::table('wallet_bamboos')
+            ->where('id',$this->user->id)->first();
+
+        $address = $wallet->wallet_address;
 
         /*
         try
@@ -161,7 +171,7 @@ class WalletController extends Controller
         {
             $available_balance = $json->data->confirmed_balance;
             DB::table('wallet_bamboos')
-                ->where('user_id',$this->user->id)
+                ->where('id',$this->user->id)
                 ->update([
                     'current_balance' => $json->data->confirmed_balance,
                     'pending_balance' => $json->data->unconfirmed_balance,
@@ -182,7 +192,7 @@ class WalletController extends Controller
         {
 			//return $json;
             DB::table('wallet_bamboos')
-                ->where('user_id',$this->user->id)
+                ->where('id',$this->user->id)
                 ->update([
                     'current_balance' => $json->data->available_balance,
                     'pending_balance' => $json->data->pending_received_balance,
@@ -264,7 +274,10 @@ class WalletController extends Controller
 				//check otp
 				if(strlen($request->otp) == '6' && $this->user->otp == $request->otp)
 				{
-					$wallet_address = $this->user->wallet->wallet_address;
+					//$wallet_address = $this->user->wallet->wallet_address;
+					$wallet = DB::table('wallets')
+						->where('id',$this->user->id)->first();
+					$wallet_address = $wallet->wallet_address;
 
 					$wallet_id = Crypt::decrypt($request->hidden);
 					$address = $request->address;
@@ -321,7 +334,8 @@ class WalletController extends Controller
     public function checkAvailableBalance()
     {
         $wallet = DB::table('wallets')
-            ->where('user_id',$this->user->id)->first();
+            //->where('user_id',$this->user->id)->first();
+            ->where('id',$this->user->id)->first();
         $available_balance = $wallet->current_balance + ($wallet->pending_balance);
 
 		$walletqueue = DB::select('select sum(amt) amt from wallet_queues where `status`=0 and fee > 0 and `from`=\'' . $wallet->wallet_address . '\' ');

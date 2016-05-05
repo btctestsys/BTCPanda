@@ -178,16 +178,16 @@ class AdminController extends Controller
 			$query=' where ' . $query;
 			if (in_array(session('AdminLvl'),array(3,4)))
 			{
-			$query = 'SELECT u.kyc,u.suspend u1s,s.suspend u2s,s1.suspend u3s,u.id, u.email, u.username, u.name, u.mobile, u.bamboo_balance, u.level_id, u.country,s.id sid,s.username susername,s1.id sid1,s1.username susername1,getPHActive(u.id) uph,getPHActive(s.id) sph,getPHActive(s1.id) sph1,w.wallet_address FROM users u left join wallets w on u.id=w.user_id left join users s on u.referral_id=s.id left join users s1 on s.referral_id=s1.id' . $query . ' order by u.id desc ' . $querylimit;
+			$query = 'SELECT u.kyc,u.suspend u1s,s.suspend u2s,s1.suspend u3s,u.id, u.email, u.username, u.name, u.mobile, u.bamboo_balance, u.level_id, u.country,s.id sid,s.username susername,s1.id sid1,s1.username susername1,getPHActive(u.id) uph,getPHActive(s.id) sph,getPHActive(s1.id) sph1,w.wallet_address FROM users u left join wallets w on u.id=w.id left join users s on u.referral_id=s.id left join users s1 on s.referral_id=s1.id' . $query . ' order by u.id desc ' . $querylimit;
 			}
 			elseif (in_array(session('AdminLvl'),array(2)))
 			{
 			$kungfupanda = '1,2,3,4,5,6,7,8,9,10,11,19';
-			$query = 'SELECT u.kyc,u.suspend u1s,s.suspend u2s,s1.suspend u3s,u.id, u.email, u.username, u.name, u.mobile, u.bamboo_balance, u.level_id, u.country,s.id sid,s.username susername,s1.id sid1,s1.username susername1,getPHActive(u.id) uph,getPHActive(s.id) sph,getPHActive(s1.id) sph1,w.wallet_address FROM users u left join wallets w on u.id=w.user_id left join users s on u.referral_id=s.id and left(s.gene,length(\''.$kungfupanda.'\')) = \''.$kungfupanda.'\' left join users s1 on s.referral_id=s1.id and left(s1.gene,length(\''.$kungfupanda.'\')) = \''.$kungfupanda.'\'' . $query . ' and left(u.gene,length(\''.$kungfupanda.'\')) = \''.$kungfupanda.'\' order by u.id desc ' . $querylimit;
+			$query = 'SELECT u.kyc,u.suspend u1s,s.suspend u2s,s1.suspend u3s,u.id, u.email, u.username, u.name, u.mobile, u.bamboo_balance, u.level_id, u.country,s.id sid,s.username susername,s1.id sid1,s1.username susername1,getPHActive(u.id) uph,getPHActive(s.id) sph,getPHActive(s1.id) sph1,w.wallet_address FROM users u left join wallets w on u.id=w.id left join users s on u.referral_id=s.id and left(s.gene,length(\''.$kungfupanda.'\')) = \''.$kungfupanda.'\' left join users s1 on s.referral_id=s1.id and left(s1.gene,length(\''.$kungfupanda.'\')) = \''.$kungfupanda.'\'' . $query . ' and left(u.gene,length(\''.$kungfupanda.'\')) = \''.$kungfupanda.'\' order by u.id desc ' . $querylimit;
 			}
 			elseif (in_array(session('AdminLvl'),array(1)))
 			{
-			$query = 'SELECT u.kyc,u.suspend u1s,s.suspend u2s,s1.suspend u3s,u.id, u.email, u.username, u.name, u.mobile, u.bamboo_balance, u.level_id, u.country,s.id sid,s.username susername,s1.id sid1,s1.username susername1,getPHActive(u.id) uph,getPHActive(s.id) sph,getPHActive(s1.id) sph1,w.wallet_address FROM users u left join wallets w on u.id=w.user_id left join users s on u.referral_id=s.id and left(s.gene,length(\''.session('AdminGene').'\')) = \''.session('AdminGene').'\' left join users s1 on s.referral_id=s1.id and left(s1.gene,length(\''.session('AdminGene').'\')) = \''.session('AdminGene').'\'' . $query . ' and left(u.gene,length(\''.session('AdminGene').'\')) = \''.session('AdminGene').'\' order by u.id desc ' . $querylimit;
+			$query = 'SELECT u.kyc,u.suspend u1s,s.suspend u2s,s1.suspend u3s,u.id, u.email, u.username, u.name, u.mobile, u.bamboo_balance, u.level_id, u.country,s.id sid,s.username susername,s1.id sid1,s1.username susername1,getPHActive(u.id) uph,getPHActive(s.id) sph,getPHActive(s1.id) sph1,w.wallet_address FROM users u left join wallets w on u.id=w.id left join users s on u.referral_id=s.id and left(s.gene,length(\''.session('AdminGene').'\')) = \''.session('AdminGene').'\' left join users s1 on s.referral_id=s1.id and left(s1.gene,length(\''.session('AdminGene').'\')) = \''.session('AdminGene').'\'' . $query . ' and left(u.gene,length(\''.session('AdminGene').'\')) = \''.session('AdminGene').'\' order by u.id desc ' . $querylimit;
          }
 			$users = DB::select($query);
 
@@ -196,18 +196,18 @@ class AdminController extends Controller
 		{
 			if (in_array(session('AdminLvl'),array(3,4)))
 			{
-			$query = 'SELECT u.kyc,u.suspend u1s,s.suspend u2s,s1.suspend u3s,u.id, u.email, u.username, u.name, u.mobile, u.bamboo_balance, u.level_id, u.country,s.id sid,s.username susername,s1.id sid1,s1.username susername1,getPHActive(u.id) uph,getPHActive(s.id) sph,getPHActive(s1.id) sph1,w.wallet_address FROM users u left join wallets w on u.id=w.user_id left join users s on u.referral_id=s.id left join users s1 on s.referral_id=s1.id  order by u.id desc ' . $querylimit;
+			$query = 'SELECT u.kyc,u.suspend u1s,s.suspend u2s,s1.suspend u3s,u.id, u.email, u.username, u.name, u.mobile, u.bamboo_balance, u.level_id, u.country,s.id sid,s.username susername,s1.id sid1,s1.username susername1,getPHActive(u.id) uph,getPHActive(s.id) sph,getPHActive(s1.id) sph1,w.wallet_address FROM users u left join wallets w on u.id=w.id left join users s on u.referral_id=s.id left join users s1 on s.referral_id=s1.id  order by u.id desc ' . $querylimit;
 			}
 			elseif (in_array(session('AdminLvl'),array(2)))
 			{
 			$kungfupanda = '1,2,3,4,5,6,7,8,9,10,11,19';
-			$query = 'SELECT u.kyc,u.suspend u1s,s.suspend u2s,s1.suspend u3s,u.id, u.email, u.username, u.name, u.mobile, u.bamboo_balance, u.level_id, u.country,s.id sid,s.username susername,s1.id sid1,s1.username susername1,getPHActive(u.id) uph,getPHActive(s.id) sph,getPHActive(s1.id) sph1,w.wallet_address FROM users u left join wallets w on u.id=w.user_id left join users s on u.referral_id=s.id and left(s.gene,length(\''.$kungfupanda.'\')) = \''.$kungfupanda.'\' left join users s1 on s.referral_id=s1.id and left(s1.gene,length(\''.$kungfupanda.'\')) = \''.$kungfupanda.'\'  and left(u.gene,length(\''.$kungfupanda.'\')) = \''.$kungfupanda.'\' order by u.id desc ' . $querylimit;
+			$query = 'SELECT u.kyc,u.suspend u1s,s.suspend u2s,s1.suspend u3s,u.id, u.email, u.username, u.name, u.mobile, u.bamboo_balance, u.level_id, u.country,s.id sid,s.username susername,s1.id sid1,s1.username susername1,getPHActive(u.id) uph,getPHActive(s.id) sph,getPHActive(s1.id) sph1,w.wallet_address FROM users u left join wallets w on u.id=w.id left join users s on u.referral_id=s.id and left(s.gene,length(\''.$kungfupanda.'\')) = \''.$kungfupanda.'\' left join users s1 on s.referral_id=s1.id and left(s1.gene,length(\''.$kungfupanda.'\')) = \''.$kungfupanda.'\'  and left(u.gene,length(\''.$kungfupanda.'\')) = \''.$kungfupanda.'\' order by u.id desc ' . $querylimit;
 			}
 			elseif (in_array(session('AdminLvl'),array(1)))
 			{
-			$query = 'SELECT u.kyc,u.suspend u1s,s.suspend u2s,s1.suspend u3s,u.id, u.email, u.username, u.name, u.mobile, u.bamboo_balance, u.level_id, u.country,s.id sid,s.username susername,s1.id sid1,s1.username susername1,getPHActive(u.id) uph,getPHActive(s.id) sph,getPHActive(s1.id) sph1,w.wallet_address FROM users u left join wallets w on u.id=w.user_id left join users s on u.referral_id=s.id and left(s.gene,length(\''.session('AdminGene').'\')) = \''.session('AdminGene').'\' left join users s1 on s.referral_id=s1.id and left(s1.gene,length(\''.session('AdminGene').'\')) = \''.session('AdminGene').'\'  and left(u.gene,length(\''.session('AdminGene').'\')) = \''.session('AdminGene').'\' order by u.id desc ' . $querylimit;
+			$query = 'SELECT u.kyc,u.suspend u1s,s.suspend u2s,s1.suspend u3s,u.id, u.email, u.username, u.name, u.mobile, u.bamboo_balance, u.level_id, u.country,s.id sid,s.username susername,s1.id sid1,s1.username susername1,getPHActive(u.id) uph,getPHActive(s.id) sph,getPHActive(s1.id) sph1,w.wallet_address FROM users u left join wallets w on u.id=w.id left join users s on u.referral_id=s.id and left(s.gene,length(\''.session('AdminGene').'\')) = \''.session('AdminGene').'\' left join users s1 on s.referral_id=s1.id and left(s1.gene,length(\''.session('AdminGene').'\')) = \''.session('AdminGene').'\'  and left(u.gene,length(\''.session('AdminGene').'\')) = \''.session('AdminGene').'\' order by u.id desc ' . $querylimit;
 			}
-			//$users = DB::select('SELECT u.suspend u1s,s.suspend u2s,s1.suspend u3s,u.id, u.email, u.username, u.name, u.mobile, u.bamboo_balance, u.level_id, u.country,s.id sid,s.username susername,s1.id sid1,s1.username susername1,getPHActive(u.id) uph,getPHActive(s.id) sph,getPHActive(s1.id) sph1,w.wallet_address FROM users u left join wallets w on u.id=w.user_id left join users s on u.referral_id=s.id left join users s1 on s.referral_id=s1.id order by u.id desc ' . $querylimit);
+			//$users = DB::select('SELECT u.suspend u1s,s.suspend u2s,s1.suspend u3s,u.id, u.email, u.username, u.name, u.mobile, u.bamboo_balance, u.level_id, u.country,s.id sid,s.username susername,s1.id sid1,s1.username susername1,getPHActive(u.id) uph,getPHActive(s.id) sph,getPHActive(s1.id) sph1,w.wallet_address FROM users u left join wallets w on u.id=w.id left join users s on u.referral_id=s.id left join users s1 on s.referral_id=s1.id order by u.id desc ' . $querylimit);
 			//$users = DB::select($query);
 		}
 		//dd(array(session('AdminLvl'),$query));
@@ -586,7 +586,7 @@ class AdminController extends Controller
 		$SQLStr=$SQLStr . " getPHActive(s.id) sph, getPHActive(s1.id) sph1, p.amt, p.amt_distributed,datediff(now(),p.created_at)+1 ddif,datediff(now(),";
 		$SQLStr=$SQLStr . " p.created_at) ddiff,datediff(now(),p.created_at)+1 ddifc,w.current_balance ";
 		$SQLStr=$SQLStr . " FROM ph p left join users u on p.user_id=u.id ";
-		$SQLStr=$SQLStr . " left join wallets w on u.id=w.user_id ";
+		$SQLStr=$SQLStr . " left join wallets w on u.id=w.id ";
 		$SQLStr=$SQLStr . " left join users s on u.referral_id=s.id ";
 		$SQLStr=$SQLStr . " left join users s1 on s.referral_id=s1.id ";
 		$SQLStr=$SQLStr . " where p.status is null order by p.created_at";
@@ -606,7 +606,7 @@ class AdminController extends Controller
 		//return Ph::where('status',null)->first();
 		$SQLStr="SELECT p.user_id, w.wallet_address ";
 		$SQLStr=$SQLStr . " FROM ph p left join users u on p.user_id=u.id ";
-		$SQLStr=$SQLStr . " left join wallets w on u.id=w.user_id ";
+		$SQLStr=$SQLStr . " left join wallets w on u.id=w.id ";
 		$SQLStr=$SQLStr . " where p.status is null group by p.user_id order by p.created_at ";
 
 		$targetwallet = DB::select($SQLStr);
@@ -627,7 +627,7 @@ class AdminController extends Controller
 		//return Ph::where('status',null)->first();
 		$SQLStr="SELECT p.user_id, w.wallet_address ";
 		$SQLStr=$SQLStr . " FROM ph p left join users u on p.user_id=u.id ";
-		$SQLStr=$SQLStr . " left join wallets w on u.id=w.user_id ";
+		$SQLStr=$SQLStr . " left join wallets w on u.id=w.id ";
 		$SQLStr=$SQLStr . " where p.selected=1 and p.status is null group by p.user_id order by p.created_at ";
 
 		$targetwallet = DB::select($SQLStr);
@@ -668,7 +668,7 @@ class AdminController extends Controller
 
 		$SQLStr="SELECT sum(p.amt) amt, sum(w.current_balance) cb, sum(p.amt_distributed) ad";
 		$SQLStr=$SQLStr . " FROM ph p left join users u on p.user_id=u.id ";
-		$SQLStr=$SQLStr . " left join wallets w on u.id=w.user_id ";
+		$SQLStr=$SQLStr . " left join wallets w on u.id=w.id ";
 		$SQLStr=$SQLStr . " where p.status is null and selected = '1'";
 
 		$ph = DB::select($SQLStr);

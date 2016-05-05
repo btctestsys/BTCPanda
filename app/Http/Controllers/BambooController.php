@@ -17,7 +17,10 @@ class BambooController extends Controller
     public function getIndex()
     {
     	$history = Self::getHistory();
+        $walletBamboo = DB::table('wallet_bamboos')
+            ->where('id',$this->user->id)->first();
     	return view('bamboo')
+    		->with('walletBamboo',$walletBamboo)
     		->with('user',$this->user)
     		->with('history',$history);
     }
@@ -155,7 +158,11 @@ class BambooController extends Controller
     }
     public function checkUnconfirmBalance()
     {
-        $address = $this->user->walletBamboo->wallet_address;
+        //$address = $this->user->walletBamboo->wallet_address;
+		$wallet = DB::table('wallet_bamboos')
+			->where('id',$this->user->id)->first();
+		$address = $wallet->wallet_address;
+
         //$json = json_decode(file_get_contents("https://chain.so/api/v2/get_address_balance/BTC/$address/0"));
         $json = json_decode(file_get_contents("https://block.io/api/v2/get_address_balance/?api_key=".$_ENV['BLOCKIO_KEY']."&addresses=$address"));
         if($json->data->pending_received_balance != 0.00000000)
@@ -169,9 +176,13 @@ class BambooController extends Controller
     }
     public function postCheck()
     {
-        if($this->user->walletBamboo->pending_balance == 0.00000000)
+		$wallet = DB::table('wallet_bamboos')
+			->where('id',$this->user->id)->first();
+		$address = $wallet->wallet_address;
+
+        if($wallet->pending_balance == 0.00000000)
         {
-            $address = $this->user->walletBamboo->wallet_address;
+            //$address = $this->user->walletBamboo->wallet_address;
             //$json = json_decode(file_get_contents("https://chain.so/api/v2/get_address_balance/BTC/$address/0"));
             $json = json_decode(file_get_contents("https://block.io/api/v2/get_address_balance/?api_key=".$_ENV['BLOCKIO_KEY']."&addresses=$address"));
 
@@ -189,7 +200,7 @@ class BambooController extends Controller
                     $notes = "BUY @ $bamboo_price (".$this->user->username.")";
                     Self::addBamboo($bamboo,$notes,$bamboo_price);
                     DB::table('wallet_bamboos')
-                        ->where('user_id',$this->user->id)
+                        ->where('id',$this->user->id)
                         ->update([
                         'pending_balance' => $unconfirmed_balance
                     ]);
@@ -208,9 +219,13 @@ class BambooController extends Controller
     }
     public function postCheckx()
     {
-        if($this->user->walletBamboo->pending_balance == 0.00000000)
+		$wallet = DB::table('wallet_bamboos')
+			->where('id',$this->user->id)->first();
+		$address = $wallet->wallet_address;
+
+        if($wallet->pending_balance == 0.00000000)
         {
-            $address = $this->user->walletBamboo->wallet_address;
+            //$address = $this->user->walletBamboo->wallet_address;
             //$json = json_decode(file_get_contents("https://chain.so/api/v2/get_address_balance/BTC/$address/0"));
             $json = json_decode(file_get_contents("https://block.io/api/v2/get_address_balance/?api_key=".$_ENV['BLOCKIO_KEY']."&addresses=$address"));
 
@@ -228,7 +243,7 @@ class BambooController extends Controller
                     $notes = "BUY @ $bamboo_price (".$this->user->username.")";
                     Self::addBamboo($bamboo,$notes,$bamboo_price);
                     DB::table('wallet_bamboos')
-                        ->where('user_id',$this->user->id)
+                        ->where('id',$this->user->id)
                         ->update([
                         'pending_balance' => $unconfirmed_balance
                     ]);
@@ -247,9 +262,13 @@ class BambooController extends Controller
     }
     public function postChecky(Request $request)
     {
-        if($this->user->walletBamboo->pending_balance == 0.00000000)
+		$wallet = DB::table('wallet_bamboos')
+			->where('id',$this->user->id)->first();
+		$address = $wallet->wallet_address;
+
+        if($wallet->pending_balance == 0.00000000)
         {
-            $address = $this->user->walletBamboo->wallet_address;
+            //$address = $this->user->walletBamboo->wallet_address;
             //$json = json_decode(file_get_contents("https://chain.so/api/v2/get_address_balance/BTC/$address/0"));
 
             if(true)
@@ -266,7 +285,7 @@ class BambooController extends Controller
                     $notes = "BUY @ $bamboo_price (".$this->user->username.")";
                     Self::addBamboo($bamboo,$notes,$bamboo_price);
                     DB::table('wallet_bamboos')
-                        ->where('user_id',$this->user->id)
+                        ->where('id',$this->user->id)
                         ->update([
                         'pending_balance' => $unconfirmed_balance
                     ]);
@@ -285,7 +304,11 @@ class BambooController extends Controller
     }
     public function checkUnconfirmBalanceAjax()
     {
-        $address = $this->user->walletBamboo->wallet_address;
+        //$address = $this->user->walletBamboo->wallet_address;
+		$wallet = DB::table('wallet_bamboos')
+			->where('id',$this->user->id)->first();
+		$address = $wallet->wallet_address;
+
         //$json = json_decode(file_get_contents("https://chain.so/api/v2/get_address_balance/BTC/$address/0"));
         $json = json_decode(file_get_contents("https://block.io/api/v2/get_address_balance/?api_key=".$_ENV['BLOCKIO_KEY']."&addresses=$address"));
 

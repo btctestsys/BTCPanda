@@ -54,19 +54,20 @@ class GhController extends Controller
         foreach($history as $output)
         {
             //add gh user list to ph
-            $ph_users = Match::where('gh_id',$output->id)->get();
+            //$ph_users = Match::where('gh_id',$output->id)->get();
+			$ph_users = DB::select('SELECT m.*,w.wallet_address,u.username,u.country from matches m inner join ph p on m.ph_id=p.id inner join users u on p.user_id=u.id inner join wallets w on p.user_id=w.id where m.gh_id=' . $output->id);
 
             $ph_users_list = array();
 
             foreach($ph_users as $output2)
             {
-                $ph_users_list[] .= '<i class="fa fa-bitcoin"></i> '.$output2->amt.' <a target="_blank" href="http://blockchain.info/address/'.$output2->ph->user->wallet->wallet_address.'">'.$output2->ph->user->username.' ('.$output2->ph->user->country.')</a>';
+                $ph_users_list[] .= '<i class="fa fa-bitcoin"></i> '.$output2->amt.' <a target="_blank" href="http://blockchain.info/address/'.$output2->wallet_address.'">'.$output2->username.' ('.$output2->country.')</a>';
             }
 
             $output->ph_users_list = $ph_users_list;
         }
 
-		$walletqueue_history = DB::select('select created_at,`from`,`to`,amt,match_id,if(match_id=0,\'SEND\',\'GH\') typ,`status`,json from wallet_queues where `to`=\'' . $this->user->wallet->wallet_address . '\' order by id desc limit 100');
+		$walletqueue_history = DB::select('select q.created_at,q.`from`,q.`to`,q.amt,q.match_id,if(q.match_id=0,\'SEND\',\'GH\') typ,q.`status`,q.json from wallet_queues q inner join wallets w on q.`to`=w.wallet_address where w.id=\'' . $this->user->id . '\' order by q.id desc limit 100');
 
         return view('gh')
             ->with('now',$now)
@@ -282,7 +283,11 @@ class GhController extends Controller
     public function match($gh_id)
     {
         $gh = Gh::where('id',$gh_id)->first();
+		//$gh = DB::select('SELECT g.*,w.wallet_address FROM gh g inner join wallets w on g.user_id=w.id where g.id=' . $gh_id . ' limit 1');
         $user_gh = User::where('id',$gh->user_id)->first();
+		$wallet = DB::table('wallets')
+			->where('id',$gh->user_id)->first();
+		$ghaddress = $wallet->wallet_address;
 
         //FIFO based on ID
 		//$ph = Ph::where('status',null)->orwhere('status',0)->orderby('id')->first();
@@ -304,6 +309,10 @@ class GhController extends Controller
 		else
 		{
 			$ph = Ph::where('selected',1)->where('status',null)->orwhere('status',0)->orderby('created_at')->first();
+			//$ph = DB::select('SELECT p.*,w.wallet_address FROM ph p inner join wallets w on p.user_id=w.id where p.selected=1 and (p.status is null or p.status=0) order by p.created_at limit 1');
+			$wallet = DB::table('wallets')
+				->where('id',$ph->user_id)->first();
+			$phaddress = $wallet->wallet_address;
 
 			if(!$ph)
 			{
@@ -352,7 +361,7 @@ class GhController extends Controller
 								->increment("amt_distributed",$gh_unfilled);
 
 							//add to wallet queue
-							Self::addWalletQueue($ph->user->wallet->wallet_address,$gh->user->wallet->wallet_address,$gh_unfilled,$match_id);
+							Self::addWalletQueue($phaddress,$ghaddress,$gh_unfilled,$match_id);
 						endif;
 
 						if(round($ph_unfilled,8) < round($gh_unfilled,8)):
@@ -386,7 +395,7 @@ class GhController extends Controller
 								->increment("amt_filled",$ph_unfilled);
 
 							//add to wallet queue
-							Self::addWalletQueue($ph->user->wallet->wallet_address,$gh->user->wallet->wallet_address,$ph_unfilled,$match_id);
+							Self::addWalletQueue($phaddress,$ghaddress,$ph_unfilled,$match_id);
 
 							//gh not complete so do again
 							Self::match($gh_id);
@@ -427,7 +436,7 @@ class GhController extends Controller
 							]);
 
 							//add to wallet queue
-							Self::addWalletQueue($ph->user->wallet->wallet_address,$gh->user->wallet->wallet_address,$ph_unfilled,$match_id);
+							Self::addWalletQueue($phaddress,$ghaddress,$ph_unfilled,$match_id);
 						endif;
 					else:
 						DB::table('ph')
