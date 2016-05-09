@@ -25,9 +25,10 @@ class GhController extends Controller
 
     public function getIndex()
     {
-    	$earnings_pending = Earning::where('user_id',$this->user->id)->where('status',0)->orwhere('status',null)->sum('amt');
+    	 $earnings_pending = Earning::where('user_id',$this->user->id)->where('status',0)->orwhere('status',null)->sum('amt');
         $earning = Earning::where('user_id',$this->user->id)->where('status',1)->sum('amt');
         $earnings_transfer = Earning::where('user_id',$this->user->id)->where('status',2)->sum('amt');
+        $ph_id = DB::select('select ph_id from earnings where user_id = "'.$this->user->id.'" and status = "1"');
 
         $referral_pending = Referral::where('user_id',$this->user->id)->where('status',0)->orwhere('status',null)->sum('amt');
         $referral = Referral::where('user_id',$this->user->id)->where('status',1)->sum('amt');
@@ -76,6 +77,7 @@ class GhController extends Controller
             ->with('referral',$referral)
             ->with('unilevel',$unilevel)
             ->with('earning',$earning)
+            ->with('ph_id',$ph_id)
             ->with('gh_balance',$gh_balance)
             ->with('gh_pending',$gh_pending)
             ->with('total_gh',$total_gh)
@@ -191,6 +193,7 @@ class GhController extends Controller
 
     public function postCreateEarnings()
     {
+      $ph_id = $_POST['ph_id'];
 		$next_trans = Self::get_next_trans_inmin_ingh();
 		if ($next_trans > 0)
         {
@@ -215,7 +218,8 @@ class GhController extends Controller
 				//]);
 
 				//DB::select('insert into gh (amt,created_at,status,user_id,type,type_id) values(' . $amt . ',now(),0,' . $this->user->id . ',3,-1)');
-				DB::insert('insert into gh (amt,created_at,status,user_id,type,type_id) values(?,now(),0,?,3,-1)',[$amt,$this->user->id]);
+				//DB::insert('insert into gh (amt,created_at,status,user_id,type,type_id) values(?,now(),0,?,3,-1)',[$amt,$this->user->id]);
+            DB::insert('insert into gh (amt,created_at,status,user_id,type,type_id,ph_id) values(?,now(),0,?,3,-1,?)',[$amt,$this->user->id,$ph_id]);
 
             ##Audit-----
             ##18 = Available Profit GH
@@ -280,6 +284,145 @@ class GhController extends Controller
         return Gh::where('status',2)->sum('amt');
     }
 
+    public function matchCapital($gh_id){
+
+      $gh = DB::select('SELECT g.*,p.amt ph_amt from gh g left join ph p on (g.ph_id = p.id) where g.id="'.$gh_id.'"');
+
+      $user_gh = User::where('id',$gh['0']->user_id)->first();
+      $wallet = DB::table('wallets')
+			->where('id',$gh['0']->user_id)->first();
+      $ghaddress = $wallet->wallet_address;
+      $gh_unfilled = $gh['0']->ph_amt - $gh['0']->amt_filled;
+
+      $ph_qs = DB::select('select sum(amt-amt_distributed) phq_sum from ph where selected=1 and (`status` is null or `status`=0)');
+      if($gh_unfilled>$ph_qs['0']->phq_sum){
+         //abort(500,"Not enough PH Queue for distribution.");
+		   return "1";
+		}else{
+         $ph = Ph::where('selected',1)->where('status',null)->orwhere('status',0)->orderby('created_at')->first();
+         $wallet = DB::table('wallets')
+				->where('id',$ph->user_id)->first();
+			$phaddress = $wallet->wallet_address;
+         if(!$ph){
+				//abort(500,"No more PH Queue for distribution.");
+				return "2";
+			}else{
+            if($gh['0']->status == null or $gh['0']->status == 0){
+               $ph_distributed      = $ph->amt_distributed;
+               $ph_amt              = $ph->amt;
+               $ph_unfilled         = $ph_amt - $ph_distributed;
+               $gh_filled           = $gh['0']->amt_filled;
+               #$gh_amt             = $gh['0']->amt;
+               $gh_amt_capital      = $gh['0']->ph_amt;
+               #$gh_unfilled        = $gh_amt - $gh_filled;
+               $gh_unfilled_capital = $gh_amt_capital - $gh_filled;
+               $actual_amt          = '';
+               if(round($ph_distributed,8) < round($ph_amt,8)){
+                  if($ph_unfilled > $gh_unfilled_capital){
+
+                    DB::insert('insert into matches (ph_id,gh_id,created_at,amt) values(?,?,now(),?)',[$ph->id,$gh['0']->id,$gh_unfilled_capital]);
+                    $record_id = DB::select('select LAST_INSERT_ID() as id');
+                    $match_id = 0;
+                    foreach($record_id as $output)
+                    {
+                       $match_id = $output->id;
+                    }
+
+                    //update gh status and filled
+                    DB::table('gh')
+                       ->where('id',$gh['0']->id)
+                       ->update([
+                          "status" => 2,
+                          "amt_filled" => $gh_amt_capital
+                    ]);
+
+                    //update ph increment filled
+                    DB::table('ph')
+                       ->where('id',$ph->id)
+                       ->increment("amt_distributed",$gh_unfilled_capital);
+
+                    //add to wallet queue
+                    Self::addWalletQueue($phaddress,$ghaddress,$gh_unfilled_capital,$match_id);
+                    $actual_amt = $gh_unfilled_capital;
+                 }
+
+                  if(round($ph_unfilled,8) < round($gh_unfilled_capital,8)){
+                    DB::insert('insert into matches (ph_id,gh_id,created_at,amt) values(?,?,now(),?)',[$ph->id,$gh['0']->id,$ph_unfilled]);
+                    $record_id = DB::select('select LAST_INSERT_ID() as id');
+                    $match_id = 0;
+                    foreach($record_id as $output)
+                    {
+                       $match_id = $output->id;
+                    }
+
+                    //update ph status and filled
+                    DB::table('ph')
+                       ->where('id',$ph->id)
+                       ->update([
+                          "status" => 1,
+                          "amt_distributed" => $ph_amt
+                    ]);
+
+                    //update gh increment filled
+                    DB::table('gh')
+                       ->where('id',$gh['0']->id)
+                       ->increment("amt_filled",$ph_unfilled);
+
+                    //add to wallet queue
+                    Self::addWalletQueue($phaddress,$ghaddress,$ph_unfilled,$match_id);
+                    $actual_amt = $ph_unfilled;
+                    //gh not complete so do again
+                    Self::matchCapital($gh_id);
+                 }
+
+                  if(round($ph_unfilled,8) == round($gh_unfilled_capital,8)){
+                    DB::insert('insert into matches (ph_id,gh_id,created_at,amt) values(?,?,now(),?)',[$ph->id,$gh['0']->id,$ph_unfilled]);
+                    $record_id = DB::select('select LAST_INSERT_ID() as id');
+                    $match_id = 0;
+                    foreach($record_id as $output)
+                    {
+                       $match_id = $output->id;
+                    }
+                    //update ph will complete
+                    DB::table('ph')
+                       ->where('id',$ph->id)
+                       ->update([
+                          "status" => 1,
+                          "ph_distributed" => $ph_amt
+                    ]);
+
+                    //update gh will complete
+                    DB::table('gh')
+                       ->where('id',$gh['0']->id)
+                       ->update([
+                          "status" => 2,
+                          "amt_filled" => $gh_amt_capital
+                    ]);
+
+                    //add to wallet queue
+                    Self::addWalletQueue($phaddress,$ghaddress,$ph_unfilled,$match_id);
+                    $actual_amt = $ph_unfilled;
+                 }
+
+               }else{
+                  DB::table('ph')
+                     ->where('id',$ph->id)
+                     ->update(["status" => 1]);
+               }
+            }
+            $match_type = array('1'=>'referrals','2'=>'unilevels','3'=>'earnings');
+
+            ##Audit-----
+            ##24 = Match Earnings/Referrals/Unilevels
+            if(session('has_admin_access') == ''){ $edited_by = $this->user->id;}else{$edited_by = session('has_admin_access');}
+            $input = "[".$actual_amt."][".$gh['0']->user_id."-".$user_gh->username."][".$match_type[$gh['0']->type]."]";
+            Custom::auditTrail($this->user->id, '24', $edited_by, $input);
+
+            return 3;
+         }
+      }
+
+   }
     public function match($gh_id)
     {
         $gh = Gh::where('id',$gh_id)->first();

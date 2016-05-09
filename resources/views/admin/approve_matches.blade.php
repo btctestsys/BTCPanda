@@ -1,5 +1,5 @@
 
-<?php //print_r($matches);?>
+<?php #echo '<pre>'; print_r($matches); echo '</pre>';?>
 <div class="row">
 	<div class="col-lg-12">
 		<div class="panel panel-default panel-border panel-primary">
@@ -8,9 +8,11 @@
 					<thead class="b">
 						<td>Date</td>
 						<td>Member</td>
+						<td>Capital</td>
 						<td>To Match</td>
 						<td>Type</td>
 						<td>Days</td>
+						<td align=center>KYC Status</td>
 						<td>Action</td>
 					</thead>
 					<tbody>
@@ -34,10 +36,39 @@
 							@else
 							-> <a href="/master/login/id/{{$output->sid1}}">{{$output->susername1}}</a>({{round($output->sph1,2)}})</td>
 							@endif
-
+							<td><?php echo isset($output->ph_amt) ? round($output->ph_amt,8) : '-';?></td>
 							<td>{{round($output->amt,8)}}</td>
 							<td>@if($output->type == 1) Referral @endif @if($output->type == 2) Unilevel @endif @if($output->type == 3) Earning @endif</td>
 							<td>{{Carbon\Carbon::parse($output->created_at)->diffindays()}}</td>
+							<td align=center>
+								@if($output->kyc == 1)
+								<!-- <button class="btn btn-xs btn-success" title="KYC Verification" disabled>
+									<i class='fa fa-pause'></i> KYCed
+								</button>-->
+								<i class='fa fa-1x fa-lock text-warning' data-toggle="tooltip" data-placement="left" title="KYC Verification"></i>
+								@endif
+								@if($output->kyc == 2)
+								<!-- <button class="btn btn-xs btn-info" title="KYC Endorse" disabled>
+									<i class='fa fa-eye'></i> KYCing
+								</button>-->
+								<i class='fa fa-1x fa-refresh text-info' data-toggle="tooltip" data-placement="left" title="KYC Endorse"></i>
+								@endif
+								@if($output->kyc == 3)
+								<!--<button class="btn btn-xs btn-danger" title="KYC Rejected" disabled>
+									<i class='fa fa-times'></i> KYC
+								</button>-->
+								<i class='fa fa-1x fa-times text-danger' data-toggle="tooltip" data-placement="left" title="KYC Rejected"></i>
+								@endif
+								@if($output->kyc == 4)
+								<!-- <button class="btn btn-xs btn-primary" title="KYC Approved" disabled>
+									<i class='fa fa-check'></i> KYC
+								</button>-->
+									<i class='fa fa-1x fa-check text-success' data-toggle="tooltip" data-placement="left" title="KYC Approved"></i>
+								@endif
+								@if($output->kyc == 0 || $output->kyc == '')
+									<i class='fa fa-1x fa-minus' data-toggle="tooltip" data-placement="left" title="No KYC"></i>
+								@endif
+							</td>
 							<td nowrap=nowrap>
 							<!-- <form method="post" action="/master/approval/match/{{$output->id}}"> -->
 								{!! csrf_field() !!}
@@ -49,6 +80,17 @@
 									outputToMatch="{{round($output->amt,8)}}">
 									Approve
 								</button>
+								<?php if(isset($output->ph_amt)){?>
+									<?php if($output->ph_type == 2){?>
+									<button class="btn btn-xs btn-default btnApproveCapital btnApproveCapital{{$output->user_id}}" id="btnApproveCapital{{$output->id}}"
+										outputID="{{$output->id}}"
+										outputDate="{{Carbon\Carbon::parse($output->created_at)->diffForHumans()}}"
+										outputUsername="{{$output->username}}"
+										outputToMatch="{{round($output->ph_amt,8)}}">
+										Approve Capital - {{round($output->ph_amt,8)}}
+									</button>
+									<?php } ?>
+								<?php } ?>
 								@if($output->kyc == 0)
 								<span class="btnKYCed{{$output->user_id}}"></span>
 								<button data-toggle="modal" data-target="#modalKYC" class="btn btn-xs btn-warning btnKYC btnKYC{{$output->user_id}}"
@@ -57,26 +99,8 @@
 									KYC
 								</button>
 								@endif
-								@if($output->kyc == 1)
-								<button class="btn btn-xs btn-success" title="KYC Verification" disabled>
-									<i class='fa fa-pause'></i> KYCed
-								</button>
-								@endif
-								@if($output->kyc == 2)
-								<button class="btn btn-xs btn-info" title="KYC Endorse" disabled>
-									<i class='fa fa-eye'></i> KYCing
-								</button>
-								@endif
-								@if($output->kyc == 3)
-								<button class="btn btn-xs btn-danger" title="KYC Rejected" disabled>
-									<i class='fa fa-times'></i> KYC
-								</button>
-								@endif
-								@if($output->kyc == 4)
-								<button class="btn btn-xs btn-primary" title="KYC Approved" disabled>
-									<i class='fa fa-check'></i> KYC
-								</button>
-								@endif
+
+
 							<!-- </form> -->
 							</td>
 						</tr>
@@ -85,6 +109,7 @@
 						<tr>
 							<td></td>
 							<td>Total</td>
+							<td></td>
 							<td>{{round($total_match,8)}}</td>
 							<td></td>
 							<td></td>
@@ -136,6 +161,52 @@
 <script type="text/javascript">
 jQuery(document).ready(function () {
 
+	$('[data-toggle="tooltip"]').tooltip();
+
+	$('.btnApproveCapital').on('click', function () {
+		var outputID 			= $(this).attr('outputID');
+		var outputDate 		= $(this).attr('outputDate');
+		var outputUsername 	= $(this).attr('outputUsername');
+		var outputToMatch 	= $(this).attr('outputToMatch');
+		$.ajax({
+			type: "POST",
+			url: "/master/approval/matchCapital/"+ outputID,
+			beforeSend: function (xhr) {
+				var token = $('meta[name="csrf_token"]').attr('content');
+				if (token) {
+					return xhr.setRequestHeader('X-CSRF-TOKEN', token);
+				}
+			},
+			success: function(msg){
+				if(msg == 1){
+					$.growl.error({
+						message	: 	" ",
+						duration	: 	"3500",
+						title			: 	"<i class='fa fa-exclamation-circle'></i> Not enough PH Queue for distribution."
+					});
+				}else if(msg == 2){
+					$.growl.error({
+						message	: 	" ",
+						duration	: 	"3500",
+						title			: 	"<i class='fa fa-exclamation-circle'></i> No more PH Queue for distribution."
+					});
+				}else if(msg == 3){
+					$("#btnApproved"+outputID).html('<span class="btn-xs btn-primary">Approved</span>');
+					$('#btnApprove'+outputID).hide();
+					$('#btnApproveCapital'+outputID).hide();
+					$.growl.notice({
+						message	: 	"<br><p>Date : <strong>"+outputDate+"</strong></p>"+
+											"<p>Member : <strong>"+outputUsername+"</strong></p>"+
+											"<p>To Match : <strong>"+outputToMatch+"</strong></p>",
+						duration	: 	"3500",
+						title			: 	"<i class='fa fa-check'></i> GH Matched!"
+					});
+				}
+			}
+		});
+
+		//alert(outputID);
+	});
 	$('.btnApprove').on('click', function () {
 
 		var outputID 			= $(this).attr('outputID');
@@ -162,6 +233,7 @@ jQuery(document).ready(function () {
 				}else{
 					$("#btnApproved"+outputID).html('<span class="btn-xs btn-primary">Approved</span>');
 					$('#btnApprove'+outputID).hide();
+					$('#btnApproveCapital'+outputID).hide();
 					$.growl.notice({
 						message	: 	"<br><p>Date : <strong>"+outputDate+"</strong></p>"+
 											"<p>Member : <strong>"+outputUsername+"</strong></p>"+

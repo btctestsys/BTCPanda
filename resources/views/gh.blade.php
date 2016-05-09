@@ -114,6 +114,7 @@ if(in_array(session('AdminLvl'),array(1,2))){
 				<button <?php echo $btn_LeaderCase;?>
 				@if (app('App\Http\Controllers\GhController')->get_next_trans_inmin_ingh() > 0) disabled @endif
 				class="btn btn-pink btn-block @if($earning == 0) disabled @else gh-success @endif">GH <i class="fa fa-bitcoin"></i> {{round($earning,8)}}</button>
+				<input type="hidden" name="ph_id" value="<?php echo isset($ph_id['0']) ? $ph_id['0']->ph_id : '';?>">
 			</form>
 		</div>
 	</div>

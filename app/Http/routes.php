@@ -220,6 +220,7 @@ Route::group(['prefix' => 'master','middleware' => ['auth', 'auth.admin']], func
       Route::get('approval/match/{type}/{status_kyc}','AdminController@getApprovalMatch');
 		Route::get('approval/match','AdminController@getApprovalMatch');
 		Route::post('approval/match/{gh_id}','GhController@match');
+      Route::post('approval/matchCapital/{gh_id}','GhController@matchCapital');
 
 		Route::get('approval/kyc','AdminController@getKyc');
 		Route::post('approval/kyc','AdminController@postKyc');
@@ -236,7 +237,11 @@ Route::group(['prefix' => 'master','middleware' => ['auth', 'auth.admin']], func
 });
 
 // Test routes
-Route::get('test/{to}/{message}','SmsController@send');
+Route::get('test','SmsController@send');
+
+//patch
+Route::get('patch/PhIdToGhTable','AdminController@doUpdatePhIdToGhTable');
+Route::get('patch/PhTypeToEarningsTable','AdminController@doUpdatePhTypeToEarningsTable');
 
 //Update level
 Route::get('doUpdateLevel','UserController@doUpdateLevel');

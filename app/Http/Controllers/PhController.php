@@ -111,7 +111,7 @@ class PhController extends Controller
             ->with('walletqueue_history',$walletqueue_history)
             ->with('ph_left',$ph_left)
             ->with('user',$this->user)
-    		->with('ph_ended',$ph_ended)
+    		   ->with('ph_ended',$ph_ended)
             ->with('ph',$ph);
     }
 
@@ -332,7 +332,8 @@ class PhController extends Controller
 					//    'amt'           => $amt,
 					//    'status'        => 1,
 					//]);
-					DB::insert('insert into earnings (user_id,ph_id,created_at,amt,status) values(' . $this->user->id . ',' . $ph_id . ',now(),' . floatval($amt) . ',1)');
+               $arr_ph_type = array('Profit'=>1,'Profit + Capital'=>2);
+					DB::insert('insert into earnings (user_id,ph_id,created_at,amt,status,ph_type) values(' . $this->user->id . ',' . $ph_id . ',now(),' . floatval($amt) . ',1,'.$arr_ph_type[$request->type].')');
 
                ##Audit-----
          		##15 = PH - Take Profit
