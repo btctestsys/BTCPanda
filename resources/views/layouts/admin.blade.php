@@ -271,6 +271,11 @@
 									<i class="icon-pie-chart"></i>
 									Daily Summary</a>
 								</li>
+								<li >
+									<a href="/master/countryleader">
+									<i class="icon-pie-chart"></i>
+									Country Leaders</a>
+								</li>
 
 							</ul>
 						</li>

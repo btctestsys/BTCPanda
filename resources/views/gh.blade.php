@@ -67,12 +67,15 @@ if(in_array(session('AdminLvl'),array(1,2))){
 
 		<div class="row m-t-20">
 			@if($referral > 0)
-			<form role="form" method="post" action="/get_help/create/referrals">{!! csrf_field() !!}
-			@endif
-				<button  <?php echo $btn_LeaderCase;?>
-				@if (app('App\Http\Controllers\GhController')->get_next_trans_inmin_ingh() > 0) disabled @endif
-				class="btn btn-info btn-block @if($referral == 0) disabled @else gh-success @endif">GH <i class="fa fa-bitcoin"></i> {{round($referral,8)}}</button>
+			<form role="form" method="post" action="/get_help/create/referrals" name="form_referral">{!! csrf_field() !!}
+
 			</form>
+			@endif
+				<button ghType="Referral GH" formName="form_referral" output="{{round($referral,8)}}" <?php echo $btn_LeaderCase;?>
+				@if (app('App\Http\Controllers\GhController')->get_next_trans_inmin_ingh() > 0) disabled @endif
+				class="btn btn-info btn-block @if($referral == 0) disabled @else gh-success @endif">GH
+				<i class="fa fa-bitcoin"></i> {{round($referral,8)}}</button>
+
 		</div>
 	</div>
 </div>
@@ -88,12 +91,14 @@ if(in_array(session('AdminLvl'),array(1,2))){
 
 		<div class="row m-t-20">
 			@if($unilevel > 0)
-			<form role="form" method="post" action="/get_help/create/unilevels">{!! csrf_field() !!}
-			@endif
-				<button <?php echo $btn_LeaderCase;?>
-				@if (app('App\Http\Controllers\GhController')->get_next_trans_inmin_ingh() > 0) disabled @endif
-				class="btn btn-success btn-block @if($unilevel == 0) disabled @else gh-success @endif">GH <i class="fa fa-bitcoin"></i> {{round($unilevel,8)}}</button>
+			<form role="form" method="post" action="/get_help/create/unilevels" name="form_unilevels">{!! csrf_field() !!}
 			</form>
+			@endif
+				<button ghType="Unilevel GH" formName="form_unilevels" output="{{round($unilevel,8)}}" <?php echo $btn_LeaderCase;?>
+				@if (app('App\Http\Controllers\GhController')->get_next_trans_inmin_ingh() > 0) disabled @endif
+				class="btn btn-success btn-block @if($unilevel == 0) disabled @else gh-success @endif">GH
+				<i class="fa fa-bitcoin"></i> {{round($unilevel,8)}}</button>
+
 		</div>
 	</div>
 </div>
@@ -109,13 +114,16 @@ if(in_array(session('AdminLvl'),array(1,2))){
 
 		<div class="row m-t-20">
 			@if($earning > 0)
-			<form role="form" method="post" action="/get_help/create/earnings">{!! csrf_field() !!}
-			@endif
-				<button <?php echo $btn_LeaderCase;?>
-				@if (app('App\Http\Controllers\GhController')->get_next_trans_inmin_ingh() > 0) disabled @endif
-				class="btn btn-pink btn-block @if($earning == 0) disabled @else gh-success @endif">GH <i class="fa fa-bitcoin"></i> {{round($earning,8)}}</button>
+			<form role="form" method="post" action="/get_help/create/earnings" name="form_earnings">{!! csrf_field() !!}
 				<input type="hidden" name="ph_id" value="<?php echo isset($ph_id['0']) ? $ph_id['0']->ph_id : '';?>">
 			</form>
+			@endif
+				<button ghType="Profit GH" formName="form_earnings" output="{{round($earning,8)}}" <?php echo $btn_LeaderCase;?>
+				@if (app('App\Http\Controllers\GhController')->get_next_trans_inmin_ingh() > 0) disabled @endif
+				class="btn btn-pink btn-block @if($earning == 0) disabled @else gh-success @endif">GH
+				<i class="fa fa-bitcoin"></i> {{round($earning,8)}}</button>
+
+
 		</div>
 	</div>
 </div>
@@ -212,9 +220,29 @@ if(in_array(session('AdminLvl'),array(1,2))){
 @section('js')
 <script>
 //Success Message
+//$('.gh-success').click(function(){
+//swal("GH Submitted!", "We will find a match for it within 1-5 days.", "success")
+//});
 $('.gh-success').click(function(){
-swal("GH Submitted!", "We will find a match for it within 1-5 days.", "success")
-});
+	var profit = $(this).attr('output');
+	var formName = $(this).attr('formName');
+	var ghType = $(this).attr('ghType');
+	swal({
+	  title: ghType +" : <i class='fa fa-bitcoin'></i> "+ profit,
+		text: "<h2>Are you sure?</h2>",
+	  type: 'warning',
+	  showCancelButton: true,
+	  confirmButtonColor: '#5cb85c',
+	  cancelButtonColor: '#d33',
+	  confirmButtonText: 'Yes, Lets GH !',
+		cancelButtonText: 'No'
+	}).then(function(isConfirm) {
+	  if (isConfirm) {
+	    swal("GH Submitted!", "We will find a match for it within 1-5 days.", "success")
+			document.forms[ formName ].submit();
+	  }
+	})
+})
 </script>
 @stop
 

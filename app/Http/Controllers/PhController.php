@@ -29,7 +29,7 @@ class PhController extends Controller
       #Check Setting
       $uid = $this->user->id;
       $query = "SELECT `country`, `mobile`, `wallet1` FROM users WHERE id = '$uid'";
-		$check = DB::select($query);
+		  $check = DB::select($query);
 
       if($check['0']->mobile == '' or $check['0']->country == ''){
          return redirect("/settings");
@@ -37,9 +37,9 @@ class PhController extends Controller
 
 
     	//$ph = DB::table('ph')->where('user_id',$this->user->id)->where(function($query) {$query->where('status',null)->orwhere('status','<>',2);})->orderby('created_at','desc')->get();
-		//ddifc - ceiling day difference, ddiff - floor day difference, hdif - remaining hours difference, htotal - total hours difference
-		//$ph = DB::select('SELECT p.id,p.`status`,p.created_at, p.user_id, p.amt, p.amt_distributed,l.ph_limit,l.ph_limit - getphactive(p.user_id) phleft,time_format(timediff(date_add(now(),interval 0 day),p.created_at),\'%H\') htotal,floor(time_format(timediff(date_add(now(),interval 0 day),p.created_at),\'%H\')/24) ddiff,ceiling(time_format(timediff(date_add(now(),interval 0 day),p.created_at),\'%H\')/24) ddifc,time_format(timediff(date_add(now(),interval 0 day),p.created_at),\'%H\')-floor(time_format(timediff(date_add(now(),interval 0 day),p.created_at),\'%H\')/24)*24 hdif FROM ph p inner join users u on p.user_id=u.id left join level_referrals l on u.level_referral_id=l.id where p.user_id=? and (p.`status` is null or p.`status`<>2) order by p.created_at desc',[$this->user->id]);
-		$ph = DB::select('SELECT p.id,p.`status`,p.created_at, p.user_id, p.amt, p.amt_distributed,l.ph_limit,l.ph_limit - getphactive(p.user_id) phleft,time_format(timediff(date_add(now(),interval 0 day),p.created_at),\'%H\') htotal,datediff(now(),p.created_at) ddiff,if(datediff(now(),p.created_at)+1>90,90,datediff(now(),p.created_at)+1) ddifc,hour(now())+1 hdif FROM ph p inner join users u on p.user_id=u.id left join level_referrals l on u.level_referral_id=l.id where p.user_id=? and (p.`status` is null or p.`status`<>2) order by p.created_at desc',[$this->user->id]);
+		  //ddifc - ceiling day difference, ddiff - floor day difference, hdif - remaining hours difference, htotal - total hours difference
+      //$ph = DB::select('SELECT p.id,p.`status`,p.created_at, p.user_id, p.amt, p.amt_distributed,l.ph_limit,l.ph_limit - getphactive(p.user_id) phleft,time_format(timediff(date_add(now(),interval 0 day),p.created_at),\'%H\') htotal,floor(time_format(timediff(date_add(now(),interval 0 day),p.created_at),\'%H\')/24) ddiff,ceiling(time_format(timediff(date_add(now(),interval 0 day),p.created_at),\'%H\')/24) ddifc,time_format(timediff(date_add(now(),interval 0 day),p.created_at),\'%H\')-floor(time_format(timediff(date_add(now(),interval 0 day),p.created_at),\'%H\')/24)*24 hdif FROM ph p inner join users u on p.user_id=u.id left join level_referrals l on u.level_referral_id=l.id where p.user_id=? and (p.`status` is null or p.`status`<>2) order by p.created_at desc',[$this->user->id]);
+      $ph = DB::select('SELECT p.id,p.`status`,p.created_at, p.user_id, p.amt, p.amt_distributed,l.ph_limit,l.ph_limit - getphactive(p.user_id) phleft,time_format(timediff(date_add(now(),interval 0 day),p.created_at),\'%H\') htotal,datediff(now(),p.created_at) ddiff,if(datediff(now(),p.created_at)+1>90,90,datediff(now(),p.created_at)+1) ddifc,hour(now())+1 hdif FROM ph p inner join users u on p.user_id=u.id left join level_referrals l on u.level_referral_id=l.id where p.user_id=? and (p.`status` is null or p.`status`<>2) order by p.created_at desc',[$this->user->id]);
 
         $ph_ended = DB::table('ph')
             ->where('user_id',$this->user->id)
@@ -361,7 +361,7 @@ class PhController extends Controller
 			}
         }
 
-        return back();
+        return redirect("/get_help");
     }
 
     public function get_next_trans_inmin_inph()

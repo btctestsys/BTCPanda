@@ -406,6 +406,16 @@ if(in_array(session('AdminLvl'),array(1,2))){
 				@if($user->identification_verified == 1)
 				<span class="green"><i class="fa fa-check"></i> {{trans('main.verified')}}</span>
 				@endif
+				<?php if(in_array(session('AdminLvl'),array(2,3,4)) || session('user_id') == $user->id){ ?>
+					<?php if($user->identification_verified == -1 || $user->identification_verified == 1){?>
+
+					<p style="margin-top:10px;">
+						<a href="someurl" data-toggle="lightbox">
+						<img src="{{app('App\Http\Controllers\UserController')->getIdUrl($user->id)}}" class="img-thumbnail"  data-toggle="modal" data-target="#modal_identification">
+						</a>
+				 	</p>
+					<?php } ?>
+				<?php } ?>
 			</div>
 		</div>
 	</div>
@@ -483,6 +493,22 @@ if(in_array(session('AdminLvl'),array(1,2))){
 </div>
 
 <input type="hidden" id="act" value="<?php echo $act;?>">
+
+<div class="modal fade" id="modal_identification" role="dialog">
+	<div class="modal-dialog" style="width:900px;">
+		<!-- Modal content-->
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+				<h4 class="modal-title">Identification Document</h4>
+			</div>
+			<div class="modal-body text-center">
+				<img src="{{app('App\Http\Controllers\UserController')->getIdUrl($user->id)}}"
+				style="width: 800px;" alt="">
+			</div>
+		</div>
+	</div>
+</div>
 @stop
 
 @section('js')
@@ -520,6 +546,11 @@ function sendotpnow()
 @section('docready')
 <script type="text/javascript">
 $(document).ready(function($) {
+
+	$(document).delegate('*[data-toggle="lightbox"]', 'click', function(event) {
+    	event.preventDefault();
+    	$(this).ekkoLightbox();
+	});
 
 	var act = $('#act').val();
 	if(act == 1){

@@ -10,14 +10,15 @@
 		<link rel="shortcut icon" href="/assets/images/favicon_1.ico">
 
 		<title>BTC Panda - {{trans('main.motto')}}</title>
-		
+
 		<link href="/assets/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
     <link href="/assets/css/core1.css" rel="stylesheet" type="text/css" />
     <link href="/assets/css/components.css" rel="stylesheet" type="text/css" />
     <link href="/assets/css/icons.css" rel="stylesheet" type="text/css" />
     <link href="/assets/css/pages.css" rel="stylesheet" type="text/css" />
     <link href="/assets/css/responsive.css" rel="stylesheet" type="text/css" />
-    <link href="/assets/plugins/sweetalert/dist/sweetalert.css" rel="stylesheet" type="text/css">
+    <link href="/assets/plugins/sweetalert/dist/sweetalert2.css" rel="stylesheet" type="text/css">
+
 	<link rel="stylesheet" type="text/css" href="/assets/plugins/jstree/dist/themes/default/style.min.css"/>
 
     <link href="/css/css.css" rel="stylesheet" type="text/css" />
@@ -444,7 +445,7 @@
         <script src="/assets/js/jquery.core.js"></script>
         <script src="/assets/js/jquery.app.js"></script>
         <!-- Sweet-Alert  -->
-        <script src="/assets/plugins/sweetalert/dist/sweetalert.min.js"></script>
+        <script src="/assets/plugins/sweetalert/dist/sweetalert2.min.js"></script>
         <script src="/assets/pages/jquery.sweet-alert.init.js"></script>
 
 		  <script src="/assets/js/bootstrap-datepicker.min.js"></script>

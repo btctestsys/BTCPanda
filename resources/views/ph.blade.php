@@ -20,6 +20,7 @@ if(in_array(session('AdminLvl'),array(1,2))){
 
 <div class="row">
 {{--*/ $ph_cnt =  1 /*--}}
+<?php $a = 1;?>
 @foreach($ph as $output)
 <div class="col-lg-4">
 	<div class="panel panel-color @if($output->status == 1 && $output->ddifc >= 15) panel-success @else panel-danger @endif">
@@ -31,16 +32,25 @@ if(in_array(session('AdminLvl'),array(1,2))){
 			<button class="btn-rounded btn-primary btn-block btn-custom" disabled><i class="fa fa-bitcoin"></i> {{round($output->amt,8)}} x 1% x {{$output->ddifc}} - {{round($output->earnings_claimed,2)}} = <i class="fa fa-bitcoin"></i> {{$output->earnings}}</button>
 
 			@if($output->status == 1 && $output->ddifc >= 15)
-			<form role="form" method="post" action="/add/earnings">{!! csrf_field() !!}
+			<form role="form" method="post" action="/add/earnings" id="form_profit<?php echo $a;?>" name="form_profit<?php echo $a;?>">
+				{!! csrf_field() !!}
 				<input type="hidden" name="hidden" value="{{Crypt::encrypt($output->id.'~'.$output->earnings)}}">
 				<input type="hidden" name="type" value="Profit">
-				<button <?php echo $btn_LeaderCase;?> class="btn-rounded btn-success btn-block m-t-10 @if($output->earnings == 0)  @else claim-earnings @endif" @if($output->earnings == 0) disabled @endif>{{trans('main.gh_earnings')}} <i class="fa fa-bitcoin"></i> {{$output->earnings}}</button>
 			</form>
-			<form role="form" method="post" action="/add/earnings">{!! csrf_field() !!}
+			<button outputEarning="{{$output->earnings}}" formNo="<?php echo $a;?>" <?php echo $btn_LeaderCase;?>
+			 class="btn_profit btn-rounded btn-success btn-block m-t-10 @if($output->earnings == 0)  @else claim-earnings @endif"
+			 @if($output->earnings == 0) disabled @endif>{{trans('main.gh_earnings')}}
+			 <i class="fa fa-bitcoin"></i> {{$output->earnings}}
+		 </button>
+
+			<form role="form" method="post" action="/add/earnings" id="form_profitCapital<?php echo $a;?>" name="form_profitCapital<?php echo $a;?>">{!! csrf_field() !!}
 				<input type="hidden" name="hidden" value="{{Crypt::encrypt($output->id.'~'.($output->earnings+$output->amt).'~1')}}">
 				<input type="hidden" name="type" value="Profit + Capital">
-				<button  <?php echo $btn_LeaderCase;?> class="btn-rounded btn-success btn-block m-t-10 claim-earnings">{{trans('main.gh_all')}} <i class="fa fa-bitcoin"></i> {{round($output->earnings + $output->amt,8)}}</button>
 			</form>
+			<button outputEarning="{{round($output->earnings + $output->amt,8)}}" formNo="<?php echo $a;?>" <?php echo $btn_LeaderCase;?>
+				class="btn_profitCapital btn-rounded btn-success btn-block m-t-10 claim-earnings">
+				{{trans('main.gh_all')}} <i class="fa fa-bitcoin"></i> {{round($output->earnings + $output->amt,8)}}
+			</button>
 			@else
 			<button class="btn-rounded btn-danger btn-block m-t-10" disabled>{{trans('main.gh_earnings')}} <i class="fa fa-bitcoin"></i> {{$output->earnings}}</button>
 			<button class="btn-rounded btn-danger btn-block m-t-10" disabled>{{trans('main.gh_all')}} <i class="fa fa-bitcoin"></i> {{round($output->earnings + $output->amt,8)}}</button>
@@ -100,6 +110,7 @@ if(in_array(session('AdminLvl'),array(1,2))){
 	</div>
 </div>
 {{--*/ $ph_cnt =  $ph_cnt + 1 /*--}}
+<?php $a = $a+1;?>
 @endforeach
 </div>
 
@@ -167,18 +178,19 @@ if(in_array(session('AdminLvl'),array(1,2))){
 			<h3 class="panel-title">{{trans('main.add_ph')}}</h3>
 		</div>
 		<div class="panel-body">
-			<form role="form" method="post" action="/provide_help/create">
+			<form role="form" method="post" action="/provide_help/create" id="form_ph" name="form_ph">
 			{!! csrf_field() !!}
 	            <div class="form-group">
 	                <label for="PH Amount">{{trans('main.ph_amount')}} ({{trans('main.ph_left')}}: @if ($ph_left<0.0001) 0 @else {{$ph_left}} @endif BTC)</label>
 	                <input type="text" class="form-control" id="amt" placeholder="{{trans('main.enter_btc')}}" name="amt">
 	            </div>
-	            <button data-toggle="modal" data-target="#modalNewPH" type="submit" <?php echo $btn_LeaderCase;?>
+			</form>
+	            <button type="reset" <?php echo $btn_LeaderCase;?>
 				@if (app('App\Http\Controllers\PhController')->get_next_trans_inmin_inph() > 0) disabled @endif
 				class="btn btn-warning waves-effect waves-light btn-block ph-clicked">{{trans('main.submit')}}</button>
 
 
-	        </form>
+
 		</div>
 	</div>
 </div>
@@ -228,19 +240,79 @@ if(in_array(session('AdminLvl'),array(1,2))){
 @section('js')
 <script>
 //Success Message
-$('.claim-earnings').click(function(){
-swal("Processing", "System is checking if your GH is valid. Please allow some time to reflect in your GH page.", "success")
-window.location=('/get_help');
-});
+/*$('.claim-earnings').click(function(){
+	swal("Processing", "System is checking if your GH is valid. Please allow some time to reflect in your GH page.", "success")
+	window.location=('/get_help');
+});*/
 
 $('.ph-clicked').click(function(){
-swal("Adding PH", "Please wait till this popup closes.", "success")
-$('.ph-clicked').toggle();
+	swal({
+	  title: 'Are you sure want to Adding PH ?',
+	  text: "You won't be able to revert this!",
+	  type: 'warning',
+	  showCancelButton: true,
+	  confirmButtonColor: '#5cb85c',
+	  cancelButtonColor: '#d33',
+	  confirmButtonText: 'Yes, Lets PH!',
+		cancelButtonText: 'No'
+	}).then(function(isConfirm) {
+	  if (isConfirm) {
+	    swal("Adding PH", "Please wait till this popup closes.", "success")
+			document.form_ph.submit();
+	  }
+	})
 });
+
+$('.btn_profit').click(function(){
+	var profit = $(this).attr('outputEarning');
+	var formNo = $(this).attr('formNo');
+	var formName = 'form_profit'+formNo;
+	swal({
+	  title: "Take Profit : <i class='fa fa-bitcoin'></i> "+ profit,
+		text: "<h2>Are you sure?</h2>",
+	  type: 'warning',
+	  showCancelButton: true,
+	  confirmButtonColor: '#5cb85c',
+	  cancelButtonColor: '#d33',
+	  confirmButtonText: 'Yes, Take Profit !',
+		cancelButtonText: 'No'
+	}).then(function(isConfirm) {
+	  if (isConfirm) {
+	    swal("Processing", "System is checking if your GH is valid. Please allow some time to reflect in your GH page.", "success")
+			document.forms[ formName ].submit();
+			//window.location=('/get_help');
+	  }
+	})
+})
+
+$('.btn_profitCapital').click(function(){
+	var profit = $(this).attr('outputEarning');
+	var formNo = $(this).attr('formNo');
+	var formName = 'form_profitCapital'+formNo;
+	swal({
+	  title: "Take Profit + Capital : <i class='fa fa-bitcoin'></i> "+ profit,
+	  text: "<h2>Are you sure?</h2>",
+	  type: 'warning',
+	  showCancelButton: true,
+	  confirmButtonColor: '#5cb85c',
+	  cancelButtonColor: '#d33',
+	  confirmButtonText: 'Yes, Take Profit + Capital !',
+		cancelButtonText: 'No'
+	}).then(function(isConfirm) {
+	  if (isConfirm) {
+	    swal("Processing", "System is checking if your GH is valid. Please allow some time to reflect in your GH page.", "success")
+			document.forms[ formName ].submit();
+			//window.location=('/get_help');
+	  }
+	})
+})
+
 </script>
 
 @stop
 
 @section('docready')
+<script>
 
+</script>
 @stop

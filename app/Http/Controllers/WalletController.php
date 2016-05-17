@@ -34,7 +34,6 @@ class WalletController extends Controller
         }
         $available_balance_final = $available_balance - $wallet_queue - (app('App\Http\Controllers\PhController')->sumPhActive() - app('App\Http\Controllers\PhController')->sumPhActiveDistributed());
 		//---------------------------------------
-
         return view('wallet')
            ->with('wallet',$wallet)
            ->with('user',$this->user)

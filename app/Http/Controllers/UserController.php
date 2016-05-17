@@ -646,11 +646,11 @@ class UserController extends Controller
 				session(['isAdmin' => 'true']);
 				session(['AdminLvl' => $user->adm]);
 				session(['AdminGene' => $user->gene]);
-            session(['username' => $user->username]);
+        session(['username' => $user->username]);
 			}else{
 				session(['user_id' => $user->id]);
-            session(['username' => $user->username]);
-
+        session(['username' => $user->username]);
+        session(['AdminLvl' => '0']);
 			}
 		}
     }

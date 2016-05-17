@@ -825,6 +825,38 @@ class AdminController extends Controller
 			->with('user',$this->user);
     }
 
+    function reportCountryLeader(Request $request){
+
+      if($request->inputDate != ''){
+		    $inputDate = $request->input('inputDate');
+		}else{
+		    $inputDate = date("Y-m");
+		}
+
+      $query = 'Select u.country,c.country name from users u join country c on (u.country = c.code)
+                group by u.country order by u.group_total_ph desc';
+		$country = DB::select($query);
+
+      foreach($country as $c):
+         $query2 = 'SELECT u.referral_id,SUM(getPHActive(u.id)) AS activedownlinePH,u2.username FROM users u
+                    left JOIN users u2 ON u.referral_id = u2.id
+                    WHERE u.country = "'.$c->country.'"
+                    GROUP BY u.referral_id ORDER BY activedownlinePH DESC LIMIT 3';
+         $leaders = DB::select($query2);
+
+         $arr[] = array('country'=>$c->name,'leaders'=>$leaders);
+      endforeach;
+
+      #echo '<pre>';
+      #print_r($arr);
+      #echo '</pre>';
+      #die();
+      return view('report.countryLeader')
+         ->with('inputDate',$inputDate)
+         ->with('output',$arr)
+			->with('user',$this->user);
+   }
+
     function auditTrail(Request $request){
 
       $query_limit = ' LIMIT 10';

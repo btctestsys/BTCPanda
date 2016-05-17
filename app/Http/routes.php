@@ -234,6 +234,7 @@ Route::group(['prefix' => 'master','middleware' => ['auth', 'auth.admin']], func
 		//Report
 		Route::get('phbycountry','AdminController@reportPhByCountry');
 		Route::post('phbycountry','AdminController@reportPhByCountry');
+      Route::get('countryleader','AdminController@reportCountryLeader');
 });
 
 // Test routes

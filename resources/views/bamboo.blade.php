@@ -53,6 +53,14 @@
             <div class="tab-pane" id="bamboo-details" style="display: block;">
             	<div class="row">
                 	<div class="col-sm-12">
+						<p @if(Agent::isMobile()) class="small" @endif>
+                  	<b>{{trans('main.wallet_links')}}</b><br/>
+                  	<a target="_blank" href="https://blockchain.info/address/{{$user->wallet->wallet_address}}">Blockchain</a>,
+                  	<a target="_blank" href="https://blockexplorer.com/address/{{$user->wallet->wallet_address}}">Blockexplorer</a>,
+                  	<a target="_blank" href="https://chain.so/address/BTC/{{$user->wallet->wallet_address}}">SoChain</a>
+                  </p>
+                  <hr/>
+
 						<div class="widget-inline-box text-center">
 							<h3 class="text-success"><i class="fa fa-thumb-tack"></i> <b>{{$user->bamboo_balance}}</b></h3>
 							<h4 class="text-muted">{{trans('main.pin_balance')}}</h4>
